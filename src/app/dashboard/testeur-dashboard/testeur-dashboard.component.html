@@ -1,14 +1,232 @@
-<div class="min-h-screen flex flex-col">
-    <app-navbar></app-navbar>
-  
-    <div class="flex-1 flex">
-      <app-sidebar class="w-64 flex-shrink-0"></app-sidebar>
-      <div class="flex-1 flex flex-col">
-        <main class="flex-1 p-4 overflow-y-auto">
-          <!-- Contenu principal ici -->
-        </main>
-        <app-footer class="flex-shrink-0"></app-footer>
+<app-navbar></app-navbar>
+
+<div class="flex overflow-hidden bg-white pt-16">
+  <app-sidebar></app-sidebar>
+
+  <div
+    id="main-content"
+    class="h-full w-full bg-gray-50 dark:bg-darksecondry relative overflow-y-auto lg:ml-64"
+  >
+    <main>
+      <div class="mx-auto max-w-screen-xl p-4 md:p-6 2xl:p-10">
+        <div
+          class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 2xl:gap-7.5"
+        >
+          <!-- Card Item Start -->
+          <div
+            class="rounded-sm border border-gray-300 bg-white p-3 px-7.5 py-6 shadow-md dark:border-gray-600 dark:bg-darkbackground"
+          >
+            <div
+              class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-gray-700"
+            >
+              <svg
+                class="fill-primary dark:fill-white"
+                width="16"
+                height="16"
+                viewBox="0 0 22 16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M11 15.1156C4.19376 15.1156 0.825012 8.61876 0.687512 8.34376C0.584387 8.13751 0.584387 7.86251 0.687512 7.65626C0.825012 7.38126 4.19376 0.918762 11 0.918762C17.8063 0.918762 21.175 7.38126 21.3125 7.65626C21.4156 7.86251 21.4156 8.13751 21.3125 8.34376C21.175 8.61876 17.8063 15.1156 11 15.1156ZM2.26876 8.00001C3.02501 9.27189 5.98126 13.5688 11 13.5688C16.0188 13.5688 18.975 9.27189 19.7313 8.00001C18.975 6.72814 16.0188 2.43126 11 2.43126C5.98126 2.43126 3.02501 6.72814 2.26876 8.00001Z"
+                ></path>
+                <path
+                  d="M11 10.9219C9.38438 10.9219 8.07812 9.61562 8.07812 8C8.07812 6.38438 9.38438 5.07812 11 5.07812C12.6156 5.07812 13.9219 6.38438 13.9219 8C13.9219 9.61562 12.6156 10.9219 11 10.9219ZM11 6.625C10.2437 6.625 9.625 7.24375 9.625 8C9.625 8.75625 10.2437 9.375 11 9.375C11.7563 9.375 12.375 8.75625 12.375 8C12.375 7.24375 11.7563 6.625 11 6.625Z"
+                ></path>
+              </svg>
+            </div>
+
+            <div class="mt-4 flex items-end justify-between">
+              <div>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                  3K
+                </p>
+                <span
+                  class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                  >Total Errors</span
+                >
+              </div>
+
+              <span
+                class="flex items-center gap-1 text-sm font-medium text-green-500"
+              >
+                0.43%
+                <svg
+                  class="fill-green-500"
+                  width="10"
+                  height="11"
+                  viewBox="0 0 10 11"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M4.35716 2.47737L0.908974 5.82987L5.0443e-07 4.94612L5 0.0848689L10 4.94612L9.09103 5.82987L5.64284 2.47737L5.64284 10.0849L4.35716 10.0849L4.35716 2.47737Z"
+                  ></path>
+                </svg>
+              </span>
+            </div>
+          </div>
+          <!-- Card Item End -->
+             <!-- Card Item Start -->
+          <div
+          class="rounded-sm border border-gray-300 bg-white p-3 px-7.5 py-6 shadow-md dark:border-gray-600 dark:bg-darkbackground"
+        >
+          <div
+            class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-gray-700"
+          >
+            <svg
+              class="fill-primary dark:fill-white"
+              width="16"
+              height="16"
+              viewBox="0 0 22 16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M11 15.1156C4.19376 15.1156 0.825012 8.61876 0.687512 8.34376C0.584387 8.13751 0.584387 7.86251 0.687512 7.65626C0.825012 7.38126 4.19376 0.918762 11 0.918762C17.8063 0.918762 21.175 7.38126 21.3125 7.65626C21.4156 7.86251 21.4156 8.13751 21.3125 8.34376C21.175 8.61876 17.8063 15.1156 11 15.1156ZM2.26876 8.00001C3.02501 9.27189 5.98126 13.5688 11 13.5688C16.0188 13.5688 18.975 9.27189 19.7313 8.00001C18.975 6.72814 16.0188 2.43126 11 2.43126C5.98126 2.43126 3.02501 6.72814 2.26876 8.00001Z"
+              ></path>
+              <path
+                d="M11 10.9219C9.38438 10.9219 8.07812 9.61562 8.07812 8C8.07812 6.38438 9.38438 5.07812 11 5.07812C12.6156 5.07812 13.9219 6.38438 13.9219 8C13.9219 9.61562 12.6156 10.9219 11 10.9219ZM11 6.625C10.2437 6.625 9.625 7.24375 9.625 8C9.625 8.75625 10.2437 9.375 11 9.375C11.7563 9.375 12.375 8.75625 12.375 8C12.375 7.24375 11.7563 6.625 11 6.625Z"
+              ></path>
+            </svg>
+          </div>
+
+          <div class="mt-4 flex items-end justify-between">
+            <div>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                456K
+              </p>
+              <span
+                class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                >Accepted Errors</span
+              >
+            </div>
+
+            <span
+              class="flex items-center gap-1 text-sm font-medium text-green-500"
+            >
+              0.43%
+              <svg
+                class="fill-green-500"
+                width="10"
+                height="11"
+                viewBox="0 0 10 11"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M4.35716 2.47737L0.908974 5.82987L5.0443e-07 4.94612L5 0.0848689L10 4.94612L9.09103 5.82987L5.64284 2.47737L5.64284 10.0849L4.35716 10.0849L4.35716 2.47737Z"
+                ></path>
+              </svg>
+            </span>
+          </div>
+        </div>
+        <!-- Card Item End -->
+           <!-- Card Item Start -->
+           <div
+           class="rounded-sm border border-gray-300 bg-white p-3 px-7.5 py-6 shadow-md dark:border-gray-600 dark:bg-darkbackground"
+         >
+           <div
+             class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-gray-700"
+           >
+             <svg
+               class="fill-primary dark:fill-white"
+               width="16"
+               height="16"
+               viewBox="0 0 22 16"
+               xmlns="http://www.w3.org/2000/svg"
+             >
+               <path
+                 d="M11 15.1156C4.19376 15.1156 0.825012 8.61876 0.687512 8.34376C0.584387 8.13751 0.584387 7.86251 0.687512 7.65626C0.825012 7.38126 4.19376 0.918762 11 0.918762C17.8063 0.918762 21.175 7.38126 21.3125 7.65626C21.4156 7.86251 21.4156 8.13751 21.3125 8.34376C21.175 8.61876 17.8063 15.1156 11 15.1156ZM2.26876 8.00001C3.02501 9.27189 5.98126 13.5688 11 13.5688C16.0188 13.5688 18.975 9.27189 19.7313 8.00001C18.975 6.72814 16.0188 2.43126 11 2.43126C5.98126 2.43126 3.02501 6.72814 2.26876 8.00001Z"
+               ></path>
+               <path
+                 d="M11 10.9219C9.38438 10.9219 8.07812 9.61562 8.07812 8C8.07812 6.38438 9.38438 5.07812 11 5.07812C12.6156 5.07812 13.9219 6.38438 13.9219 8C13.9219 9.61562 12.6156 10.9219 11 10.9219ZM11 6.625C10.2437 6.625 9.625 7.24375 9.625 8C9.625 8.75625 10.2437 9.375 11 9.375C11.7563 9.375 12.375 8.75625 12.375 8C12.375 7.24375 11.7563 6.625 11 6.625Z"
+               ></path>
+             </svg>
+           </div>
+
+           <div class="mt-4 flex items-end justify-between">
+             <div>
+               <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                 3.456K
+               </p>
+               <span
+                 class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                 >Filtred Errors</span
+               >
+             </div>
+
+             <span
+               class="flex items-center gap-1 text-sm font-medium text-green-500"
+             >
+               0.43%
+               <svg
+                 class="fill-green-500"
+                 width="10"
+                 height="11"
+                 viewBox="0 0 10 11"
+                 xmlns="http://www.w3.org/2000/svg"
+               >
+                 <path
+                   d="M4.35716 2.47737L0.908974 5.82987L5.0443e-07 4.94612L5 0.0848689L10 4.94612L9.09103 5.82987L5.64284 2.47737L5.64284 10.0849L4.35716 10.0849L4.35716 2.47737Z"
+                 ></path>
+               </svg>
+             </span>
+           </div>
+         </div>
+         <!-- Card Item End -->
+            <!-- Card Item Start -->
+            <div
+            class="rounded-sm border border-gray-300 bg-white p-3 px-7.5 py-6 shadow-md dark:border-gray-600 dark:bg-darkbackground"
+          >
+            <div
+              class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-gray-700"
+            >
+              <svg
+                class="fill-primary dark:fill-white"
+                width="16"
+                height="16"
+                viewBox="0 0 22 16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M11 15.1156C4.19376 15.1156 0.825012 8.61876 0.687512 8.34376C0.584387 8.13751 0.584387 7.86251 0.687512 7.65626C0.825012 7.38126 4.19376 0.918762 11 0.918762C17.8063 0.918762 21.175 7.38126 21.3125 7.65626C21.4156 7.86251 21.4156 8.13751 21.3125 8.34376C21.175 8.61876 17.8063 15.1156 11 15.1156ZM2.26876 8.00001C3.02501 9.27189 5.98126 13.5688 11 13.5688C16.0188 13.5688 18.975 9.27189 19.7313 8.00001C18.975 6.72814 16.0188 2.43126 11 2.43126C5.98126 2.43126 3.02501 6.72814 2.26876 8.00001Z"
+                ></path>
+                <path
+                  d="M11 10.9219C9.38438 10.9219 8.07812 9.61562 8.07812 8C8.07812 6.38438 9.38438 5.07812 11 5.07812C12.6156 5.07812 13.9219 6.38438 13.9219 8C13.9219 9.61562 12.6156 10.9219 11 10.9219ZM11 6.625C10.2437 6.625 9.625 7.24375 9.625 8C9.625 8.75625 10.2437 9.375 11 9.375C11.7563 9.375 12.375 8.75625 12.375 8C12.375 7.24375 11.7563 6.625 11 6.625Z"
+                ></path>
+              </svg>
+            </div>
+
+            <div class="mt-4 flex items-end justify-between">
+              <div>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                  $3.456K
+                </p>
+                <span
+                  class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                  >Invalid Errors</span
+                >
+              </div>
+
+              <span
+                class="flex items-center gap-1 text-sm font-medium text-green-500"
+              >
+                0.43%
+                <svg
+                  class="fill-green-500"
+                  width="10"
+                  height="11"
+                  viewBox="0 0 10 11"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M4.35716 2.47737L0.908974 5.82987L5.0443e-07 4.94612L5 0.0848689L10 4.94612L9.09103 5.82987L5.64284 2.47737L5.64284 10.0849L4.35716 10.0849L4.35716 2.47737Z"
+                  ></path>
+                </svg>
+              </span>
+            </div>
+          </div>
+          <!-- Card Item End -->
+        </div>
       </div>
-    </div>
+    </main>
+    <app-footer></app-footer>
+  </div>
 </div>
-  
