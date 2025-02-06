@@ -1,0 +1,10 @@
+.dark {
+  .mat-mdc-table {
+    background-color: transparent;
+    
+    .mat-mdc-header-cell,
+    .mat-mdc-cell {
+      color: white;
+    }
+  }
+} 

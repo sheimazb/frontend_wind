@@ -7,9 +7,11 @@
     id="main-content"
     class="h-full w-full bg-gray-50 dark:bg-darksecondry relative overflow-y-auto lg:ml-64"
   >
-    <main>
-      <app-content-dash-admin></app-content-dash-admin>
-    </main>
-    <app-footer></app-footer>
+    <div class="flex flex-col min-h-screen">
+      <main class="flex-grow">
+        <router-outlet></router-outlet>
+      </main>
+      <app-footer class="mt-auto"></app-footer>
+    </div>
   </div>
 </div>
