@@ -57,6 +57,27 @@
           </li>
           <li>
             <a
+              (click)="onStaffClick()"
+              [class.bg-gray-100]="activeMenu === 'staff'"
+              [class.dark:bg-gray-700]="activeMenu === 'staff'"
+              class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
+            >
+            <svg
+            class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12 2a4 4 0 110 8 4 4 0 010-8zm-6 16c0-3 3-5 6-5s6 2 6 5v2H6v-2zm12 2v-2c0-1.1-.9-2-2-2h-2c2 0 4 1 4 3v1h2v-1z"
+            ></path>
+          </svg>
+          <span class="ml-3">Staff</span>
+          
+            </a>
+          </li>
+          <li>
+            <a
               (click)="onStatsClick()"
               [class.bg-gray-100]="activeMenu === 'stats'"
               [class.dark:bg-gray-700]="activeMenu === 'stats'"

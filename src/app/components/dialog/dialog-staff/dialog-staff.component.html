@@ -1,0 +1,100 @@
+  <div class=" mx-auto w-full dark:bg-gray-800 bg-gray-100 p-6 rounded-sm shadow-lg">
+    <h2 class="dark:text-white text-2xl font-semibold mb-6">Add Staff</h2>
+    <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+      <!-- Name Field -->
+      <div class="space-y-4">
+        <div class="flex flex-col">
+          <label for="name" class="dark:text-white font-medium mb-2">Name</label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            class="dark:bg-gray-700 bg-white text-white p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            placeholder="Enter your name"
+          />
+          <small class="text-red-500" *ngIf="contactForm.get('name')?.invalid && contactForm.get('name')?.touched">
+            Name is required.
+          </small>
+        </div>
+
+        <!-- Email Field -->
+        <div class="flex flex-col">
+          <label for="email" class="dark:text-white font-medium mb-2">Email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="dark:bg-gray-700 bg-white text-white p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            placeholder="Enter your email"
+          />
+          <small class="text-red-500" *ngIf="contactForm.get('email')?.invalid && contactForm.get('email')?.touched">
+            Valid email is required.
+          </small>
+        </div>
+<div  class="flex flex-col ">
+  <mat-radio-group aria-label="Select an option">
+    <mat-radio-button value="1">
+      <span class="dark:text-white  text-black">Tester</span>
+    </mat-radio-button>
+    <mat-radio-button  value="2">
+      <span class="dark:text-white text-black">Developer</span></mat-radio-button>
+    <mat-radio-button   value="2">
+      <span class="dark:text-white text-black">Manager</span></mat-radio-button>
+</mat-radio-group>
+</div>
+        <!-- Message Field -->
+        <div class="flex flex-col">
+          <label for="message" class="dark:text-white font-medium mb-2">Team</label>
+          <select
+          id="subject"
+          name="subject"
+          class="mt-1 block w-full px-4 py-2 bg-white dark:bg-gray-700 text-black dark:text-white border border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option disabled selected>Select team</option>
+          <option>Front</option>
+          <option>Backend</option>
+          <option>Devops</option>
+        </select>
+        
+        </div>
+          <!-- Message Field -->
+          <div class="flex flex-col">
+            <label for="message" class="dark:text-white font-medium mb-2">Project</label>
+            <select
+            id="subject"
+            name="subject"
+            class="mt-1 block w-full px-4 py-2 bg-white dark:bg-gray-700 text-black dark:text-white border border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option disabled selected>Select project</option>
+            <option>Project 1</option>
+            <option>Project 2</option>
+            <option>Project 3</option>
+          </select>
+          
+          </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="mt-6 flex items-center justify-end">
+        <button
+          type="button"
+          mat-button
+          class="mr-4 text-gray-300 hover:text-white"
+          (click)="onCancel()"
+        >
+        <span class="dark:text-white">
+          Cancel
+
+        </span>
+        </button>
+        <button
+          type="submit"
+          
+         class="dark:text-blue-200  p-3 rounded-sm h-fit"
+          
+        >
+          <b>Submit</b>
+        </button>
+      </div>
+    </form>
+  </div>

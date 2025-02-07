@@ -7,8 +7,10 @@
       >
         Projects
         <mat-icon
+       
           class="text-gray-400 cursor-help"
           matTooltip="View all your projects and their details"
+          [matTooltipPosition]="'right'"
           >help</mat-icon
         >
       </p>
@@ -23,17 +25,16 @@
       </button>
 
       <button
+      (click)="onAddProjectClick()"
         class="h-fit border rounded-md flex justify-center items-center gap-2 p-2 text-white dark:border-gray-600 bg-purple-800 w-full sm:w-auto min-w-[150px]"
       >
         <mat-icon>add_ci rcle_outline</mat-icon>
-        <span class="text-sm md:text-base">Add Project</span>
+        <span class="text-sm md:text-base">Create Project</span>
       </button>
     </div>
   </div>
-
   <!-- Divider -->
   <mat-divider class="dark:bg-gray-600"></mat-divider>
-
   <!-- Section 2 -->
   <div class="flex flex-col sm:flex-row justify-start gap-4 sm:gap-2">
     <button
@@ -151,6 +152,7 @@
         <div class="flex items-center gap-2">
           <!-- Settings Icon -->
           <button 
+          (click)="onProjectSettingsClick()"
           type="button" 
           class="inline-flex items-center justify-center rounded-md p-2 text-gray-500 transition-colors duration-200 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:hover:text-white dark:focus:ring-gray-600"
           aria-label="Settings"
@@ -215,4 +217,5 @@
       </div>
     </div>
   </div>
+
 </div>

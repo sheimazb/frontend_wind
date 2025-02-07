@@ -4,20 +4,24 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import ApexCharts from 'apexcharts'; 
-
+import { Router, RouterModule } from '@angular/router';
+import {MatTooltipModule} from '@angular/material/tooltip';
 @Component({
   selector: 'app-content-project-dash-admin',
   standalone: true,
   imports: [
+    RouterModule,
     MatIconModule,
     MatDividerModule,
     MatMenuModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatTooltipModule
   ],
   templateUrl: './content-project-dash-admin.component.html',
   styleUrls: ['./content-project-dash-admin.component.css']
 })
 export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
+  constructor(private router: Router) {}
 
   @ViewChild('chartTwoContainer', { static: false }) chartContainer!: ElementRef;
 
@@ -116,5 +120,13 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
       const chart = new ApexCharts(this.chartContainer.nativeElement, chartOptions);
       chart.render();
     }
+  }   
+  // Project Settings route
+  onProjectSettingsClick() {
+    this.router.navigate(['/dashboard/project-settings']);
+  }
+  onAddProjectClick() {
+    this.router.navigate(['/dashboard/add-project']);
   }
 }
+

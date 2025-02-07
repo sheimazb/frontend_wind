@@ -13,14 +13,24 @@ export class SidebarComponent {
   constructor(private router: Router) {}
 
   get activeMenu() {
-    return this.router.url.includes('stats') ? 'stats' : 'dashboard';
+    return this.router.url.includes('stats') 
+      ? 'stats' 
+      : this.router.url.includes('staff') 
+        ? 'staff' 
+        : 'dashboard';
   }
+  
 
   onStatsClick() {
     this.router.navigate(['/dashboard/stats']);
   }
 
-  onDashboardClick() {
-    this.router.navigate(['/dashboard/project']);
-  }
-}
+    onDashboardClick() {
+      this.router.navigate(['/dashboard/project']);
+    }
+
+    onStaffClick(){
+      this.router.navigate(['/dashboard/staff'])
+    }
+
+  }  

@@ -1,0 +1,268 @@
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+  <div class="mx-auto max-w-270">
+    <!-- Breadcrumb Start -->
+    <div
+      class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <h2 class="text-title-md2 font-bold text-black dark:text-white">
+        Project Settings
+      </h2>
+
+      <nav>
+        <ol class="flex items-center gap-2">
+          <li>
+            <a
+              class="font-medium dark:text-gray-300 cursor-pointer text-gray-700"
+              (click)="onDashboardClick()"
+              >Dashboard /</a
+            >
+          </li>
+          <li class="font-medium text-purple-500 cursor-pointer">
+            Project Settings
+          </li>
+        </ol>
+      </nav>
+    </div>
+    <!-- Breadcrumb End -->
+
+    <!-- ====== Settings Section Start -->
+    <div class="grid grid-cols-5 gap-8">
+      <div class="col-span-5 xl:col-span-3 flex flex-col gap-6">
+        <div
+          class="rounded-md border dark:border-gray-700 border-gray-300 bg-white shadow-md"
+        >
+          <div class="border-b dark:bg-gray-800 border-gray-300 px-6 py-2">
+            <h2
+              class="text-title-md2 flex flex-row items-center gap-2 m-0 font-bold dark:text-gray-200 text-gray-900"
+            >
+              Project Details
+              <mat-icon
+                class="text-gray-400 cursor-help"
+                matTooltip="View all your projects and their details"
+                [matTooltipPosition]="'right'"
+                >help</mat-icon
+              >
+            </h2>
+          </div>
+
+          <div class="p-6 dark:bg-darkbackground">
+            <form>
+              <!-- Name Field -->
+              <div class="grid grid-cols-2 items-center gap-4">
+                <div>
+                  <label
+                    for="name"
+                    class="block text-sm font-medium dark:text-gray-300 text-gray-700"
+                  >
+                    Name <span class="text-red-500">*</span>
+                  </label>
+                  <p class="text-sm dark:text-gray-400 text-gray-500">
+                    A name for this project
+                  </p>
+                </div>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value="testwind"
+                  class="block w-full px-3 py-2 border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+
+              <!-- Project ID Field -->
+              <div class="grid grid-cols-2 items-center gap-4">
+                <div>
+                  <label
+                    class="block font-medium dark:text-gray-300 text-gray-700"
+                    >Project ID</label
+                  >
+                  <p class="mt-1 text-sm dark:text-gray-400 text-gray-500">
+                    The unique identifier for this project. It cannot be
+                    modified.
+                  </p>
+                </div>
+                <input
+                  type="text"
+                  value="4508762112524368"
+                  disabled
+                  class="w-full rounded border dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-300 bg-gray-100 px-3 py-2 cursor-not-allowed"
+                />
+              </div>
+
+              <!-- Platform Field -->
+              <div class="grid grid-cols-2 items-center gap-4">
+                <div>
+                  <label
+                    class="block font-medium dark:text-gray-300 text-gray-700"
+                    >Platform</label
+                  >
+                  <p class="mt-1 text-sm dark:text-gray-400 text-gray-500">
+                    The primary platform for this project
+                  </p>
+                </div>
+                <select
+                  class="mt-2 w-full rounded border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-white px-3 py-2 focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="angular" selected>Angular</option>
+                </select>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div
+          class="rounded-md border dark:border-gray-700 border-gray-300 bg-white shadow-md"
+        >
+          <div class="border-b dark:bg-gray-800 border-gray-300 px-6 py-2">
+            <h2
+              class="text-title-md2 flex flex-row items-center gap-2 m-0 font-bold dark:text-gray-200 text-gray-900"
+            >
+              Remove Project
+              <mat-icon
+                class="text-gray-400 cursor-help"
+                matTooltip="delete this project"
+                [matTooltipPosition]="'right'"
+                >help</mat-icon
+              >
+            </h2>
+          </div>
+
+          <div class="p-6 dark:bg-darkbackground">
+            <form>
+              <!-- Name Field -->
+              <div class="grid grid-cols-2 justify-between items-center gap-4">
+                <div>
+                  <label
+                    for="name"
+                    class="block text-sm font-medium dark:text-gray-300 text-gray-700"
+                  >
+                    Remove Project <span class="text-red-500">*</span>
+                  </label>
+                  <p class="text-sm dark:text-gray-400 text-gray-500">
+                    Removing this Project will delete all data including
+                    developers, testers and their associated events.
+                  </p>
+                </div>
+                <button
+                  class="h-fit border rounded-md flex justify-center items-center gap-2 p-2 text-white dark:border-gray-600 bg-red-600 sm:w-auto"
+                >
+                  <mat-icon>delete</mat-icon>
+                  <span class="text-sm md:text-base">Remove Project</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-span-5 xl:col-span-2">
+        <h2
+          class="text-title-md2 flex flex-row items-center gap-2 font-bold text-black dark:text-white"
+        >
+          Project Teams for testwind
+          <mat-icon
+            class="text-gray-400 cursor-help"
+            matTooltip="View all your projects and their details"
+            [matTooltipPosition]="'right'"
+            >help</mat-icon
+          >
+        </h2>
+        <p class="dark:text-gray-400">
+          These teams and their members have access to this project. They can be
+          assigned to issues and alerts created in it.
+        </p>
+        <p class="dark:text-gray-400">
+          Team Admins can grant other teams access to this project. However,
+          they cannot revoke access unless they are admins for the other teams
+          too.
+        </p>
+        <div
+          class="rounded-md border border-stroke bg-white shadow-md dark:border-strokedark dark:bg-boxdark"
+        >
+          <div
+            class="flex justify-between items-center border-b dark:bg-gray-800 border-gray-300 px-6 py-2"
+          >
+            <h2
+              class="text-title-md2 m-0 font-bold dark:text-gray-200 text-gray-900"
+            >
+              Project Team
+            </h2>
+            <button
+              mat-button
+              [matMenuTriggerFor]="menuTeam"
+              class="h-fit border rounded-md flex justify-center items-center gap-2 p-2 dark:text-white dark:border-gray-600 text-gray-700 bg-gray-300 dark:bg-gray-700 w-full sm:w-auto min-w-[150px]"
+            >
+              <mat-icon>group_add</mat-icon>
+              <span class="text-sm md:text-base">Add Team</span>
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            </button>
+            <mat-menu
+              #menuTeam="matMenu"
+              class="dark:bg-darkbackground dark:text-white"
+            >
+              <form action="#" method="GET" class="block p-2">
+                <label for="team-search" class="sr-only">Search</label>
+                <div class="relative w-full sm:w-52">
+                  <div
+                    class="absolute inset-y-0 left-0 flex items-center pointer-events-none"
+                  >
+                    <svg
+                      class="w-5 h-5 text-gray-500 dark:text-gray-400"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                        clip-rule="evenodd"
+                      ></path>
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    name="team-search"
+                    id="team-search"
+                    class="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full pl-10 p-2.5"
+                    placeholder="Search"
+                  />
+                </div>
+              </form>
+              <mat-divider
+                class="mt-2 bg-purple-200 dark:bg-gray-500"
+              ></mat-divider>
+              <button mat-menu-item class="dark:text-gray-300">
+                Team Bader
+              </button>
+              <button mat-menu-item class="dark:text-gray-300">
+                Team Amine
+              </button>
+            </mat-menu>
+          </div>
+          <div
+            class="p-6 dark:bg-darkbackground flex items-center justify-between w-full"
+          >
+            <!-- Avatar avec la première lettre -->
+            <div class="flex items-center space-x-3">
+              <div
+                class="w-10 h-10 flex items-center justify-center bg-blue-500 text-white font-bold rounded-full"
+              >
+                T
+              </div>
+              <!-- Texte -->
+              <span class="text-gray-900 dark:text-white font-medium"
+                >#TEAMDEV</span
+              >
+            </div>
+            <!-- Bouton de suppression -->
+            <button
+              class="text-gray-400 dark:bg-gray-600 bg-gray-200 rounded-full p-1 flex items-center justify-center hover:text-red-500"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+
+          <div class="p-6 dark:bg-darkbackground"></div>
+        </div>
+        <!-- ====== Settings Section End -->
+      </div>
+    </div>
+  </div>
+</div>
