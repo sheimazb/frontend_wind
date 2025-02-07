@@ -1,7 +1,10 @@
-<div class="flex flex-col max-w-screen-2xl gap-2 p-10 mx-auto">
-  <div class="flex flex-row justify-between">
+<div class="flex flex-col max-w-screen-2xl gap-6 p-4 sm:p-6 md:p-10 mx-auto">
+  <!-- Section 1 -->
+  <div class="flex flex-col sm:flex-row justify-between gap-4 sm:gap-2">
     <div>
-      <p class="dark:text-gray-200 text-4xl">
+      <p
+        class="dark:text-gray-200 text-2xl sm:text-3xl md:text-4xl flex items-center gap-2"
+      >
         Projects
         <mat-icon
           class="text-gray-400 cursor-help"
@@ -11,23 +14,205 @@
       </p>
     </div>
 
-    <div class="flex flex-row gap-4">
-        <button
-        class="border rounded-md flex h-fit items-center gap-2 p-2 text-white dark:border-gray-600 bg-gray-700"
+    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
+      <button
+        class="h-fit border rounded-md flex justify-center items-center gap-2 p-2 dark:text-white dark:border-gray-600 text-gray-700 bg-gray-300 dark:bg-gray-700 w-full sm:w-auto min-w-[150px]"
       >
         <mat-icon>group_add</mat-icon>
-        Add Team
+        <span class="text-sm md:text-base">Add Team</span>
       </button>
 
       <button
-        class="border rounded-md flex items-center gap-2 p-2 text-white dark:border-gray-600 bg-purple-800 h-fit"
+        class="h-fit border rounded-md flex justify-center items-center gap-2 p-2 text-white dark:border-gray-600 bg-purple-800 w-full sm:w-auto min-w-[150px]"
       >
-        <mat-icon>add_circle_outline</mat-icon>
-        Add Project
+        <mat-icon>add_ci rcle_outline</mat-icon>
+        <span class="text-sm md:text-base">Add Project</span>
       </button>
-
-   
     </div>
   </div>
-  
+
+  <!-- Divider -->
+  <mat-divider class="dark:bg-gray-600"></mat-divider>
+
+  <!-- Section 2 -->
+  <div class="flex flex-col sm:flex-row justify-start gap-4 sm:gap-2">
+    <button
+      mat-button
+      [matMenuTriggerFor]="menuTeam"
+      class="border rounded-md flex justify-center items-center gap-2 p-2 text-gray-700 dark:text-white dark:border-gray-600 bg-gray-300 dark:bg-gray-700 w-full sm:w-auto min-w-[150px]"
+    >
+      <mat-icon>group</mat-icon>
+      <span class="text-sm md:text-base">My Team</span>
+      <mat-icon>keyboard_arrow_down</mat-icon>
+    </button>
+
+    <mat-menu
+      #menuTeam="matMenu"
+      class="dark:bg-darkbackground dark:text-white"
+    >
+      <form action="#" method="GET" class="block p-2">
+        <label for="team-search" class="sr-only">Search</label>
+        <div class="relative w-full sm:w-52">
+          <div
+            class="absolute inset-y-0 left-0 flex items-center pointer-events-none"
+          >
+            <svg
+              class="w-5 h-5 text-gray-500 dark:text-gray-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+          </div>
+          <input
+            type="text"
+            name="team-search"
+            id="team-search"
+            class="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full pl-10 p-2.5"
+            placeholder="Search"
+          />
+        </div>
+      </form>
+      <mat-divider class="mt-2 bg-purple-200 dark:bg-gray-500"></mat-divider>
+      <button mat-menu-item class="dark:text-gray-300">Team Bader</button>
+      <button mat-menu-item class="dark:text-gray-300">Team Amine</button>
+    </mat-menu>
+
+    <!-- Search bar on larger screens -->
+    <form action="#" method="GET" class="lg:pl-4 w-full sm:w-auto">
+      <label for="project-search" class="sr-only"
+        >Search for projects by name</label
+      >
+      <div class="relative lg:w-96">
+        <div
+          class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+        >
+          <svg
+            class="w-5 h-5 text-gray-500 dark:text-gray-400"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+        </div>
+        <input
+          type="text"
+          name="project-search"
+          id="project-search"
+          class="h-fit bg-transparent border border-transparent w-full text-gray-950 dark:text-white sm:text-sm rounded-sm focus:ring-cyan-600 focus:border-cyan-600 block pl-10 p-2.5"
+          placeholder="Search for projects by name"
+        />
+      </div>
+    </form>
+  </div>
+  <!--Section 3-->
+  <div class="flex flex-row ">
+    <div class="border rounded-md border-dashed p-4 border-gray-400 dark:border-gray-500">
+      <div class="border border-transparent rounded-lg  p-4 flex items-center justify-between">
+        <!-- Left Section -->
+        <div class="flex items-center gap-3">
+          <!-- Icon -->
+          <div class="bg-purple-500 p-2 rounded-full">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="h-6 w-6 text-white"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 2.25c-5.376 0-9.75 4.374-9.75 9.75s4.374 9.75 9.75 9.75 9.75-4.374 9.75-9.75S17.376 2.25 12 2.25zM9 12l2.25 2.25L15 9"
+              />
+            </svg>
+          </div>
+          <!-- Title and Stats -->
+          <div class="flex flex-col gap-1">
+            <span class="text-xl font-bold text-black dark:text-white m-0">Testwind</span>
+            <div class="text-sm text-gray-500">
+              Errors: <span class="text-black dark:text-white">0</span> |
+              Transactions: <span class="text-black dark:text-white">0</span>
+            </div>
+          </div>
+          
+        </div>
+      
+        <!-- Right Section -->
+        <div class="flex items-center gap-2">
+          <!-- Settings Icon -->
+          <button 
+          type="button" 
+          class="inline-flex items-center justify-center rounded-md p-2 text-gray-500 transition-colors duration-200 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:hover:text-white dark:focus:ring-gray-600"
+          aria-label="Settings"
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke-width="1.5" 
+            stroke="currentColor" 
+            class="h-5 w-5"
+            aria-hidden="true"
+          >
+            <path 
+              stroke-linecap="round" 
+              stroke-linejoin="round" 
+              d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"
+            />
+            <path 
+              stroke-linecap="round" 
+              stroke-linejoin="round" 
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+          </svg>
+        </button>
+        
+          <!-- Star Icon -->
+          <button
+            type="button"
+            class="text-gray-500 hover:text-yellow-500 dark:hover:text-yellow-400"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="h-5 w-5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 3l2.735 5.55 6.135.891-4.435 4.322 1.046 6.1L12 16.762 7.519 19.864l1.046-6.1-4.435-4.322 6.135-.891L12 3z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <!--chart 2-->
+      <div
+        class="col-span-12 p-4 w-96 rounded-sm border shadow-md  bg-transparent p-7.5 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4"
+      >
+      
+
+        <div>
+          <div #chartTwoContainer>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
