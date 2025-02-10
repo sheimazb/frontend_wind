@@ -1,0 +1,17 @@
+<app-navbar></app-navbar>
+
+<div class="flex overflow-hidden bg-white pt-16">
+  <app-sidebar></app-sidebar>
+
+  <div
+    id="main-content"
+    class="h-full w-full bg-gray-50 dark:bg-darksecondry relative overflow-y-auto lg:ml-64"
+  >
+    <div class="flex flex-col min-h-screen">
+      <main class="flex-grow">
+        <router-outlet></router-outlet>
+      </main>
+      <app-footer class="mt-auto"></app-footer>
+    </div>
+  </div>
+</div>

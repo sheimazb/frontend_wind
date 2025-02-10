@@ -9,6 +9,7 @@ import { FormGroup, FormsModule,Validators,FormBuilder  } from '@angular/forms';
 import { ContentStaffComponent } from '../../content/content-staff/content-staff.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import {MatRadioModule} from '@angular/material/radio';
+import { NgIf } from '@angular/common';
 export interface DialogData {
   name: string;
   animal: string;
@@ -16,7 +17,7 @@ export interface DialogData {
 @Component({
   selector: 'app-dialog-staff',
   standalone: true,
-  imports: [MatRadioModule,ReactiveFormsModule,MatDialogModule,DialogStaffComponent,ContentStaffComponent,FormsModule,MatIconModule,MatButtonModule,MatInputModule,MatFormFieldModule],
+  imports: [NgIf,MatRadioModule,ReactiveFormsModule,MatDialogModule,DialogStaffComponent,ContentStaffComponent,FormsModule,MatIconModule,MatButtonModule,MatInputModule,MatFormFieldModule],
   templateUrl: './dialog-staff.component.html',
   styleUrl: './dialog-staff.component.css'
 })

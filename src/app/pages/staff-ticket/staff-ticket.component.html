@@ -1,0 +1,162 @@
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+  <div class="mx-auto max-w-270">
+    <!-- Breadcrumb Start -->
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <h2 class="text-title-md2 font-bold text-black dark:text-white">Tickets</h2>
+      <nav>
+        <ol class="flex items-center gap-2">
+          <li>
+            <a class="font-medium dark:text-gray-300 cursor-pointer text-gray-700" (click)="onDashboardClick()">Dashboard /</a>
+          </li>
+          <li class="font-medium text-purple-500 cursor-pointer">Tickets</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-6">
+    <!-- Header section -->
+    <div class="dark:bg-darkbackground bg-white p-4 rounded-sm h-fit flex items-center justify-between shadow-sm">
+      <h2 class="dark:text-white text-black text-lg">Tasks</h2>
+      <!-- Avatars and Add Button -->
+      <div class="flex items-center space-x-3">
+        <!-- Your existing avatar section -->
+        <button
+        (click)="openNewTaskDialog()"
+        class="bg-purple-500 text-white text-sm px-4 py-2 rounded-md hover:bg-purple-700">
+          + Add task
+        </button>
+      </div>
+    </div>
+
+    <!-- Kanban board -->
+    <div class="flex justify-center">
+      <div cdkDropListGroup>
+        <!-- Todo section -->
+        <div class="example-container">
+          <h2 class="dark:text-white">To Do's ({{todo.length}})</h2>
+          <div
+            cdkDropList
+            [cdkDropListData]="todo"
+            class="example-list"
+            (cdkDropListDropped)="drop($event)">
+            @for (task of todo; track task) {
+              <div class="example-box dark:border-gray-100 rounded-sm bg-white dark:bg-darkbackground dark:text-white" cdkDrag>
+                <div class="flex justify-between items-center mb-4">
+                  <h2 class="text-lg font-semibold">{{task.title}}</h2>
+                  <button class="text-gray-400 hover:text-white">&#8226;&#8226;&#8226;</button>
+                </div>
+                @if (task.description) {
+                  <p class="text-gray-400 text-sm mb-4">{{task.description}}</p>
+                }
+                @if (task.image) {
+                  <div class="mb-4">
+                    <img [src]="task.image" alt="Task preview" class="rounded-lg w-full">
+                  </div>
+                }
+                <ul class="space-y-2">
+                  @for (subtask of task.subtasks; track subtask) {
+                    <li class="flex items-center">
+                      <input
+                        type="checkbox"
+                        [checked]="subtask.completed"
+                        class="form-checkbox text-blue-500 rounded focus:ring-0 focus:outline-none"
+                      />
+                      <label class="ml-2 text-gray-300" [class.line-through]="subtask.completed">
+                        {{subtask.text}}
+                      </label>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- In Progress section -->
+        <div class="example-container">
+          <h2 class="dark:text-white">In Progress ({{inProgress.length}})</h2>
+          <div
+            cdkDropList
+            [cdkDropListData]="inProgress"
+            class="example-list"
+            (cdkDropListDropped)="drop($event)">
+            @for (task of inProgress; track task) {
+              <div class="example-box dark:border-gray-100 rounded-sm bg-white dark:bg-darkbackground dark:text-white" cdkDrag>
+                <!-- Same task template as above -->
+                <div class="flex justify-between items-center mb-4">
+                  <h2 class="text-lg font-semibold">{{task.title}}</h2>
+                  <button class="text-gray-400 hover:text-white">&#8226;&#8226;&#8226;</button>
+                </div>
+                @if (task.description) {
+                  <p class="text-gray-400 text-sm mb-4">{{task.description}}</p>
+                }
+                @if (task.image) {
+                  <div class="mb-4">
+                    <img [src]="task.image" alt="Task preview" class="rounded-lg w-full">
+                  </div>
+                }
+                <ul class="space-y-2">
+                  @for (subtask of task.subtasks; track subtask) {
+                    <li class="flex items-center">
+                      <input
+                        type="checkbox"
+                        [checked]="subtask.completed"
+                        class="form-checkbox text-blue-500 rounded focus:ring-0 focus:outline-none"
+                      />
+                      <label class="ml-2 text-gray-300" [class.line-through]="subtask.completed">
+                        {{subtask.text}}
+                      </label>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Completed section -->
+        <div class="example-container">
+          <h2 class="dark:text-white">Completed ({{completed.length}})</h2>
+          <div
+            cdkDropList
+            [cdkDropListData]="completed"
+            class="example-list"
+            (cdkDropListDropped)="drop($event)">
+            @for (task of completed; track task) {
+              <div class="example-box dark:border-gray-100 rounded-sm bg-white dark:bg-darkbackground dark:text-white" cdkDrag>
+                <!-- Same task template as above -->
+                <div class="flex justify-between items-center mb-4">
+                  <h2 class="text-lg font-semibold">{{task.title}}</h2>
+                  <button class="text-gray-400 hover:text-white">&#8226;&#8226;&#8226;</button>
+                </div>
+                @if (task.description) {
+                  <p class="text-gray-400 text-sm mb-4">{{task.description}}</p>
+                }
+                @if (task.image) {
+                  <div class="mb-4">
+                    <img [src]="task.image" alt="Task preview" class="rounded-lg w-full">
+                  </div>
+                }
+                <ul class="space-y-2">
+                  @for (subtask of task.subtasks; track subtask) {
+                    <li class="flex items-center">
+                      <input
+                        type="checkbox"
+                        [checked]="subtask.completed"
+                        class="form-checkbox text-blue-500 rounded focus:ring-0 focus:outline-none"
+                      />
+                      <label class="ml-2 text-gray-300" [class.line-through]="subtask.completed">
+                        {{subtask.text}}
+                      </label>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

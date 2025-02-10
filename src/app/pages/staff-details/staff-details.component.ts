@@ -15,4 +15,7 @@ export class StaffDetailsComponent {
   onDashboardClick() {
     this.router.navigate(['/dashboard/staff']);
   }
+  onStaffTicketClick() {
+    this.router.navigate(['/dashboard/staff-ticket']);
+  }
 }
