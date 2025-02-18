@@ -1,1 +1,352 @@
-<p>signup works!</p>
+  <body
+    x-data="{ page: 'comingSoon', 'loaded': true, 'darkMode': false, 'stickyMenu': false, 'sidebarToggle': false, 'scrollTop': false }"
+    x-init="
+         darkMode = JSON.parse(localStorage.getItem('darkMode'));
+         $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))"
+    [ngClass]="{'dark bg-gray-900': darkMode}"
+  >
+ 
+
+    <!-- ===== Page Wrapper Start ===== -->
+    <div
+      class="relative z-1 flex h-screen w-full overflow-hidden bg-white dark:bg-gray-900"
+    >
+      <div
+        class="flex flex-1 flex-col rounded-2xl p-6 sm:rounded-none sm:border-0 sm:p-8"
+      >
+        <div class="mx-auto w-full max-w-md pt-5 sm:py-10">
+          <a
+            (click)="onSignInClick()"
+            class="inline-flex cursor-pointer items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+          >
+            <svg
+              class="stroke-current"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+            >
+              <path
+                d="M12.7083 5L7.5 10.2083L12.7083 15.4167"
+                stroke=""
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Back to Home
+          </a>
+        </div>
+        <div
+          class="mx-auto flex w-full max-w-md flex-1 flex-col justify-center"
+        >
+          <div class="mb-5 sm:mb-8">
+            <h1
+              class="mb-2 text-title-sm font-semibold text-gray-800 dark:text-white/90 sm:text-title-md"
+            >
+              Sign Up
+            </h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Enter your email and password to sign up!
+            </p>
+          </div>
+          <div>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
+              <button
+                class="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M18.7511 10.1944C18.7511 9.47495 18.6915 8.94995 18.5626 8.40552H10.1797V11.6527H15.1003C15.0011 12.4597 14.4654 13.675 13.2749 14.4916L13.2582 14.6003L15.9087 16.6126L16.0924 16.6305C17.7788 15.1041 18.7511 12.8583 18.7511 10.1944Z"
+                    fill="#4285F4"
+                  />
+                  <path
+                    d="M10.1788 18.75C12.5895 18.75 14.6133 17.9722 16.0915 16.6305L13.274 14.4916C12.5201 15.0068 11.5081 15.3666 10.1788 15.3666C7.81773 15.3666 5.81379 13.8402 5.09944 11.7305L4.99473 11.7392L2.23868 13.8295L2.20264 13.9277C3.67087 16.786 6.68674 18.75 10.1788 18.75Z"
+                    fill="#34A853"
+                  />
+                  <path
+                    d="M5.10014 11.7305C4.91165 11.186 4.80257 10.6027 4.80257 9.99992C4.80257 9.3971 4.91165 8.81379 5.09022 8.26935L5.08523 8.1534L2.29464 6.02954L2.20333 6.0721C1.5982 7.25823 1.25098 8.5902 1.25098 9.99992C1.25098 11.4096 1.5982 12.7415 2.20333 13.9277L5.10014 11.7305Z"
+                    fill="#FBBC05"
+                  />
+                  <path
+                    d="M10.1789 4.63331C11.8554 4.63331 12.9864 5.34303 13.6312 5.93612L16.1511 3.525C14.6035 2.11528 12.5895 1.25 10.1789 1.25C6.68676 1.25 3.67088 3.21387 2.20264 6.07218L5.08953 8.26943C5.81381 6.15972 7.81776 4.63331 10.1789 4.63331Z"
+                    fill="#EB4335"
+                  />
+                </svg>
+                Sign up with Google
+              </button>
+              <button
+                class="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
+              >
+                <svg
+                  width="21"
+                  class="fill-current"
+                  height="20"
+                  viewBox="0 0 21 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M15.6705 1.875H18.4272L12.4047 8.75833L19.4897 18.125H13.9422L9.59717 12.4442L4.62554 18.125H1.86721L8.30887 10.7625L1.51221 1.875H7.20054L11.128 7.0675L15.6705 1.875ZM14.703 16.475H16.2305L6.37054 3.43833H4.73137L14.703 16.475Z"
+                  />
+                </svg>
+
+                Sign up with X
+              </button>
+            </div>
+            <div class="relative py-3 sm:py-5">
+              <div class="absolute inset-0 flex items-center">
+                <div
+                  class="w-full border-t border-gray-200 dark:border-gray-800"
+                ></div>
+              </div>
+              <div class="relative flex justify-center text-sm">
+                <span
+                  class="bg-white p-2 text-gray-400 dark:bg-gray-900 sm:px-5 sm:py-2"
+                  >Or</span
+                >
+              </div>
+            </div>
+            <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+              <div class="space-y-5">
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <!-- First Name -->
+                  <div class="sm:col-span-1">
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                      First Name<span class="text-error-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      formControlName="firstname"
+                      placeholder="Enter your first name"
+                      class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-gray-800"
+                      [ngClass]="{'border-error-500': signupForm.get('firstname')?.invalid && signupForm.get('firstname')?.touched}"
+                    />
+                    <div *ngIf="signupForm.get('firstname')?.invalid && signupForm.get('firstname')?.touched" class="mt-1 text-sm text-error-500">
+                      <span *ngIf="signupForm.get('firstname')?.errors?.['required']">First name is required</span>
+                      <span *ngIf="signupForm.get('firstname')?.errors?.['minlength']">First name must be at least 2 characters</span>
+                    </div>
+                  </div>
+                  <!-- Last Name -->
+                  <div class="sm:col-span-1">
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                      Last Name<span class="text-error-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      formControlName="lastname"
+                      placeholder="Enter your last name"
+                      class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-gray-800"
+                      [ngClass]="{'border-error-500': signupForm.get('lastname')?.invalid && signupForm.get('lastname')?.touched}"
+                    />
+                    <div *ngIf="signupForm.get('lastname')?.invalid && signupForm.get('lastname')?.touched" class="mt-1 text-sm text-error-500">
+                      <span *ngIf="signupForm.get('lastname')?.errors?.['required']">Last name is required</span>
+                      <span *ngIf="signupForm.get('lastname')?.errors?.['minlength']">Last name must be at least 2 characters</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    Email<span class="text-error-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    formControlName="email"
+                    placeholder="Enter your email"
+                    class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-gray-800"
+                    [ngClass]="{'border-error-500': signupForm.get('email')?.invalid && signupForm.get('email')?.touched}"
+                  />
+                  <div *ngIf="signupForm.get('email')?.invalid && signupForm.get('email')?.touched" class="mt-1 text-sm text-error-500">
+                    <span *ngIf="signupForm.get('email')?.errors?.['required']">Email is required</span>
+                    <span *ngIf="signupForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+                  </div>
+                </div>
+
+                <!-- Password -->
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    Password<span class="text-error-500">*</span>
+                  </label>
+                  <div class="relative">
+                    <input
+                      [type]="showPassword ? 'text' : 'password'"
+                      formControlName="password"
+                      placeholder="Enter your password"
+                      class="h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-gray-800"
+                      [ngClass]="{'border-error-500': signupForm.get('password')?.invalid && signupForm.get('password')?.touched}"
+                    />
+                    <span
+                      (click)="togglePasswordVisibility()"
+                      class="absolute right-4 top-1/2 z-30 -translate-y-1/2 cursor-pointer text-gray-500 dark:text-gray-400"
+                    >
+                      <svg
+                        *ngIf="!showPassword"
+                        class="fill-current"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M10.0002 13.8619C7.23361 13.8619 4.86803 12.1372 3.92328 9.70241C4.86804 7.26761 7.23361 5.54297 10.0002 5.54297C12.7667 5.54297 15.1323 7.26762 16.0771 9.70243C15.1323 12.1372 12.7667 13.8619 10.0002 13.8619ZM10.0002 4.04297C6.48191 4.04297 3.49489 6.30917 2.4155 9.4593C2.3615 9.61687 2.3615 9.78794 2.41549 9.94552C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619C13.5184 15.3619 16.5055 13.0957 17.5849 9.94555C17.6389 9.78797 17.6389 9.6169 17.5849 9.45932C16.5055 6.30919 13.5184 4.04297 10.0002 4.04297ZM9.99151 7.84413C8.96527 7.84413 8.13333 8.67606 8.13333 9.70231C8.13333 10.7286 8.96527 11.5605 9.99151 11.5605H10.0064C11.0326 11.5605 11.8646 10.7286 11.8646 9.70231C11.8646 8.67606 11.0326 7.84413 10.0064 7.84413H9.99151Z"
+                          fill="#98A2B3"
+                        />
+                      </svg>
+                      <svg
+                        *ngIf="showPassword"
+                        class="fill-current"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M4.63803 3.57709C4.34513 3.2842 3.87026 3.2842 3.57737 3.57709C3.28447 3.86999 3.28447 4.34486 3.57737 4.63775L4.85323 5.91362C3.74609 6.84199 2.89363 8.06395 2.4155 9.45936C2.3615 9.61694 2.3615 9.78801 2.41549 9.94558C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619C11.255 15.3619 12.4422 15.0737 13.4994 14.5598L15.3625 16.4229C15.6554 16.7158 16.1302 16.7158 16.4231 16.4229C16.716 16.13 16.716 15.6551 16.4231 15.3622L4.63803 3.57709ZM12.3608 13.4212L10.4475 11.5079C10.3061 11.5423 10.1584 11.5606 10.0064 11.5606H9.99151C8.96527 11.5606 8.13333 10.7286 8.13333 9.70237C8.13333 9.5461 8.15262 9.39434 8.18895 9.24933L5.91885 6.97923C5.03505 7.69015 4.34057 8.62704 3.92328 9.70247C4.86803 12.1373 7.23361 13.8619 10.0002 13.8619C10.8326 13.8619 11.6287 13.7058 12.3608 13.4212ZM16.0771 9.70249C15.7843 10.4569 15.3552 11.1432 14.8199 11.7311L15.8813 12.7925C16.6329 11.9813 17.2187 11.0143 17.5849 9.94561C17.6389 9.78803 17.6389 9.61696 17.5849 9.45938C16.5055 6.30925 13.5184 4.04303 10.0002 4.04303C9.13525 4.04303 8.30244 4.17999 7.52218 4.43338L8.75139 5.66259C9.1556 5.58413 9.57311 5.54303 10.0002 5.54303C12.7667 5.54303 15.1323 7.26768 16.0771 9.70249Z"
+                          fill="#98A2B3"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+                  <div *ngIf="signupForm.get('password')?.invalid && signupForm.get('password')?.touched" class="mt-1 text-sm text-error-500">
+                    <span *ngIf="signupForm.get('password')?.errors?.['required']">Password is required</span>
+                    <span *ngIf="signupForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</span>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  [disabled]="signupForm.invalid || isLoading"
+                  class="inline-flex w-full items-center justify-center rounded-lg bg-brand-500 px-8 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-brand-600 focus:outline-none focus:ring focus:ring-brand-500/30 disabled:bg-gray-400"
+                >
+                  <span *ngIf="!isLoading">Sign Up</span>
+                  <span *ngIf="isLoading" class="flex items-center">
+                    <svg class="mr-2 h-5 w-5 animate-spin" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </span>
+                </button>
+              </div>
+            </form>
+            <div class="mt-5">
+              <p
+                class="text-center text-sm font-normal text-gray-700 dark:text-gray-400 sm:text-start"
+              >
+                Already have an account?
+                <a
+                  (click)="onSignInClick()"
+                  class="text-blue-500 hover:text-blue-600 dark:text-blue-400 cursor-pointer"
+                  >Sign In</a
+                >
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="relative z-1 hidden flex-1 items-center justify-center bg-blue-950 p-8 dark:bg-darkbackground lg:flex"
+      >
+     
+        <div class="flex max-w-xs flex-col items-center">
+          <a href="index.html" class="mb-4 block">
+            <img            
+             src="https://www.recruter.tn/wp-content/uploads/2017/12/2612f16e-4d0f-4865-be6d-cf064aedf781-original-150x120.png"
+            alt="Logo"
+             />
+          </a>
+          <p class="text-center text-gray-400 dark:text-white/60">
+           WindLogs the best tool for your logs
+          </p>
+        </div>
+      </div>
+    </div>
+   
+
+    <!-- Toggler -->
+    <div class="fixed bottom-6 right-6 z-50">
+      <button
+        (click)="toggleDarkMode()"
+        class="inline-flex size-14 items-center justify-center rounded-full text-white transition-colors"
+        [ngClass]="{'bg-blue-600': !darkMode, 'bg-blue-500': darkMode}"
+      >
+        <!-- Moon Icon -->
+        <svg
+          *ngIf="darkMode"
+          class="fill-current"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M21.5287 15.9294C21.3687 15.6594 20.9187 15.2394 19.7987 15.4394C19.1787 15.5494 18.5487 15.5994 17.9187 15.5694C15.5887 15.4694 13.4787 14.3994 12.0087 12.7494C10.7087 11.2994 9.90873 9.40938 9.89873 7.36938C9.89873 6.22938 10.1187 5.12938 10.5687 4.08938C11.0087 3.07938 10.6987 2.54938 10.4787 2.32938C10.2487 2.09938 9.70873 1.77938 8.64873 2.21938C4.55873 3.93938 2.02873 8.03938 2.32873 12.4294C2.62873 16.5594 5.52873 20.0894 9.36873 21.4194C10.2887 21.7394 11.2587 21.9294 12.2587 21.9694C12.4187 21.9794 12.5787 21.9894 12.7387 21.9894C16.0887 21.9894 19.2287 20.4094 21.2087 17.7194C21.8787 16.7894 21.6987 16.1994 21.5287 15.9294Z"
+            fill="currentColor"
+          />
+        </svg>
+        <!-- Sun Icon -->
+        <svg
+          *ngIf="!darkMode"
+          class="fill-current"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M12 18.5C15.5899 18.5 18.5 15.5899 18.5 12C18.5 8.41015 15.5899 5.5 12 5.5C8.41015 5.5 5.5 8.41015 5.5 12C5.5 15.5899 8.41015 18.5 12 18.5Z"
+            fill="currentColor"
+          />
+          <path
+            d="M12 4.75C11.59 4.75 11.25 4.41 11.25 4V2C11.25 1.59 11.59 1.25 12 1.25C12.41 1.25 12.75 1.59 12.75 2V4C12.75 4.41 12.41 4.75 12 4.75Z"
+            fill="currentColor"
+          />
+          <path
+            d="M12 22.75C11.59 22.75 11.25 22.41 11.25 22V20C11.25 19.59 11.59 19.25 12 19.25C12.41 19.25 12.75 19.59 12.75 20V22C12.75 22.41 12.41 22.75 12 22.75Z"
+            fill="currentColor"
+          />
+          <path
+            d="M21.25 12.75H19.25C18.84 12.75 18.5 12.41 18.5 12C18.5 11.59 18.84 11.25 19.25 11.25H21.25C21.66 11.25 22 11.59 22 12C22 12.41 21.66 12.75 21.25 12.75Z"
+            fill="currentColor"
+          />
+          <path
+            d="M4.75 12.75H2.75C2.34 12.75 2 12.41 2 12C2 11.59 2.34 11.25 2.75 11.25H4.75C5.16 11.25 5.5 11.59 5.5 12C5.5 12.41 5.16 12.75 4.75 12.75Z"
+            fill="currentColor"
+          />
+          <path
+            d="M17.93 7.04984C17.74 7.04984 17.55 6.97984 17.4 6.82984L15.99 5.40984C15.7 5.11984 15.7 4.64984 15.99 4.35984C16.28 4.06984 16.75 4.06984 17.04 4.35984L18.45 5.77984C18.74 6.06984 18.74 6.53984 18.45 6.82984C18.31 6.97984 18.12 7.04984 17.93 7.04984Z"
+            fill="currentColor"
+          />
+          <path
+            d="M6.06 18.9498C5.87 18.9498 5.68 18.8798 5.53 18.7298L4.12 17.3098C3.83 17.0198 3.83 16.5498 4.12 16.2598C4.41 15.9698 4.88 15.9698 5.17 16.2598L6.58 17.6798C6.87 17.9698 6.87 18.4398 6.58 18.7298C6.44 18.8798 6.25 18.9498 6.06 18.9498Z"
+            fill="currentColor"
+          />
+          <path
+            d="M17.93 18.9498C17.74 18.9498 17.55 18.8798 17.4 18.7298C17.11 18.4398 17.11 17.9698 17.4 17.6798L18.82 16.2598C19.11 15.9698 19.58 15.9698 19.87 16.2598C20.16 16.5498 20.16 17.0198 19.87 17.3098L18.46 18.7298C18.31 18.8798 18.12 18.9498 17.93 18.9498Z"
+            fill="currentColor"
+          />
+          <path
+            d="M6.06 7.04984C5.87 7.04984 5.68 6.97984 5.53 6.82984C5.24 6.53984 5.24 6.06984 5.53 5.77984L6.94 4.35984C7.23 4.06984 7.7 4.06984 7.99 4.35984C8.28 4.64984 8.28 5.11984 7.99 5.40984L6.58 6.82984C6.44 6.97984 6.25 7.04984 6.06 7.04984Z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+    </div>
+  </body>

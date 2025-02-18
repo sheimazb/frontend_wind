@@ -15,7 +15,8 @@ export class SidebarComponent {
     dashboard: '/dashboard/project',
     staff: '/dashboard/staff',
     stats: '/dashboard/stats',
-    alert: '/dashboard/alert'  // Changed from 'alerte' to 'alert' to match mapping
+    alert: '/dashboard/alert',
+    issues:'/dashboardTesteur/issues'  // Changed from 'alerte' to 'alert' to match mapping
   };
 
   constructor(private router: Router) {}
@@ -27,7 +28,8 @@ export class SidebarComponent {
       'project': 'dashboard',
       'staff': 'staff',
       'stats': 'stats',
-      'alert': 'alert'
+      'alert': 'alert',
+      'issues':'issues',
     };
   
     return Object.keys(menuMapping).find(key => url.includes(key)) || 'dashboard';
@@ -47,5 +49,8 @@ export class SidebarComponent {
 
   onAlertClick() {
     this.router.navigate([this.routes.alert]);  // Using the centralized route
+  }
+  onIssuesClick() {
+    this.router.navigate([this.routes.issues]);  
   }
 }

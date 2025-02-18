@@ -6,7 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { FormGroup, FormsModule,Validators,FormBuilder  } from '@angular/forms';
-import { ContentStaffComponent } from '../../content/content-staff/content-staff.component';
+import { ContentStaffComponent } from '../../content/adminContent/content-staff/content-staff.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import {MatRadioModule} from '@angular/material/radio';
 import { NgIf } from '@angular/common';

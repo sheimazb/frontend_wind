@@ -16,4 +16,7 @@ export class LoginComponent {
     this.router.navigate(['/dashboardTesteur']);
 
   }
+  onSignUpClick(){
+    this.router.navigate(['/signup']);
+  }
 }

@@ -10,7 +10,7 @@ import {
   MatDialog,
   
 } from '@angular/material/dialog';
-import { DialogStaffComponent ,DialogData } from '../../dialog/dialog-staff/dialog-staff.component';
+import { DialogStaffComponent ,DialogData } from '../../../dialog/dialog-staff/dialog-staff.component';
 
 @Component({
   selector: 'app-content-staff',

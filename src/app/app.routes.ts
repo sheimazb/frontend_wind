@@ -1,20 +1,28 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './authentification/login/login.component';
-import { ContentDashAdminComponent } from './components/content/content-dash-admin/content-dash-admin.component';
-import { ContentProjectDashAdminComponent } from './components/content/content-project-dash-admin/content-project-dash-admin.component';
-import { ProjectSettingsComponent } from './pages/project-settings/project-settings.component';
-import { AddProjectComponent } from './pages/add-project/add-project.component';
-import { ContentStaffComponent } from './components/content/content-staff/content-staff.component';
-import { StaffDetailsComponent } from './pages/staff-details/staff-details.component';
-import { StaffTicketComponent } from './pages/staff-ticket/staff-ticket.component';
-import { ContentAlertComponent } from './components/content/content-alert/content-alert.component';
+import { ContentDashAdminComponent } from './components/content/adminContent/content-dash-admin/content-dash-admin.component';
+import { ContentProjectDashAdminComponent } from './components/content/adminContent/content-project-dash-admin/content-project-dash-admin.component';
+import { ProjectSettingsComponent } from './pages/AdminPages/project-settings/project-settings.component';
+import { AddProjectComponent } from './pages/AdminPages/add-project/add-project.component';
+import { ContentStaffComponent } from './components/content/adminContent/content-staff/content-staff.component';
+import { StaffDetailsComponent } from './pages/AdminPages/staff-details/staff-details.component';
+import { StaffTicketComponent } from './pages/AdminPages/staff-ticket/staff-ticket.component';
+import { ContentAlertComponent } from './components/content/adminContent/content-alert/content-alert.component';
 import { AdminComponent } from './dashboard/admin/admin.component';
 import { TesterComponent } from './dashboard/tester/tester.component';
-
+import { IssuesComponent } from './components/content/testerContent/issues/issues.component';
+import { IssuePageComponent } from './pages/TesterPages/issue-page/issue-page.component';
+import { SignupComponent } from './authentification/signup/signup.component';
+import { ActivateAccountComponent } from './authentification/activate-account/activate-account.component';
+import { ValidationAccountComponent } from './authentification/validation-account/validation-account.component';
 
  export const routes: Routes = [
         { path: '', redirectTo: '/login', pathMatch: 'full' },
         { path: 'login', component: LoginComponent },
+        { path: 'signup', component: SignupComponent },
+        { path: 'activate-account', component: ActivateAccountComponent },
+        { path: 'validation-account', component: ValidationAccountComponent },
+
         {
           path: 'dashboard',
           component: AdminComponent,
@@ -40,9 +48,13 @@ import { TesterComponent } from './dashboard/tester/tester.component';
           children: [
             { 
               path: '',
-              redirectTo: 'project',
+              redirectTo: 'issues',
               pathMatch: 'full'  // Added pathMatch for redirect
             },
+            { path: 'issues', component: IssuesComponent },
+            { path: 'issue-details', component: IssuePageComponent },
+
+
           ]
 
         }
