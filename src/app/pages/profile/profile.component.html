@@ -1,0 +1,369 @@
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+  <div class="mx-auto max-w-270">
+    <!-- Breadcrumb Start -->
+    <div
+      class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <h2 class="text-xl md:text-2xl font-bold text-black dark:text-white">
+        Profile
+      </h2>
+      <nav>
+        <ol class="flex items-center gap-2">
+          <li>
+            <a
+              class="font-medium dark:text-gray-300 cursor-pointer text-gray-700"
+              >Dashboard /</a
+            >
+          </li>
+          <li class="font-medium text-purple-500 cursor-pointer">Profile</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+  <div
+    class="overflow-hidden p-4 md:p-8 lg:p-16 rounded-md border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-darkbackground"
+  >
+    <!-- Profile Section -->
+    <div class="flex flex-col md:flex-row items-center md:items-center gap-6 md:space-x-4">
+      <div class="relative">
+        <img
+          [src]="profileImage"
+          alt="Profile Image"
+          class="w-32 h-32 md:w-60 md:h-52 rounded-full border dark:border-gray-600"
+        />
+        <input
+          *ngIf="isEditing"
+          type="file"
+          (change)="onImageChange($event)"
+          class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          accept="image/*"
+        />
+      </div>
+      <div class="flex flex-col gap-4 items-center md:items-start w-full">
+        <div *ngIf="isEditing" class="flex flex-row gap-2 text-center md:text-left">
+          <input
+            [(ngModel)]="profileData.firstname"
+            class="w-full text-xl md:text-2xl font-bold dark:text-white bg-gray-100 dark:bg-gray-800 p-2 rounded-md"
+            placeholder="First Name"
+          />
+          <input
+            [(ngModel)]="profileData.lastname"
+            class="w-full text-xl md:text-2xl font-bold dark:text-white bg-gray-100 dark:bg-gray-800 p-2 rounded-md"
+            placeholder="Last Name"
+          />
+        </div>
+        <div *ngIf="!isEditing" class="flex flex-col gap-2 text-center md:text-left">
+          <h1 class="text-xl md:text-2xl font-bold dark:text-white">
+            {{ profileData.firstname }} {{ profileData.lastname }}
+          </h1>
+          <p class="text-gray-600 dark:text-gray-300">
+            {{ profileData.role }} - {{ profileData.pronouns }}
+          </p>
+          <p class="text-gray-700 mt-2 dark:text-gray-400">
+            {{ profileData.bio }}
+          </p>
+        </div>
+        <div *ngIf="isEditing" class="flex flex-col gap-3 w-full max-w-2xl">
+        
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input
+              [(ngModel)]="profileData.role"
+              class="flex-1 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 p-2 rounded-md"
+              placeholder="Username"
+            />
+            <select
+              [(ngModel)]="profileData.pronouns"
+              class="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 p-2 rounded-md"
+            >
+              <option value="she/her">she/her</option>
+              <option value="he/him">he/him</option>
+              <option value="they/them">they/them</option>
+            </select>
+          </div>
+          <textarea
+            [(ngModel)]="profileData.bio"
+            class="w-full text-gray-700 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 p-2 rounded-md"
+            placeholder="Your bio"
+            rows="6"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="flex flex-col md:flex-row justify-between gap-6 mt-6">
+      <div class="w-full">
+        <div *ngIf="!isEditing" class="flex flex-col sm:flex-row gap-4 flex-wrap">
+          <p class="text-gray-700 font-semibold dark:text-gray-300">
+            <svg
+              class="inline-block w-4 h-4 mr-1"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"
+              />
+            </svg>
+            {{ profileData.company }}
+          </p>
+          <p class="text-gray-700 font-semibold dark:text-gray-300">
+            <svg
+              class="inline-block w-4 h-4 mr-1"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"
+              />
+            </svg>
+            {{ profileData.phone }}
+          </p>
+          <p class="text-gray-700 font-semibold dark:text-gray-300">
+            <svg
+              class="inline-block w-4 h-4 mr-1"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+              />
+            </svg>
+            {{ profileData.location }}
+          </p>
+        </div>
+        <div *ngIf="isEditing" class="flex flex-col sm:flex-row gap-4">
+          <input
+            [(ngModel)]="profileData.company"
+            class="flex-1 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 p-2 rounded-md"
+            placeholder="Your Company name"
+          />
+          <input
+            [(ngModel)]="profileData.phone"
+            class="flex-1 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 p-2 rounded-md"
+            placeholder="Your phone number"
+          />
+          <input
+            [(ngModel)]="profileData.location"
+            class="flex-1 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 p-2 rounded-md"
+            placeholder="Your location"
+          />
+        </div>
+        <div class="mt-4">
+          <p class="text-blue-600 dark:text-blue-300 flex items-center gap-2 flex-wrap">
+            <svg
+              class="w-4 h-4"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+              />
+            </svg>
+            <input
+              *ngIf="isEditing"
+              [(ngModel)]="profileData.github"
+              class="flex-1 text-blue-600 dark:text-blue-300 bg-gray-100 dark:bg-gray-800 p-2 rounded-md"
+              placeholder="Github URL"
+            />
+            <a *ngIf="!isEditing" [href]="profileData.github" target="_blank" class="break-all">
+              {{profileData.github}}
+            </a>
+          </p>
+        </div>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button   
+          (click)="toggleEdit()"
+          [class]="isEditing ? 'bg-green-500' : 'bg-purple-500'"
+          class="text-white h-fit px-4 py-2 rounded-md flex items-center gap-2"
+        >
+          <svg
+            *ngIf="!isEditing"
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+            ></path>
+          </svg>
+          <svg
+            *ngIf="isEditing"
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            ></path>
+          </svg>
+          {{ isEditing ? "Save " : "Edit " }}
+        </button>
+        <button
+          *ngIf="isEditing"
+          (click)="cancelEdit()"
+          class="bg-red-500 text-white h-fit px-4 py-2 rounded-md flex items-center gap-2"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+          Cancel
+        </button>
+        <button
+          *ngIf="!isEditing"
+          (click)="openDialog()"
+          class="bg-gray-500 text-white h-fit px-4 py-2 rounded-md flex items-center gap-2"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+            ></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            ></path>
+          </svg>
+          Settings
+        </button>
+      </div>
+    </div>
+
+    <!-- Contribution Activity -->
+    <div class="mt-6">
+      <div class="bg-white p-4 md:p-6 rounded-lg shadow-md w-full dark:bg-darkbackground border border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold mb-4">Contributions in the last months</h2>
+
+        <!-- Months -->
+        <div class="flex justify-start space-x-12 text-sm text-purple-600 mb-2 overflow-x-auto">
+          <span>Feb</span>
+          <span>Mar</span>
+          <span>Apr</span>
+          <span>May</span>
+          <span>Jun</span>
+          <span>Jul</span>
+          <span>Aug</span>
+          <span>Sep</span>
+          <span>Oct</span>
+          <span>Nov</span>
+          <span>Dec</span>
+          <span>Jan</span>
+        </div>
+
+        <!-- Contribution Graph -->
+        <div class="flex">
+          <!-- Days of Week -->
+          <div class="flex flex-col justify-between pr-2 text-xs text-purple-400">
+            <span>Mon</span>
+            <span>Wed</span>
+            <span>Fri</span>
+          </div>
+
+          <!-- Contribution Grid -->
+          <div class="flex-1 overflow-x-auto">
+            <div class="inline-flex gap-1">
+              <ng-container *ngFor="let week of weeks">
+                <div class="flex flex-col gap-1">
+                  <ng-container *ngFor="let day of week">
+                    <div
+                      [class]="'w-3 h-3 rounded-sm ' + getContributionColor(day.count)"
+                      [title]="day.count + ' contributions on ' + day.date"
+                    ></div>
+                  </ng-container>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="flex items-center text-xs text-gray-500 mt-4 space-x-2">
+          <span>Less</span>
+          <div class="w-3 h-3 rounded-sm bg-gray-200 dark:bg-gray-700"></div>
+          <div class="w-3 h-3 rounded-sm bg-purple-200 dark:bg-purple-900"></div>
+          <div class="w-3 h-3 rounded-sm bg-purple-300 dark:bg-purple-700"></div>
+          <div class="w-3 h-3 rounded-sm bg-purple-400 dark:bg-purple-500"></div>
+          <div class="w-3 h-3 rounded-sm bg-purple-500 dark:bg-purple-300"></div>
+          <span>More</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Section -->
+    <div class="mt-6">
+      <h2 class="text-xl font-semibold mb-4">Recent Activity</h2>
+      <div class="space-y-4">
+        <div class="bg-gray-100 border border-gray-200 dark:border-gray-700 dark:bg-darkbackground p-4 rounded-lg">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+            <div>
+              <p class="font-medium">Created 3 teams in 2 projects</p>
+              <div class="mt-2 space-y-1">
+                <p class="text-gray-500 text-sm">sheimzab/PWWindows: 10 changes</p>
+                <p class="text-gray-500 text-sm">sheimzab/backendWindows: 7 changes</p>
+              </div>
+            </div>
+            <div class="text-sm text-gray-500">
+              2 days ago
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Activity Items -->
+        <div class="bg-gray-100 border border-gray-200 dark:border-gray-700 dark:bg-darkbackground p-4 rounded-lg">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+            <div>
+              <p class="font-medium">Updated documentation</p>
+              <p class="text-gray-500 text-sm mt-2">Updated README.md in 3 repositories</p>
+            </div>
+            <div class="text-sm text-gray-500">
+              1 week ago
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-100 border border-gray-200 dark:border-gray-700 dark:bg-darkbackground p-4 rounded-lg">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+            <div>
+              <p class="font-medium">Merged Pull Request</p>
+              <p class="text-gray-500 text-sm mt-2">Fix: Mobile responsiveness issues #123</p>
+            </div>
+            <div class="text-sm text-gray-500">
+              2 weeks ago
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

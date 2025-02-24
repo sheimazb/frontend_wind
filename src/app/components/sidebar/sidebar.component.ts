@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -9,30 +10,48 @@ import { Router, RouterModule } from '@angular/router';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
+  userRole: string | null = null;
+
   // Définir les routes de manière centralisée
   private readonly routes = {
     dashboard: '/dashboard/project',
     staff: '/dashboard/staff',
     stats: '/dashboard/stats',
     alert: '/dashboard/alert',
-    issues:'/dashboardTesteur/issues'  // Changed from 'alerte' to 'alert' to match mapping
+    issues: '/dashboardTesteur/issues'
   };
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit() {
+    const currentUser = this.authService.getCurrentUser();
+    this.userRole = currentUser?.role || null;
+  }
 
   get activeMenu(): string {
     const url = this.router.url;
-    // Simplifier le mapping en utilisant les mêmes clés
     const menuMapping: { [key: string]: string } = {
       'project': 'dashboard',
       'staff': 'staff',
       'stats': 'stats',
       'alert': 'alert',
-      'issues':'issues',
+      'issues': 'issues',
     };
   
     return Object.keys(menuMapping).find(key => url.includes(key)) || 'dashboard';
+  }
+
+  // Helper methods to check role-based visibility
+  get isPartner(): boolean {
+    return this.userRole === 'PARTNER';
+  }
+
+  get isTester(): boolean {
+    return this.userRole === 'TESTER';
   }
 
   onStatsClick() {
@@ -48,9 +67,10 @@ export class SidebarComponent {
   }
 
   onAlertClick() {
-    this.router.navigate([this.routes.alert]);  // Using the centralized route
+    this.router.navigate([this.routes.alert]);
   }
+
   onIssuesClick() {
-    this.router.navigate([this.routes.issues]);  
+    this.router.navigate([this.routes.issues]);
   }
 }

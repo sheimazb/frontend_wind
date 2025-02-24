@@ -39,112 +39,117 @@
               </div>
             </form>
           </li>
-          <li>
-            <a
-              (click)="onDashboardClick()"
-              [class.bg-gray-100]="activeMenu === 'project'"
-              [class.dark:bg-gray-700]="activeMenu === 'project'"
-              class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
-            >
-              <svg
-                class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
+          <!-- Partner Menu Items -->
+          <ng-container *ngIf="isPartner">
+            <li>
+              <a
+                (click)="onDashboardClick()"
+                [class.bg-gray-100]="activeMenu === 'project'"
+                [class.dark:bg-gray-700]="activeMenu === 'project'"
+                class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
               >
-                <path
-                  d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
-                ></path>
-              </svg>
-              <span class="ml-3">Projects</span>
-            </a>
-          </li>
-          <li>
-            <a
-              (click)="onStaffClick()"
-              [class.bg-gray-100]="activeMenu === 'staff'"
-              [class.dark:bg-gray-700]="activeMenu === 'staff'"
-              class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
-            >
-              <svg
-                class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
+                <svg
+                  class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
+                  ></path>
+                </svg>
+                <span class="ml-3">Projects</span>
+              </a>
+            </li>
+            <li>
+              <a
+                (click)="onStaffClick()"
+                [class.bg-gray-100]="activeMenu === 'staff'"
+                [class.dark:bg-gray-700]="activeMenu === 'staff'"
+                class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
               >
-                <path
-                  d="M12 2a4 4 0 110 8 4 4 0 010-8zm-6 16c0-3 3-5 6-5s6 2 6 5v2H6v-2zm12 2v-2c0-1.1-.9-2-2-2h-2c2 0 4 1 4 3v1h2v-1z"
-                ></path>
-              </svg>
-              <span class="ml-3">Staff</span>
-            </a>
-          </li>
-          <li>
-            <a
-              (click)="onStatsClick()"
-              [class.bg-gray-100]="activeMenu === 'stats'"
-              [class.dark:bg-gray-700]="activeMenu === 'stats'"
-              class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
-            >
-              <svg
-                class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
+                <svg
+                  class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 2a4 4 0 110 8 4 4 0 010-8zm-6 16c0-3 3-5 6-5s6 2 6 5v2H6v-2zm12 2v-2c0-1.1-.9-2-2-2h-2c2 0 4 1 4 3v1h2v-1z"
+                  ></path>
+                </svg>
+                <span class="ml-3">Staff</span>
+              </a>
+            </li>
+            <li>
+              <a
+                (click)="onStatsClick()"
+                [class.bg-gray-100]="activeMenu === 'stats'"
+                [class.dark:bg-gray-700]="activeMenu === 'stats'"
+                class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
               >
-                <path
-                  d="M2 11a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1v-6zM8 7a1 1 0 011-1h2a1 1 0 011 1v10a1 1 0 01-1 1h-2a1 1 0 01-1-1V7zM14 3a1 1 0 011-1h2a1 1 0 011 1v14a1 1 0 01-1 1h-2a1 1 0 01-1-1V3z"
-                ></path>
-              </svg>
-              <span class="ml-3">Stats</span>
-            </a>
-          </li>
-          <li>
-            <a
-              (click)="onAlertClick()"
-              [class.bg-gray-100]="activeMenu === 'alert'"
-              [class.dark:bg-gray-700]="activeMenu === 'alert'"
-              class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
-            >
-              <svg
-                class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
+                <svg
+                  class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M2 11a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1v-6zM8 7a1 1 0 011-1h2a1 1 0 011 1v10a1 1 0 01-1 1h-2a1 1 0 01-1-1V7zM14 3a1 1 0 011-1h2a1 1 0 011 1v14a1 1 0 01-1 1h-2a1 1 0 01-1-1V3z"
+                  ></path>
+                </svg>
+                <span class="ml-3">Stats</span>
+              </a>
+            </li>
+            <li>
+              <a
+                (click)="onAlertClick()"
+                [class.bg-gray-100]="activeMenu === 'alert'"
+                [class.dark:bg-gray-700]="activeMenu === 'alert'"
+                class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
               >
-                <path
-                  fill-rule="evenodd"
-                  d="M8.257 3.099c.766-1.36 2.72-1.36 3.486 0l6.518 11.571c.75 1.33-.213 2.98-1.743 2.98H3.482c-1.53 0-2.493-1.65-1.743-2.98L8.257 3.1zm.993 10.401a1.25 1.25 0 102.5 0 1.25 1.25 0 00-2.5 0zm.25-2.75a1 1 0 011-1h.006a1 1 0 011 1v1a1 1 0 01-1 1h-.006a1 1 0 01-1-1v-1z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-              <span class="ml-3">Alert</span>
-            </a>
-          </li>
-      <!--Dashboard Tester-->
-      <li>
-        <a
-          (click)="onIssuesClick()"
-          [class.bg-gray-100]="activeMenu === 'issues'"
-          [class.dark:bg-gray-700]="activeMenu === 'issues'"
-          class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
-        >
-        <svg 
-        class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75" 
-        fill="currentColor" 
-        viewBox="0 0 24 24" 
-        xmlns="http://www.w3.org/2000/svg"
-    >
-        <path 
-            fill-rule="evenodd" 
-            d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14a1 1 0 11-2 0 1 1 0 012 0zm-2-3V7h2v6h-2z" 
-            clip-rule="evenodd"
-        />
-    </svg>
-    
-          <span class="ml-3">Issues</span>
-        </a>
-      </li>
+                <svg
+                  class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M8.257 3.099c.766-1.36 2.72-1.36 3.486 0l6.518 11.571c.75 1.33-.213 2.98-1.743 2.98H3.482c-1.53 0-2.493-1.65-1.743-2.98L8.257 3.1zm.993 10.401a1.25 1.25 0 102.5 0 1.25 1.25 0 00-2.5 0zm.25-2.75a1 1 0 011-1h.006a1 1 0 011 1v1a1 1 0 01-1 1h-.006a1 1 0 01-1-1v-1z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+                <span class="ml-3">Alert</span>
+              </a>
+            </li>
+          </ng-container>
+
+          <!-- Tester Menu Items -->
+          <ng-container *ngIf="isTester">
+            <li>
+              <a
+                (click)="onIssuesClick()"
+                [class.bg-gray-100]="activeMenu === 'issues'"
+                [class.dark:bg-gray-700]="activeMenu === 'issues'"
+                class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
+              >
+                <svg 
+                  class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75" 
+                  fill="currentColor" 
+                  viewBox="0 0 24 24" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path 
+                    fill-rule="evenodd" 
+                    d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14a1 1 0 11-2 0 1 1 0 012 0zm-2-3V7h2v6h-2z" 
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <span class="ml-3">Issues</span>
+              </a>
+            </li>
+          </ng-container>
         </ul>
       </div>
     </div>

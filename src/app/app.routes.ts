@@ -15,13 +15,18 @@ import { IssuePageComponent } from './pages/TesterPages/issue-page/issue-page.co
 import { SignupComponent } from './authentification/signup/signup.component';
 import { ActivateAccountComponent } from './authentification/activate-account/activate-account.component';
 import { ValidationAccountComponent } from './authentification/validation-account/validation-account.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { ForgotPasswordComponent } from './authentification/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './authentification/reset-password/reset-password.component';
 
- export const routes: Routes = [
-        { path: '', redirectTo: '/login', pathMatch: 'full' },
-        { path: 'login', component: LoginComponent },
-        { path: 'signup', component: SignupComponent },
-        { path: 'activate-account', component: ActivateAccountComponent },
-        { path: 'validation-account', component: ValidationAccountComponent },
+export const routes: Routes = [
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent },
+  { path: 'signup', component: SignupComponent },
+  { path: 'activate-account', component: ActivateAccountComponent },
+  { path: 'validation-account', component: ValidationAccountComponent },
+{path:'forgot-password',component:ForgotPasswordComponent},
+{ path: 'reset-password', component: ResetPasswordComponent },
 
         {
           path: 'dashboard',
@@ -39,7 +44,9 @@ import { ValidationAccountComponent } from './authentification/validation-accoun
             { path: 'staff', component: ContentStaffComponent },
             { path: 'staff-details', component: StaffDetailsComponent },
             { path: 'staff-ticket', component: StaffTicketComponent },
-            { path: 'alert', component: ContentAlertComponent }
+            { path: 'alert', component: ContentAlertComponent },
+            { path: 'profile', component: ProfileComponent },
+
           ]
         },
         {
