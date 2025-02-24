@@ -1,25 +1,45 @@
-<nav
-  class="bg-white dark:bg-darkbackground border-b border-gray-200 dark:border-gray-700 fixed z-30 w-full"
->
+<nav class="bg-white dark:bg-darkbackground border-b border-gray-200 dark:border-gray-700 fixed z-30 w-full">
   <div class="px-3 py-3 lg:px-5 lg:pl-3">
     <div class="flex items-center justify-between">
+      <!-- Logo Section - Left Side -->
       <div class="flex items-center justify-start">
+        <!-- Sidebar Toggle Button -->
+        <button
+          id="toggleSidebarMobile"
+          (click)="toggleSidebar()"
+          class="lg:hidden mr-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg"
+          aria-controls="sidebar"
+        >
+          <span class="sr-only">Toggle sidebar</span>
+          <svg
+            class="w-6 h-6"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+        </button>
+        
         <a href="" class="text-xl font-bold flex items-center lg:ml-2.5">
           <img
             src="https://www.recruter.tn/wp-content/uploads/2017/12/2612f16e-4d0f-4865-be6d-cf064aedf781-original-150x120.png"
             class="h-12 mr-1"
             alt="Windster Logo"
           />
-          <span class="self-center whitespace-nowrap dark:text-white"
-            >WindLogs</span
-          >
+          <span class="self-center whitespace-nowrap dark:text-white lg:block hidden">WindLogs</span>
         </a>
-        <form action="#" method="GET" class="hidden lg:block lg:pl-32">
-          <label for="topbar-search" class="sr-only">Search</label>
-          <div class="mt-1 relative lg:w-64">
-            <div
-              class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
-            >
+      </div>
+      
+      <!-- Search Form - This will toggle on mobile and always show on desktop -->
+      <div [class.hidden]="!showSearchForm && !isLargeScreen" class="lg:flex lg:flex-1 lg:mx-4">
+        <form action="#" method="GET" class="w-full flex flex-col lg:flex-row gap-3 items-center">
+          <div class="relative w-full lg:w-64">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg
                 class="w-5 h-5 text-gray-500 dark:text-gray-400"
                 fill="currentColor"
@@ -35,23 +55,29 @@
             </div>
             <input
               type="text"
-              name="email"
+              name="search"
               id="topbar-search"
               class="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full pl-10 p-2.5"
-              placeholder="Search"
+              placeholder="Rechercher"
             />
           </div>
+          
+         
+          
+        
         </form>
       </div>
+
+      <!-- Right Side Icons -->
       <div class="flex items-center">
-        <!-- Search mobile -->
+        <!-- Search mobile button -->
         <button
           id="toggleSidebarMobileSearch"
           type="button"
+          (click)="toggleSearchForm()"
           class="lg:hidden text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg"
         >
           <span class="sr-only">Search</span>
-          <!-- Search icon -->
           <svg
             class="w-6 h-6"
             fill="currentColor"
@@ -224,16 +250,14 @@
 
             <!-- Dropdown menu -->
             <div
-              class="absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark"
+              class="absolute p-4 right-0 mt-4 dark:bg-darkbackground flex w-62.5 flex-col rounded-sm border border-stroke shadow-default dark:border-strokedark dark:bg-boxdark"
               [class.hidden]="!dropdownOpen"
             >
-              <ul
-                class="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark"
-              >
+              <ul class="flex flex-col gap-5 px-6 py-7.5">
                 <li>
                   <a
                     href="/dashboard/profile"
-                    class="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+                    class="flex dark:text-white dark:hover:text-primary items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
                   >
                     <svg
                       class="fill-current"
@@ -258,7 +282,7 @@
                 <li>
                   <button
                     (click)="logout()"
-                    class="flex w-full items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+                    class="flex w-full dark:text-white dark:hover:text-primary items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
                   >
                     <svg
                       class="fill-current"

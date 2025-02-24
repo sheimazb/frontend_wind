@@ -28,9 +28,10 @@ export interface LoginResponse {
   fullName: string;
   role: string;
 }
-export interface ChangePassword{
+export interface ChangePasswordRequest {
+  email: string;
   currentPassword: string;
-  newPassword:string; 
+  newPassword: string;
 }
 
 @Injectable({
@@ -117,22 +118,16 @@ export class AuthService {
       })
     );
   }
-  changePassword(data: ChangePassword): Observable<any> {
-    const token = this.getToken();
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
-
-    const headers = new HttpHeaders()
-      .set('Content-Type', 'application/json')
-      .set('Authorization', `Bearer ${token}`);
-
-    return this.http.post(`${this.baseUrl}/change-password`, data, { headers })
-      .pipe(
-        map(response => {
-         return response;
-        }),
-      );
+  changePassword(request: ChangePasswordRequest): Observable<any> {
+    return this.http.post(`${this.baseUrl}/change-password`, request, {
+      withCredentials: true // Important if you're using session cookies
+    }).pipe(
+      map(response => response),
+      catchError(error => {
+        console.error('Password change error:', error);
+        throw error;
+      })
+    );
   }
   
   activateAccount(code: string): Observable<any> {
@@ -159,5 +154,31 @@ export class AuthService {
           throw error;
         })
       );
+  }
+
+  requestPasswordChange(data: ChangePasswordRequest): Observable<any> {
+    const token = this.getToken();
+    const httpOptionsWithAuth = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }),
+      responseType: 'text' as 'json'
+    };
+
+    return this.http.post(`${this.baseUrl}/request-password-change`, data, httpOptionsWithAuth);
+  }
+
+  verifyAndChangePassword(token: string, newPassword: string): Observable<any> {
+    const authToken = this.getToken();
+    const httpOptionsWithAuth = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      }),
+      responseType: 'text' as 'json' 
+    };
+
+    return this.http.post(`${this.baseUrl}/verify-and-change-password`, { token, newPassword }, httpOptionsWithAuth);
   }
 } 

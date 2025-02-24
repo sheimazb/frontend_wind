@@ -16,10 +16,13 @@ export class NavbarComponent implements OnInit {
   darkMode = false;
   dropdownOpen = false;
   currentUser: { email: string; fullName: string; role: string } | null = null;
+  showSearchForm: boolean = false;
+  isLargeScreen: boolean = false;
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private sidebarService: SidebarService
   ) {}
 
   ngOnInit() {
@@ -32,6 +35,14 @@ export class NavbarComponent implements OnInit {
 
     // Get current user data
     this.currentUser = this.authService.getCurrentUser();
+
+    // Check if screen is large
+    this.isLargeScreen = window.innerWidth >= 1024; // 1024px is the lg breakpoint in Tailwind
+    
+    // Listen for window resize events
+    window.addEventListener('resize', () => {
+      this.isLargeScreen = window.innerWidth >= 1024;
+    });
   }
 
   toggleDropdown() {
@@ -52,5 +63,13 @@ export class NavbarComponent implements OnInit {
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  toggleSearchForm() {
+    this.showSearchForm = !this.showSearchForm;
+  }
+
+  toggleSidebar() {
+    this.sidebarService.toggleSidebar();
   }
 }

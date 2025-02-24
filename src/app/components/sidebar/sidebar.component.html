@@ -6,6 +6,8 @@
   <div
     class="relative flex-1 flex flex-col min-h-0 border-r dark:border-darkboder border-gray-200 bg-white dark:bg-darkbackground pt-0"
   >
+  
+    
     <div class="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
       <div
         class="flex-1 px-3 bg-white dark:bg-darkbackground divide-y space-y-1"
@@ -156,7 +158,9 @@
   </div>
 </aside>
 
+<!-- Backdrop for mobile sidebar -->
 <div
   class="bg-gray-900 opacity-50 hidden fixed inset-0 z-10"
   id="sidebarBackdrop"
+  (click)="closeSidebarOnMobile()"
 ></div>
