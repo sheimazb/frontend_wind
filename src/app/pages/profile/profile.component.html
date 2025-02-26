@@ -20,6 +20,13 @@
       </nav>
     </div>
   </div>
+  
+  <!-- Error message display -->
+  <div *ngIf="errorMessage" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
+    {{ errorMessage }}
+    <button (click)="errorMessage = ''" class="ml-2 font-bold">×</button>
+  </div>
+  
   <div
     class="overflow-hidden p-4 md:p-8 lg:p-16 rounded-md border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-darkbackground"
   >
@@ -64,7 +71,12 @@
           </p>
         </div>
         <div *ngIf="isEditing" class="flex flex-col gap-3 w-full max-w-2xl">
-        
+          <!-- Added email field for API call -->
+          <input
+            [(ngModel)]="profileData.email"
+            class="flex-1 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 p-2 rounded-md"
+            placeholder="Email"
+          />
           <div class="flex flex-col sm:flex-row gap-2">
             <input
               [(ngModel)]="profileData.role"
@@ -176,13 +188,40 @@
         </div>
       </div>
       <div class="flex flex-col sm:flex-row gap-3">
+        <!-- Modified save button with loading state -->
         <button   
           (click)="toggleEdit()"
-          [class]="isEditing ? 'bg-green-500' : 'bg-purple-500'"
+          [disabled]="isLoading"
+          [class]="isEditing 
+            ? (isLoading ? 'bg-green-300' : 'bg-green-500') 
+            : 'bg-purple-500'"
           class="text-white h-fit px-4 py-2 rounded-md flex items-center gap-2"
         >
+          <!-- Show spinner when loading -->
           <svg
-            *ngIf="!isEditing"
+            *ngIf="isLoading"
+            class="animate-spin h-5 w-5 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          
+          <svg
+            *ngIf="!isEditing && !isLoading"
             class="w-5 h-5"
             fill="none"
             stroke="currentColor"
@@ -196,7 +235,7 @@
             ></path>
           </svg>
           <svg
-            *ngIf="isEditing"
+            *ngIf="isEditing && !isLoading"
             class="w-5 h-5"
             fill="none"
             stroke="currentColor"
@@ -209,12 +248,14 @@
               d="M5 13l4 4L19 7"
             ></path>
           </svg>
-          {{ isEditing ? "Save " : "Edit " }}
+          {{ isLoading ? "Saving..." : (isEditing ? "Save" : "Edit") }}
         </button>
         <button
           *ngIf="isEditing"
           (click)="cancelEdit()"
+          [disabled]="isLoading"
           class="bg-red-500 text-white h-fit px-4 py-2 rounded-md flex items-center gap-2"
+          [class.opacity-50]="isLoading"
         >
           <svg
             class="w-5 h-5"
@@ -365,5 +406,14 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Success notification -->
+  <div *ngIf="showSuccess" class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-md shadow-md flex items-center">
+    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+    </svg>
+    Profile updated successfully!
+    <button (click)="showSuccess = false" class="ml-2 font-bold">×</button>
   </div>
 </div>

@@ -1,4 +1,6 @@
-<nav class="bg-white dark:bg-darkbackground border-b border-gray-200 dark:border-gray-700 fixed z-30 w-full">
+<nav
+  class="bg-white dark:bg-darkbackground border-b border-gray-200 dark:border-gray-700 fixed z-30 w-full"
+>
   <div class="px-3 py-3 lg:px-5 lg:pl-3">
     <div class="flex items-center justify-between">
       <!-- Logo Section - Left Side -->
@@ -24,22 +26,34 @@
             ></path>
           </svg>
         </button>
-        
+
         <a href="" class="text-xl font-bold flex items-center lg:ml-2.5">
           <img
             src="https://www.recruter.tn/wp-content/uploads/2017/12/2612f16e-4d0f-4865-be6d-cf064aedf781-original-150x120.png"
             class="h-12 mr-1"
             alt="Windster Logo"
           />
-          <span class="self-center whitespace-nowrap dark:text-white lg:block hidden">WindLogs</span>
+          <span
+            class="self-center whitespace-nowrap dark:text-white lg:block hidden"
+            >WindLogs</span
+          >
         </a>
       </div>
-      
+
       <!-- Search Form - This will toggle on mobile and always show on desktop -->
-      <div [class.hidden]="!showSearchForm && !isLargeScreen" class="lg:flex lg:flex-1 lg:mx-4">
-        <form action="#" method="GET" class="w-full flex flex-col lg:flex-row gap-3 items-center">
+      <div
+        [class.hidden]="!showSearchForm && !isLargeScreen"
+        class="lg:flex lg:flex-1 lg:mx-4"
+      >
+        <form
+          action="#"
+          method="GET"
+          class="w-full flex flex-col lg:flex-row gap-3 items-center"
+        >
           <div class="relative w-full lg:w-64">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <div
+              class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+            >
               <svg
                 class="w-5 h-5 text-gray-500 dark:text-gray-400"
                 fill="currentColor"
@@ -61,10 +75,6 @@
               placeholder="Rechercher"
             />
           </div>
-          
-         
-          
-        
         </form>
       </div>
 
@@ -214,19 +224,19 @@
               <span class="hidden text-right lg:block">
                 <span
                   class="block text-sm font-medium text-black dark:text-white"
-                  >{{ currentUser?.fullName || 'Guest User' }}</span
+                  >{{ currentUser?.fullName || "Guest User" }}</span
                 >
                 <span
                   class="block text-xs font-medium text-gray-500 dark:text-gray-400"
-                  >{{ currentUser?.role || 'Not logged in' }}</span
+                  >{{ currentUser?.role || "Not logged in" }}</span
                 >
               </span>
 
-              <span class="h-14 w-16 rounded-full flex items-center">
+              <span class="h-12 w-14 rounded-full flex items-center">
                 <img
-                  src="https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png"
-                  alt="User"
-                  class="rounded-full"
+                  [src]="profileImage"
+                  alt="Profile Image"
+                  class="rounded-full h-12 w-12"
                 />
               </span>
 

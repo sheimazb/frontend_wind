@@ -4,6 +4,11 @@ import { SidebarService } from '../../services/sidebar.service';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { ProfileResponse, UserService } from '../../services/user.service';
+import { catchError, of } from 'rxjs';
+interface ProfileData {
+  image: string;
+}
 
 @Component({
   selector: 'app-navbar',
@@ -12,20 +17,27 @@ import { Router } from '@angular/router';
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
+
 export class NavbarComponent implements OnInit {
   darkMode = false;
   dropdownOpen = false;
   currentUser: { email: string; fullName: string; role: string } | null = null;
   showSearchForm: boolean = false;
   isLargeScreen: boolean = false;
+  private originalData: ProfileData;
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    private sidebarService: SidebarService
-  ) {}
+    private sidebarService: SidebarService,
+    private userService: UserService,
+  ) {
+    this.originalData = { ...this.profileData };
+  }
 
   ngOnInit() {
+    this.loadUserProfile();
+
     // Check if dark mode was previously enabled
     const isDarkMode = localStorage.getItem('darkMode') === 'true';
     if (isDarkMode) {
@@ -43,6 +55,47 @@ export class NavbarComponent implements OnInit {
     window.addEventListener('resize', () => {
       this.isLargeScreen = window.innerWidth >= 1024;
     });
+  }
+
+  isLoading=false;
+  profileImage = '';
+  errorMessage = '';
+
+  profileData: ProfileData = {
+    image: '',
+  };
+
+  loadUserProfile(): void {
+    this.isLoading = true;
+    const userEmail = 'ff@gmail.com';
+  this.userService.getUserProfile(userEmail)
+      .pipe(
+        catchError(error => {
+          console.error('Error in getUserProfile:', error);
+          this.errorMessage = 'Failed to load user profile. Using default profile data.';
+          
+          // Return a default response to continue the app flow
+          return of({
+            image: '',
+          } as ProfileResponse);
+        })
+      ).subscribe({
+        next:(response: ProfileResponse)=>{
+          this.profileData = {
+            image: response.image || '',
+          };
+          this.profileImage = response.image || this.profileImage;
+          this.originalData = { ...this.profileData };
+          console.log('test',response)
+        },
+        error: (error) => {
+          this.errorMessage = 'Failed to load user profile. Please try again later.';
+          console.error('Failed to load user profile:', error);
+        },
+        complete: () => {
+          this.isLoading = false;
+        }
+      });
   }
 
   toggleDropdown() {
