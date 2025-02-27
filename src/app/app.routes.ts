@@ -18,6 +18,7 @@ import { ValidationAccountComponent } from './authentification/validation-accoun
 import { ProfileComponent } from './pages/profile/profile.component';
 import { ForgotPasswordComponent } from './authentification/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './authentification/reset-password/reset-password.component';
+import { AgenciesContentComponent } from './components/content/systemContent/agencies-content/agencies-content.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -61,6 +62,20 @@ export const routes: Routes = [
             { path: 'issues', component: IssuesComponent },
             { path: 'issue-details', component: IssuePageComponent },
 
+
+          ]
+
+        },
+        {
+          path: 'dashboardAdmin',
+          component: TesterComponent,
+          children: [
+            { 
+              path: '',
+              redirectTo: 'agencies',
+              pathMatch: 'full'  // Added pathMatch for redirect
+            },
+            { path: 'agencies', component: AgenciesContentComponent },
 
           ]
 

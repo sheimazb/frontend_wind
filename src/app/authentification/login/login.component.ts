@@ -47,6 +47,9 @@ export class LoginComponent {
         case 'DEVELOPER':
           this.router.navigate(['/dashboardTesteur']);
           break;
+        case 'ADMIN':
+          this.router.navigate(['/dashboardAdmin']);
+          break;
         default:
           this.router.navigate(['/login']);
       }

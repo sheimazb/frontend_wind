@@ -19,6 +19,7 @@ interface ProfileData {
 })
 
 export class NavbarComponent implements OnInit {
+  userRole: string | null = null;
   darkMode = false;
   dropdownOpen = false;
   currentUser: { email: string; fullName: string; role: string } | null = null;
@@ -36,6 +37,8 @@ export class NavbarComponent implements OnInit {
   }
 
   ngOnInit() {
+    const currentUser = this.authService.getCurrentUser();
+    this.userRole = currentUser?.role || null;
     this.loadUserProfile();
 
     // Check if dark mode was previously enabled
@@ -55,6 +58,7 @@ export class NavbarComponent implements OnInit {
     window.addEventListener('resize', () => {
       this.isLargeScreen = window.innerWidth >= 1024;
     });
+  
   }
 
   isLoading=false;
@@ -64,6 +68,9 @@ export class NavbarComponent implements OnInit {
   profileData: ProfileData = {
     image: '',
   };
+  get isAdmin(): boolean {
+    return this.userRole === 'ADMIN';
+  }
 
   loadUserProfile(): void {
     this.isLoading = true;

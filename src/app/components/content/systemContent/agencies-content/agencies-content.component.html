@@ -1,0 +1,169 @@
+<div class="flex flex-col max-w-screen-2xl gap-6 p-4 sm:p-6 md:p-10 mx-auto">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-0">
+      <div>
+        <p class="dark:text-gray-200 text-2xl sm:text-3xl md:text-4xl flex items-center gap-2">
+          Agencies
+          <mat-icon class="text-gray-400 cursor-help" matTooltip="View all your Agencies that register on your application" [matTooltipPosition]="'right'">
+            help
+          </mat-icon>
+        </p>
+      </div>
+    </div>
+    
+    <mat-divider class="dark:bg-gray-600"></mat-divider>
+    
+    <div class="flex flex-col gap-1">
+      <!-- Table -->
+      <div class="overflow-x-auto bg-transparent shadow-md rounded-lg">
+        <table class="min-w-full divide-y dark:divide-gray-600 divide-gray-200">
+          <thead class="bg-gray-50 dark:bg-gray-900">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-white uppercase tracking-wider">ID</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-white uppercase tracking-wider">Image</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-white uppercase tracking-wider">Name</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-white uppercase tracking-wider">Company</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-white uppercase tracking-wider">Email</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-white uppercase tracking-wider">Phone number</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-white uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-white uppercase tracking-wider">Action</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-darkbackground divide-y dark:divide-gray-600 divide-gray-200">
+            <tr *ngFor="let partner of partners">
+              <td class="px-6 py-4 whitespace-nowrap text-sm dark:text-white text-gray-900">{{ partner.id }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm dark:text-white text-gray-900">
+                <img *ngIf="partner.image" [src]="partner.image" alt="Profile" class="h-10 w-10 rounded-full">
+                <span *ngIf="!partner.image">No Image</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm dark:text-white text-gray-900">{{ partner.firstname }} {{ partner.lastname }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm dark:text-white text-gray-900">{{ partner.company || 'N/A' }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm dark:text-white text-gray-900">{{ partner.email }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm dark:text-white text-gray-900">{{ partner.phone || 'N/A' }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm dark:text-white text-gray-900">
+                <span [ngClass]="partner.accountLocked === false ? 'bg-red-400' : 'bg-green-400'" class="rounded-full w-fit h-fit p-1 pr-3 pl-3">
+                  {{ (partner.accountLocked ===false) ? 'Blocked' : 'Active' }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm dark:text-white text-gray-900 flex space-x-2">
+                <button class="bg-green-500 text-white p-2 rounded-lg hover:bg-green-600" matTooltip="Accept" [matTooltipPosition]="'above'">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </button>
+                
+                <button class="bg-gray-500 text-white p-2 rounded-lg hover:bg-gray-600" matTooltip="Block" [matTooltipPosition]="'above'">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 2a10 10 0 1 1-7.071 2.929"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 9h6v6H9z"></path>
+                  </svg>
+                </button>
+                
+                <button class="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600" matTooltip="Refuse" [matTooltipPosition]="'above'">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-12.728 12.728"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 5.636l12.728 12.728"></path>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+            
+            <!-- Show a message when no partners are available -->
+            <tr *ngIf="partners.length === 0">
+              <td colspan="8" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                No partners found
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination Controls -->
+      <div class="flex items-center justify-between bg-transparent px-4 py-3 sm:px-6">
+        <div class="flex flex-1 justify-between sm:hidden">
+          <button 
+            (click)="previousPage()" 
+            [disabled]="currentPage === 1"
+            [ngClass]="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''" 
+            class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+            Previous
+          </button>
+          <button 
+            (click)="nextPage()" 
+            [disabled]="currentPage === totalPages"
+            [ngClass]="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''" 
+            class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+            Next
+          </button>
+        </div>
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+          <p class="text-sm text-gray-700 dark:text-gray-400">
+            Showing <span class="font-medium">{{ (currentPage - 1) * pageSize + 1 }}</span> to 
+            <span class="font-medium">{{ Math.min(currentPage * pageSize, allPartners.length) }}</span> of 
+            <span class="font-medium">{{ allPartners.length }}</span> results
+          </p>
+          <nav class="isolate inline-flex -space-x-px rounded-md shadow-xs" aria-label="Pagination">
+            <!-- Previous button -->
+            <button 
+              (click)="previousPage()" 
+              [disabled]="currentPage === 1"
+              class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+              [ngClass]="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''">
+              <span class="sr-only dark:text-white">Previous</span>
+              <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            
+            <!-- First page if not in view -->
+            <button 
+              *ngIf="shouldShowStartEllipsis()"
+              (click)="goToPage(1)" 
+              class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset dark:text-white hover:bg-gray-50">
+              1
+            </button>
+            
+            <!-- Start ellipsis -->
+            <span *ngIf="shouldShowStartEllipsis()" 
+              class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-gray-300 dark:text-gray-400 ring-inset">
+              ...
+            </span>
+            
+            <!-- Page numbers -->
+            <button 
+              *ngFor="let page of getPageNumbers()" 
+              (click)="goToPage(page)"
+              [ngClass]="currentPage === page ? 'relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold dark:text-white text-white' : 'relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset dark:text-white hover:bg-gray-50 dark:hover:text-indigo-600'">
+              {{ page }}
+            </button>
+            
+            <!-- End ellipsis -->
+            <span *ngIf="shouldShowEndEllipsis()" 
+              class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-gray-300 dark:text-gray-400 ring-inset">
+              ...
+            </span>
+            
+            <!-- Last page if not in view -->
+            <button 
+              *ngIf="shouldShowEndEllipsis()"
+              (click)="goToPage(totalPages)" 
+              class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset dark:text-white hover:bg-gray-50 dark:hover:text-indigo-600">
+              {{ totalPages }}
+            </button>
+            
+            <!-- Next button -->
+            <button 
+              (click)="nextPage()" 
+              [disabled]="currentPage === totalPages"
+              class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+              [ngClass]="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''">
+              <span class="sr-only dark:text-white">Next</span>
+              <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>

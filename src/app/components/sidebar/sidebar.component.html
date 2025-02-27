@@ -126,7 +126,30 @@
               </a>
             </li>
           </ng-container>
-
+          <ng-container *ngIf="isAdmin">
+            <li>
+              <a
+                (click)="onAgenciesClick()"
+                [class.bg-gray-100]="activeMenu === 'agencies'"
+                [class.dark:bg-gray-700]="activeMenu === 'agencies'"
+                class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
+              >
+                <svg 
+                  class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75" 
+                  fill="currentColor" 
+                  viewBox="0 0 24 24" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path 
+                    fill-rule="evenodd" 
+                    d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14a1 1 0 11-2 0 1 1 0 012 0zm-2-3V7h2v6h-2z" 
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <span class="ml-3">Agencies</span>
+              </a>
+            </li>
+          </ng-container>
           <!-- Tester Menu Items -->
           <ng-container *ngIf="isTester">
             <li>

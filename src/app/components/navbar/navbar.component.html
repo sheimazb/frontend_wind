@@ -232,7 +232,15 @@
                 >
               </span>
 
-              <span class="h-12 w-14 rounded-full flex items-center">
+              <span *ngIf="isAdmin" class="h-12 w-14 rounded-full flex items-center">
+                <img
+                  src="https://cdn3d.iconscout.com/3d/premium/thumb/administrator-3d-icon-download-in-png-blend-fbx-gltf-file-formats--male-management-employee-supervisor-administration-avatar-pack-people-icons-4741054.png"
+                  alt="Profile Image"
+                  class="rounded-full h-12 w-12"
+                />
+              </span>
+
+              <span *ngIf="!isAdmin"  class="h-12 w-14 rounded-full flex items-center">
                 <img
                   [src]="profileImage"
                   alt="Profile Image"

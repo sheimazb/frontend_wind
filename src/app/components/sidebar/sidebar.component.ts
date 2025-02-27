@@ -23,7 +23,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
     staff: '/dashboard/staff',
     stats: '/dashboard/stats',
     alert: '/dashboard/alert',
-    issues: '/dashboardTesteur/issues'
+    issues: '/dashboardTesteur/issues',
+    agencies:'/dashboardAdmin'
   };
 
   constructor(
@@ -102,6 +103,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       'stats': 'stats',
       'alert': 'alert',
       'issues': 'issues',
+      'agencies':'agencies'
     };
   
     return Object.keys(menuMapping).find(key => url.includes(key)) || 'dashboard';
@@ -114,6 +116,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   get isTester(): boolean {
     return this.userRole === 'TESTER';
+  }
+  get isAdmin(): boolean {
+    return this.userRole === 'ADMIN';
   }
 
   onStatsClick() {
@@ -138,6 +143,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   onIssuesClick() {
     this.router.navigate([this.routes.issues]);
+    this.closeSidebarOnMobile();
+  }
+  onAgenciesClick() {
+    this.router.navigate([this.routes.agencies]);
     this.closeSidebarOnMobile();
   }
 
