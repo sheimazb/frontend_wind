@@ -74,7 +74,8 @@ export class NavbarComponent implements OnInit {
 
   loadUserProfile(): void {
     this.isLoading = true;
-    const userEmail = 'ff@gmail.com';
+    const storedUser = localStorage.getItem('user'); 
+    const userEmail = storedUser ? JSON.parse(storedUser).email : '';
   this.userService.getUserProfile(userEmail)
       .pipe(
         catchError(error => {

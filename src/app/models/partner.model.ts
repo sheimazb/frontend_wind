@@ -23,3 +23,9 @@ export interface PartnerRequest {
     lien: string;
     accountLocked:boolean;
   }
+export interface PartnerAccountStatusRequest{
+  accountLocked:boolean;
+}
+export interface PartnerAccountStatusResponse{
+  accountLocked:boolean;
+}

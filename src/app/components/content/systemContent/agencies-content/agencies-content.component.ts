@@ -8,6 +8,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { Router, RouterModule } from '@angular/router';
 import { AdminService } from '../../../../services/admin.service';
 import { CommonModule } from '@angular/common';
+import { PartnerAccountStatusRequest } from '../../../../models/partner.model';
 
 @Component({
   selector: 'app-agencies-content',
@@ -123,4 +124,17 @@ export class AgenciesContentComponent implements OnInit {
     const pages = this.getPageNumbers();
     return pages[pages.length - 1] < this.totalPages;
   }
+
+  updateAccountStatus(email: string, status: boolean): void {
+    const request: PartnerAccountStatusRequest = { accountLocked: status };
+    
+    this.adminService.updatePartnerAccountStatus(email, request).subscribe({
+      next: (response) => {
+        console.log('Mise à jour réussie:', response);
+        this.loadPartners(); // Rafraîchir la liste après modification
+      },
+      error: (err) => console.error('Erreur lors de la mise à jour du statut', err)
+    });
+  }
+  
 }

@@ -72,21 +72,28 @@ export class ProfileComponent implements OnInit {
   // Load user profile from the backend with error handling
   loadUserProfile(): void {
     this.isLoading = true;
-    const userEmail = 'ff@gmail.com';
-    
-    // Add fallback for when the API fails
+  
+    const storedUser = localStorage.getItem('user'); // Ensure this is the correct key
+  const userEmail = storedUser ? JSON.parse(storedUser).email : '';
+  
+    if (!userEmail) {
+      console.error('No user email found in localStorage.');
+      this.errorMessage = 'User email not found. Please log in again.';
+      this.isLoading = false;
+      return;
+    }
+  
     this.userService.getUserProfile(userEmail)
       .pipe(
         catchError(error => {
           console.error('Error in getUserProfile:', error);
           this.errorMessage = 'Failed to load user profile. Using default profile data.';
-          
-          // Return a default response to continue the app flow
+  
           return of({
             id: 0,
             firstname: 'Default',
             lastname: 'User',
-            role:'',
+            role: '',
             email: userEmail,
             image: '',
             bio: 'This is a default profile as we could not load your data.',
@@ -115,7 +122,6 @@ export class ProfileComponent implements OnInit {
           };
           this.profileImage = response.image || this.profileImage;
           this.originalData = { ...this.profileData };
-          console.log('test',response)
         },
         error: (error) => {
           this.errorMessage = 'Failed to load user profile. Please try again later.';
@@ -126,6 +132,7 @@ export class ProfileComponent implements OnInit {
         }
       });
   }
+  
 
   // Toggle edit mode
   toggleEdit(): void {
@@ -209,16 +216,25 @@ saveProfile(): void {
 
   // Handle image file selection
   onImageChange(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0];
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+  
     if (file) {
-      this.selectedImageFile = file;
+      this.selectedImageFile = file; // Store the file if needed
+  
       const reader = new FileReader();
       reader.onload = (e: ProgressEvent<FileReader>) => {
-        this.profileImage = (e.target?.result as string) || this.profileImage;
+        const imageUrl = e.target?.result as string;
+        
+        if (imageUrl) {
+          this.profileImage = imageUrl; // Update image source
+        }
       };
-      reader.readAsDataURL(file);
+  
+      reader.readAsDataURL(file); // Convert file to data URL
     }
   }
+  
 
   // Generate contribution data
   private generateContributionData(): void {

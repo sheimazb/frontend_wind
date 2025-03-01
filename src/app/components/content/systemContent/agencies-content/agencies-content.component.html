@@ -17,7 +17,7 @@
       <!-- Table -->
       <div class="overflow-x-auto bg-transparent shadow-md rounded-lg">
         <table class="min-w-full divide-y dark:divide-gray-600 divide-gray-200">
-          <thead class="bg-gray-50 dark:bg-gray-900">
+          <thead class="bg-purple-200 dark:bg-gray-900">
             <tr>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-white uppercase tracking-wider">ID</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-white uppercase tracking-wider">Image</th>
@@ -41,30 +41,36 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm dark:text-white text-gray-900">{{ partner.email }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm dark:text-white text-gray-900">{{ partner.phone || 'N/A' }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm dark:text-white text-gray-900">
-                <span [ngClass]="partner.accountLocked === false ? 'bg-red-400' : 'bg-green-400'" class="rounded-full w-fit h-fit p-1 pr-3 pl-3">
-                  {{ (partner.accountLocked ===false) ? 'Blocked' : 'Active' }}
+                <span [ngClass]="partner.accountLocked === false ? 'bg-green-300' : 'bg-red-300'" class="rounded-full text-white w-fit h-fit p-1 pr-3 pl-3">
+                  {{ (partner.accountLocked ===false) ? 'Active' : 'Blocked' }}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm dark:text-white text-gray-900 flex space-x-2">
-                <button class="bg-green-500 text-white p-2 rounded-lg hover:bg-green-600" matTooltip="Accept" [matTooltipPosition]="'above'">
+                <button
+                (click)="updateAccountStatus(partner.email, false)" [disabled]="!partner.accountLocked"
+                [ngClass]="partner.accountLocked === false ? 'bg-gray-300 cursor-not-allowed' : 'bg-indigo-500 hover:bg-green-600'" 
+                 class=" text-white p-2 rounded-full "
+                  matTooltip="Accept"
+                  [matTooltipPosition]="'above'">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                   </svg>
                 </button>
                 
-                <button class="bg-gray-500 text-white p-2 rounded-lg hover:bg-gray-600" matTooltip="Block" [matTooltipPosition]="'above'">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 2a10 10 0 1 1-7.071 2.929"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 9h6v6H9z"></path>
-                  </svg>
-                </button>
+                <button 
+               (click)="updateAccountStatus(partner.email, true)"
+                [disabled]="partner.accountLocked"
+                [ngClass]="partner.accountLocked === true ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-300 hover:bg-red-600'" 
+                class="text-white p-2 rounded-full" 
+                matTooltip="Block" 
+                [matTooltipPosition]="'above'">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 2a10 10 0 1 1-7.071 2.929"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 9h6v6H9z"></path>
+                </svg>
+              </button>
                 
-                <button class="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600" matTooltip="Refuse" [matTooltipPosition]="'above'">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-12.728 12.728"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 5.636l12.728 12.728"></path>
-                  </svg>
-                </button>
+                
               </td>
             </tr>
             
