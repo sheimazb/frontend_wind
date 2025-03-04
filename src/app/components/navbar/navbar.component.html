@@ -1,7 +1,7 @@
-<nav
-  class="bg-white dark:bg-darkbackground border-b border-gray-200 dark:border-gray-700 fixed z-30 w-full"
->
-  <div class="px-3 py-3 lg:px-5 lg:pl-3">
+<nav class="fixed w-full z-50">
+  <!-- Dynamic background with blur effect -->
+  <div class="absolute inset-0 bg-purple-900/30  dark:bg-[#111036]/95 backdrop-blur-md transition-colors duration-300"></div>
+  <div class="px-3 py-3 lg:px-5 lg:pl-3 relative">
     <div class="flex items-center justify-between">
       <!-- Logo Section - Left Side -->
       <div class="flex items-center justify-start">
@@ -9,7 +9,7 @@
         <button
           id="toggleSidebarMobile"
           (click)="toggleSidebar()"
-          class="lg:hidden mr-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg"
+          class="lg:hidden mr-2 text-gray-700 dark:text-white hover:text-gray-500 dark:hover:text-gray-300 p-2 rounded-lg transition-colors duration-300"
           aria-controls="sidebar"
         >
           <span class="sr-only">Toggle sidebar</span>
@@ -27,17 +27,13 @@
           </svg>
         </button>
 
-        <a href="" class="text-xl font-bold flex items-center lg:ml-2.5">
-          <img
-            src="https://www.recruter.tn/wp-content/uploads/2017/12/2612f16e-4d0f-4865-be6d-cf064aedf781-original-150x120.png"
-            class="h-12 mr-1"
-            alt="Windster Logo"
-          />
-          <span
-            class="self-center whitespace-nowrap dark:text-white lg:block hidden"
-            >WindLogs</span
-          >
-        </a>
+        <div class="flex items-center h-12">
+            <img 
+              [src]="darkMode ? 'assets/darkLogo.png' : ' assets/lightLogo.png'" 
+              alt="WindLogs Logo" 
+              class="h-full w-auto object-contain hover:brightness-110 transition-all duration-300" 
+            />
+        </div>
       </div>
 
       <!-- Search Form - This will toggle on mobile and always show on desktop -->
@@ -55,7 +51,7 @@
               class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
             >
               <svg
-                class="w-5 h-5 text-gray-500 dark:text-gray-400"
+                class="w-5 h-5 text-gray-400"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
@@ -71,7 +67,7 @@
               type="text"
               name="search"
               id="topbar-search"
-              class="bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full pl-10 p-2.5"
+              class="bg-gray-100 dark:bg-[#202045] border-gray-200 dark:border-none text-gray-800 dark:text-white sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 transition-colors duration-300"
               placeholder="Rechercher"
             />
           </div>
@@ -85,7 +81,7 @@
           id="toggleSidebarMobileSearch"
           type="button"
           (click)="toggleSearchForm()"
-          class="lg:hidden text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg"
+          class="lg:hidden text-gray-700 dark:text-white hover:text-gray-500 dark:hover:text-gray-300 p-2 rounded-lg transition-colors duration-300"
         >
           <span class="sr-only">Search</span>
           <svg
@@ -106,7 +102,7 @@
           <!--Dark mode -->
           <div>
             <label
-              [class]="darkMode ? 'bg-blue-500' : 'bg-gray-200'"
+              [class]="darkMode ? 'bg-blue-500' : 'bg-gray-600'"
               class="relative m-0 block h-7.5 w-14 rounded-full cursor-pointer transition-colors duration-300"
             >
               <input
@@ -157,7 +153,7 @@
           </div>
           <!-- Message-->
           <a
-            class="relative flex h-10 w-10 items-center justify-center rounded-full border-[0.5px] border-stroke bg-gray hover:text-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
+            class="relative flex h-10 w-10 items-center justify-center rounded-full border-[0.5px] border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-[#202045] text-gray-700 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
             href="#"
           >
             <span
@@ -197,7 +193,7 @@
           </a>
           <!--Notification-->
           <a
-            class="relative flex h-10 w-10 items-center justify-center rounded-full border-[0.5px] border-stroke bg-gray hover:text-primary dark:border-strokedark dark:bg-meta-4 dark:text-white"
+            class="relative flex h-10 w-10 items-center justify-center rounded-full border-[0.5px] border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-[#202045] text-gray-700 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
             href="#"
           >
             <svg
@@ -223,11 +219,11 @@
             >
               <span class="hidden text-right lg:block">
                 <span
-                  class="block text-sm font-medium text-black dark:text-white"
+                  class="block text-sm font-medium text-gray-700 dark:text-white transition-colors duration-300"
                   >{{ currentUser?.fullName || "Guest User" }}</span
                 >
                 <span
-                  class="block text-xs font-medium text-gray-500 dark:text-gray-400"
+                  class="block text-xs font-medium text-gray-500 dark:text-gray-400 transition-colors duration-300"
                   >{{ currentUser?.role || "Not logged in" }}</span
                 >
               </span>
@@ -250,7 +246,7 @@
 
               <svg
                 [class]="{ 'rotate-180': dropdownOpen }"
-                class="hidden fill-current sm:block dark:text-gray-400"
+                class="hidden fill-current sm:block text-gray-600 dark:text-gray-400 transition-colors duration-300"
                 width="12"
                 height="8"
                 viewBox="0 0 12 8"
@@ -268,14 +264,14 @@
 
             <!-- Dropdown menu -->
             <div
-              class="absolute p-4 right-0 mt-4 bg-white dark:bg-darkbackground flex w-62.5 flex-col rounded-sm border border-stroke shadow-default dark:border-strokedark dark:bg-boxdark"
+              class="absolute p-4 right-0 mt-4 bg-[#161639] flex w-62.5 flex-col rounded-sm border border-gray-700 shadow-default"
               [class.hidden]="!dropdownOpen"
             >
               <ul class="flex flex-col gap-5 px-6 py-7.5">
                 <li>
                   <a
                     href="/dashboard/profile"
-                    class="flex dark:text-white dark:hover:text-primary items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+                    class="flex text-white hover:text-blue-400 items-center gap-3.5 text-sm font-medium duration-300 ease-in-out lg:text-base"
                   >
                     <svg
                       class="fill-current"
@@ -300,7 +296,7 @@
                 <li>
                   <button
                     (click)="logout()"
-                    class="flex w-full dark:text-white dark:hover:text-primary items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+                    class="flex w-full text-white hover:text-blue-400 items-center gap-3.5 text-sm font-medium duration-300 ease-in-out lg:text-base"
                   >
                     <svg
                       class="fill-current"

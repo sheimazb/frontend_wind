@@ -27,6 +27,15 @@ export class NavbarComponent implements OnInit {
   isLargeScreen: boolean = false;
   private originalData: ProfileData;
 
+  // User information
+  userName: string = 'John Doe';
+  userEmail: string = 'john@example.com';
+  userImage: string = 'assets/images/users/default-avatar.png';
+  
+  // Dropdown states
+  showNotifications: boolean = false;
+  showProfileMenu: boolean = false;
+
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -132,5 +141,16 @@ export class NavbarComponent implements OnInit {
 
   toggleSidebar() {
     this.sidebarService.toggleSidebar();
+  }
+
+  // Toggle methods
+  toggleNotificationsMenu(): void {
+    this.showNotifications = !this.showNotifications;
+    this.showProfileMenu = false; // Close profile menu when opening notifications
+  }
+
+  toggleProfileMenu(): void {
+    this.showProfileMenu = !this.showProfileMenu;
+    this.showNotifications = false; // Close notifications when opening profile menu
   }
 }

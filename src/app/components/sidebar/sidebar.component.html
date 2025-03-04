@@ -4,14 +4,10 @@
   aria-label="Sidebar"
 >
   <div
-    class="relative flex-1 flex flex-col min-h-0 border-r dark:border-darkboder border-gray-200 bg-white dark:bg-darkbackground pt-0"
+    class="relative flex-1 flex flex-col min-h-0 border-r border-white/10 dark:border-white/10 bg-[#111036] backdrop-blur-md pt-0"
   >
-  
-    
     <div class="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-      <div
-        class="flex-1 px-3 bg-white dark:bg-darkbackground divide-y space-y-1"
-      >
+      <div class="flex-1 px-3 divide-y divide-white/10 space-y-1">
         <ul class="space-y-2 pb-2">
           <li>
             <form action="#" method="GET" class="lg:hidden">
@@ -21,7 +17,7 @@
                   class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
                 >
                   <svg
-                    class="w-5 h-5 text-gray-500"
+                    class="w-5 h-5 text-white/50"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg"
@@ -35,7 +31,7 @@
                   type="text"
                   name="email"
                   id="mobile-search"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-cyan-600 focus:ring-cyan-600 block w-full pl-10 p-2.5"
+                  class="bg-[#111036]/50 border border-white/10 text-white text-sm rounded-lg focus:ring-[#E1567C] focus:border-[#E1567C] block w-full pl-10 p-2.5 placeholder-white/30"
                   placeholder="Search"
                 />
               </div>
@@ -46,12 +42,11 @@
             <li>
               <a
                 (click)="onDashboardClick()"
-                [class.bg-gray-100]="activeMenu === 'project'"
-                [class.dark:bg-gray-700]="activeMenu === 'project'"
-                class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
+                [class.bg-[#E1567C]]="activeMenu === 'project'"
+                class="text-base text-white/75 font-normal rounded-lg flex items-center p-2 hover:bg-white/10 group cursor-pointer transition-all duration-200"
               >
                 <svg
-                  class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75"
+                  class="w-6 h-6 text-white/50 group-hover:text-white transition duration-200"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -60,18 +55,17 @@
                     d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
                   ></path>
                 </svg>
-                <span class="ml-3">Projects</span>
+                <span class="ml-3 group-hover:text-white transition-colors">Projects</span>
               </a>
             </li>
             <li>
               <a
                 (click)="onStaffClick()"
-                [class.bg-gray-100]="activeMenu === 'staff'"
-                [class.dark:bg-gray-700]="activeMenu === 'staff'"
-                class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
+                [class.bg-[#E1567C]]="activeMenu === 'staff'"
+                class="text-base text-white/75 font-normal rounded-lg flex items-center p-2 hover:bg-white/10 group cursor-pointer transition-all duration-200"
               >
                 <svg
-                  class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75"
+                  class="w-6 h-6 text-white/50 group-hover:text-white transition duration-200"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                   xmlns="http://www.w3.org/2000/svg"
@@ -80,18 +74,17 @@
                     d="M12 2a4 4 0 110 8 4 4 0 010-8zm-6 16c0-3 3-5 6-5s6 2 6 5v2H6v-2zm12 2v-2c0-1.1-.9-2-2-2h-2c2 0 4 1 4 3v1h2v-1z"
                   ></path>
                 </svg>
-                <span class="ml-3">Staff</span>
+                <span class="ml-3 group-hover:text-white transition-colors">Staff</span>
               </a>
             </li>
             <li>
               <a
                 (click)="onStatsClick()"
-                [class.bg-gray-100]="activeMenu === 'stats'"
-                [class.dark:bg-gray-700]="activeMenu === 'stats'"
-                class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
+                [class.bg-[#E1567C]]="activeMenu === 'stats'"
+                class="text-base text-white/75 font-normal rounded-lg flex items-center p-2 hover:bg-white/10 group cursor-pointer transition-all duration-200"
               >
                 <svg
-                  class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75"
+                  class="w-6 h-6 text-white/50 group-hover:text-white transition duration-200"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -100,18 +93,17 @@
                     d="M2 11a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1v-6zM8 7a1 1 0 011-1h2a1 1 0 011 1v10a1 1 0 01-1 1h-2a1 1 0 01-1-1V7zM14 3a1 1 0 011-1h2a1 1 0 011 1v14a1 1 0 01-1 1h-2a1 1 0 01-1-1V3z"
                   ></path>
                 </svg>
-                <span class="ml-3">Stats</span>
+                <span class="ml-3 group-hover:text-white transition-colors">Stats</span>
               </a>
             </li>
             <li>
               <a
                 (click)="onAlertClick()"
-                [class.bg-gray-100]="activeMenu === 'alert'"
-                [class.dark:bg-gray-700]="activeMenu === 'alert'"
-                class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
+                [class.bg-[#E1567C]]="activeMenu === 'alert'"
+                class="text-base text-white/75 font-normal rounded-lg flex items-center p-2 hover:bg-white/10 group cursor-pointer transition-all duration-200"
               >
                 <svg
-                  class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75"
+                  class="w-6 h-6 text-white/50 group-hover:text-white transition duration-200"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -122,7 +114,7 @@
                     clip-rule="evenodd"
                   ></path>
                 </svg>
-                <span class="ml-3">Alert</span>
+                <span class="ml-3 group-hover:text-white transition-colors">Alert</span>
               </a>
             </li>
           </ng-container>
@@ -130,12 +122,11 @@
             <li>
               <a
                 (click)="onAgenciesClick()"
-                [class.bg-gray-100]="activeMenu === 'agencies'"
-                [class.dark:bg-gray-700]="activeMenu === 'agencies'"
-                class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
+                [class.bg-[#c5b3b834]]="activeMenu === 'agencies'"
+                class="text-base border border-[#e1567b49] text-white/75 font-normal rounded-lg flex items-center p-2 hover:bg-white/10 group cursor-pointer transition-all duration-200"
               >
                 <svg 
-                  class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75" 
+                  class="w-6 h-6 dark:text-white/50 text-primary/50 group-hover:text-white transition duration-200"
                   fill="currentColor" 
                   viewBox="0 0 24 24" 
                   xmlns="http://www.w3.org/2000/svg"
@@ -146,7 +137,7 @@
                     clip-rule="evenodd"
                   />
                 </svg>
-                <span class="ml-3">Agencies</span>
+                <span class="ml-3 group-hover:text-white transition-colors">Agencies</span>
               </a>
             </li>
           </ng-container>
@@ -155,12 +146,11 @@
             <li>
               <a
                 (click)="onIssuesClick()"
-                [class.bg-gray-100]="activeMenu === 'issues'"
-                [class.dark:bg-gray-700]="activeMenu === 'issues'"
-                class="text-base dark:text-gray-300 text-gray-900 font-normal rounded-lg flex items-center p-2 dark:hover:bg-gray-700 hover:bg-gray-100 group cursor-pointer"
+                [class.bg-[#E1567C]]="activeMenu === 'issues'"
+                class="text-base text-white/75 font-normal rounded-lg flex items-center p-2 hover:bg-white/10 group cursor-pointer transition-all duration-200"
               >
                 <svg 
-                  class="w-6 h-6 text-gray-500 group-hover:text-gray-900 transition duration-75" 
+                  class="w-6 h-6 text-white/50 group-hover:text-white transition duration-200"
                   fill="currentColor" 
                   viewBox="0 0 24 24" 
                   xmlns="http://www.w3.org/2000/svg"
@@ -171,7 +161,7 @@
                     clip-rule="evenodd"
                   />
                 </svg>
-                <span class="ml-3">Issues</span>
+                <span class="ml-3 group-hover:text-white transition-colors">Issues</span>
               </a>
             </li>
           </ng-container>
@@ -183,7 +173,7 @@
 
 <!-- Backdrop for mobile sidebar -->
 <div
-  class="bg-gray-900 opacity-50 hidden fixed inset-0 z-10"
+  class="bg-black/50 backdrop-blur-sm hidden fixed inset-0 z-10"
   id="sidebarBackdrop"
   (click)="closeSidebarOnMobile()"
 ></div>

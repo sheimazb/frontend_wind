@@ -28,7 +28,7 @@
   </div>
   
   <div
-    class="overflow-hidden p-4 md:p-8 lg:p-16 rounded-md border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-darkbackground"
+    class="overflow-hidden p-4 md:p-8 lg:p-16 rounded-md border border-stroke bg-[#362C45]/10 shadow-default dark:border-strokedark dark:bg-[#362C45]/57"
   >
     <!-- Profile Section -->
     <div class="flex flex-col md:flex-row items-center md:items-center gap-6 md:space-x-4">
@@ -193,8 +193,8 @@
           (click)="toggleEdit()"
           [disabled]="isLoading"
           [class]="isEditing 
-            ? (isLoading ? 'bg-green-300' : 'bg-green-500') 
-            : 'bg-purple-500'"
+            ? (isLoading ? 'bg-gradient-to-r from-green-300 to-green-400' : 'bg-gradient-to-r from-green-500 to-green-600') 
+            : 'bg-gradient-to-r from-[#E1567C] to-[#9F3996]'"
           class="text-white h-fit px-4 py-2 rounded-md flex items-center gap-2"
         >
           <!-- Show spinner when loading -->
@@ -303,8 +303,8 @@
 
     <!-- Contribution Activity -->
     <div class="mt-6">
-      <div class="bg-white p-4 md:p-6 rounded-lg shadow-md w-full dark:bg-darkbackground border border-gray-200 dark:border-gray-700">
-        <h2 class="text-lg font-semibold mb-4">Contributions in the last months</h2>
+      <div class="bg-white p-4 md:p-6 rounded-lg shadow-md w-full dark:bg-transparent border border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg dark:text-white font-semibold mb-4">Contributions in the last months</h2>
 
         <!-- Months -->
         <div class="flex justify-start space-x-12 text-sm text-purple-600 mb-2 overflow-x-auto">

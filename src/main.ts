@@ -3,13 +3,26 @@ import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { importProvidersFrom } from '@angular/core';
+import { ToastrModule } from 'ngx-toastr';
 
-// Merge the existing appConfig with BrowserAnimationsModule
 const updatedConfig = {
   ...appConfig,
   providers: [
     ...(appConfig.providers || []),
-    importProvidersFrom(BrowserAnimationsModule)
+    importProvidersFrom(
+      BrowserAnimationsModule
+    ),
+    importProvidersFrom(
+      ToastrModule.forRoot({
+        positionClass: 'toast-top-right',
+        preventDuplicates: true,
+        timeOut: 5000,
+        progressBar: true,
+        closeButton: true,
+        tapToDismiss: true,
+        newestOnTop: true
+      })
+    )
   ]
 };
 

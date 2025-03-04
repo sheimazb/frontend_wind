@@ -1,21 +1,19 @@
 import { Injectable } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ToastService {
-  constructor() { }
+  constructor(private toastr: ToastrService) { }
 
   showSuccess(message: string): void {
-    // You can implement this using your preferred toast library
-    // For example: ngx-toastr, or a custom implementation
-    console.log('Success:', message);
-    alert(message); // Temporary implementation
+    console.log('Attempting to show success toast:', message);
+    this.toastr.success(message, 'Success');
   }
 
   showError(message: string): void {
-    // You can implement this using your preferred toast library
-    console.log('Error:', message);
-    alert(message); // Temporary implementation
+    console.log('Attempting to show error toast:', message);
+    this.toastr.error(message, 'Error');
   }
 } 

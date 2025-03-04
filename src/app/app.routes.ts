@@ -19,15 +19,16 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { ForgotPasswordComponent } from './authentification/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './authentification/reset-password/reset-password.component';
 import { AgenciesContentComponent } from './components/content/systemContent/agencies-content/agencies-content.component';
-
+import { HomePageComponent } from './pages/HomePage/homePage.component';
 export const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  { path: 'home', component: HomePageComponent },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'activate-account', component: ActivateAccountComponent },
   { path: 'validation-account', component: ValidationAccountComponent },
-{path:'forgot-password',component:ForgotPasswordComponent},
-{ path: 'reset-password', component: ResetPasswordComponent },
+  {path:'forgot-password',component:ForgotPasswordComponent},
+  { path: 'reset-password', component: ResetPasswordComponent },
 
         {
           path: 'dashboard',
