@@ -95,6 +95,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     }
   }
 
+  
   get activeMenu(): string {
     const url = this.router.url;
     const menuMapping: { [key: string]: string } = {

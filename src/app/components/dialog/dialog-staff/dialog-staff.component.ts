@@ -1,17 +1,21 @@
 import { Component, inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+  import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+
+// Angular Material Modules
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { FormGroup, FormsModule, Validators, FormBuilder } from '@angular/forms';
-import { ReactiveFormsModule } from '@angular/forms';
 import { MatRadioModule } from '@angular/material/radio';
-import { NgIf, CommonModule, NgClass } from '@angular/common';
+
+// Services
 import { StaffService } from '../../../services/staff.service';
 import { ToastService } from '../../../services/toast.service';
-import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 export interface DialogData {
   name: string;
@@ -23,16 +27,13 @@ export interface DialogData {
   standalone: true,
   imports: [
     CommonModule,
-    NgIf,
-    NgClass,
-    MatRadioModule,
-    ReactiveFormsModule,
     MatDialogModule,
-    FormsModule,
-    MatIconModule,
-    MatButtonModule,
+    MatFormFieldModule,
     MatInputModule,
-    MatFormFieldModule
+    MatButtonModule,
+    MatIconModule,
+    MatRadioModule,
+    ReactiveFormsModule
   ],
   templateUrl: './dialog-staff.component.html',
   styleUrl: './dialog-staff.component.css'
@@ -46,7 +47,7 @@ export class DialogStaffComponent {
   constructor(
     private fb: FormBuilder,
     private staffService: StaffService,
-    private toastService: ToastService,
+    private toastService: ToastrService,
     private router: Router
   ) {
     this.contactForm = this.fb.group({
@@ -61,28 +62,23 @@ export class DialogStaffComponent {
     if (this.contactForm.valid) {
       const formData = this.contactForm.value;
       this.staffService.CreateStaff(formData).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.toastService.showSuccess(response.message || 'Staff member created successfully!');
-            this.dialogRef.close({ success: true, data: formData });
-            setTimeout(() => {
-              this.router.navigate(['/dashboard/staff']);
-            }, 100);
-          } else {
-            this.toastService.showError('Failed to create staff member. Please try again.');
-          }
+        next: (result) => {
+          console.log('Staff created:', result);
+          this.toastService.success('Staff member created successfully!');
+          this.router.navigate(['/dashboard/staff']);
         },
         error: (error) => {
-          this.toastService.showError(error.message || 'Failed to create staff member. Please try again.');
+          this.toastService.error(error.message || 'Failed to create staff member. Please try again.');
         }
       });
     } else {
-      Object.keys(this.contactForm.controls).forEach(key => {
-        const control = this.contactForm.get(key);
-        control?.markAsTouched();
-      });
-      this.toastService.showError('Please fill in all required fields correctly.');
+      this.markFormFieldsTouched();
+      this.toastService.error('Please fill in all required fields correctly.');
     }
+  }
+
+  private markFormFieldsTouched(): void {
+    Object.values(this.contactForm.controls).forEach(control => control.markAsTouched());
   }
 
   onCancel(): void {

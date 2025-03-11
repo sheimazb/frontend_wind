@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
 
 export interface ProfileResponse {
   id: number;
@@ -10,7 +9,7 @@ export interface ProfileResponse {
   email: string;
   image: string;
   bio: string;
-  role:string;
+  role: string;
   phone: string;
   location: string;
   company: string;
@@ -23,7 +22,7 @@ export interface ProfileRequest {
   lastname: string;
   email: string;
   image: File | null;
-  role:string;
+  role: string;
   bio: string;
   phone: string;
   location: string;
@@ -37,74 +36,69 @@ export interface ProfileRequest {
 })
 export class UserService {
   private apiUrl = 'http://localhost:8222/api/v1/users';
-  
-  getToken(): string | null {
-    return localStorage.getItem('token');
-  }
 
   constructor(private http: HttpClient) {}
 
-  // Récupérer les informations du profil
+  // Get user profile
   getUserProfile(email: string): Observable<ProfileResponse> {
-    const token = this.getToken();
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': `Bearer ${token}`
-      })
-    };
-
-    return this.http.get<ProfileResponse>(`${this.apiUrl}/${email}`, httpOptions);
+    return this.http.get<ProfileResponse>(`${this.apiUrl}/${email}`);
   }
 
-  // Mettre à jour le profil utilisateur
+  // Update user profile
   updateUserProfile(email: string, profileData: ProfileRequest): Observable<ProfileResponse> {
-    const token = this.getToken();
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': `Bearer ${token}`
-      })
-    };
+    const formData = new FormData();
     
-    // Debug: Log what's being sent
-    console.log('Updating profile for:', email);
-    console.log('Token available:', !!token);
-    console.log('Profile data:', {
-      ...profileData,
-      image: profileData.image ? profileData.image.name : 'No image'
+    // Log the incoming data
+    console.log('Profile data received:', {
+      firstname: profileData.firstname,
+      lastname: profileData.lastname,
+      email: profileData.email,
+      role: profileData.role,
+      bio: profileData.bio,
+      phone: profileData.phone,
+      location: profileData.location,
+      company: profileData.company,
+      pronouns: profileData.pronouns,
+      lien: profileData.lien,
+      hasImage: !!profileData.image,
+      imageName: profileData.image?.name
     });
     
-    const formData = new FormData();
+    // Append required fields
     formData.append('firstname', profileData.firstname);
     formData.append('lastname', profileData.lastname);
     formData.append('email', profileData.email);
+    
+    // Append optional fields with null checks
+    if (profileData.role) formData.append('role', profileData.role);
+    if (profileData.bio) formData.append('bio', profileData.bio);
+    if (profileData.phone) formData.append('phone', profileData.phone);
+    if (profileData.location) formData.append('location', profileData.location);
+    if (profileData.company) formData.append('company', profileData.company);
+    if (profileData.pronouns) formData.append('pronouns', profileData.pronouns);
+    if (profileData.lien) formData.append('lien', profileData.lien);
+
+    // Append image if it exists
     if (profileData.image) {
       formData.append('image', profileData.image);
+      console.log('Image being uploaded:', {
+        name: profileData.image.name,
+        type: profileData.image.type,
+        size: profileData.image.size
+      });
     }
-    formData.append('bio', profileData.bio || '');
-    formData.append('phone', profileData.phone || '');
-    formData.append('role', profileData.role || '');
-    formData.append('location', profileData.location || '');
-    formData.append('company', profileData.company || '');
-    formData.append('pronouns', profileData.pronouns || '');
-    formData.append('lien', profileData.lien || '');
-    
+
+    // Log the FormData keys for debugging
+    const formDataKeys: string[] = [];
+    formData.forEach((value, key) => {
+      formDataKeys.push(key);
+    });
+    console.log('FormData keys:', formDataKeys);
+
     return this.http.post<ProfileResponse>(
       `${this.apiUrl}/update-profile/${email}`, 
-      formData, 
-      httpOptions
-    ).pipe(
-      catchError(error => {
-        console.error('Profile update error details:', error);
-        // Log the response text if available
-        if (error.error instanceof Blob) {
-          const reader = new FileReader();
-          reader.onload = () => {
-            console.error('Error response content:', reader.result);
-          };
-          reader.readAsText(error.error);
-        }
-        throw error;
-      })
+      formData
     );
   }
+  
 }

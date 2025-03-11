@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { from, Observable, throwError } from 'rxjs';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 import {
@@ -7,59 +7,53 @@ import {
   PartnerAccountStatusResponse,
   PartnerResponse,
 } from '../models/partner.model';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AdminService {
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {}
+  
   private apiUrl = 'http://localhost:8222/api/v1/admin';
 
-  getToken(): string | null {
-    return localStorage.getItem('token');
+  private handleError(error: HttpErrorResponse) {
+    console.error('API Error:', error);
+
+    if (error.status === 403) {
+      // Forbidden - User doesn't have admin privileges
+      this.router.navigate(['/unauthorized']);
+      return throwError(() => new Error('You do not have permission to access this resource. Please contact your administrator.'));
+    }
+
+    if (error.error instanceof Blob) {
+      return from(error.error.text()).pipe(
+        tap(text => console.error('Error response content:', text)),
+        mergeMap(() => throwError(() => new Error('Operation failed. Please try again.')))
+      );
+    }
+
+    // Handle other types of errors
+    const message = error.error?.message || 'An unexpected error occurred. Please try again.';
+    return throwError(() => new Error(message));
   }
 
   getAllPartners(): Observable<PartnerResponse[]> {
-    const token = this.getToken();
-    const httpOptions = {
-      headers: new HttpHeaders({
-        Authorization: `Bearer ${token}`,
-      }),
-    };
-    return this.http.get<PartnerResponse[]>(
-      `${this.apiUrl}/partners`,
-      httpOptions
-    );
+    return this.http.get<PartnerResponse[]>(`${this.apiUrl}/partners`)
+      .pipe(
+        catchError(error => this.handleError(error))
+      );
   }
   
   updatePartnerAccountStatus(email: string, request: PartnerAccountStatusRequest): Observable<PartnerAccountStatusResponse> {
-    const token = this.getToken();
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      })
-    };
-  
     return this.http.post<PartnerAccountStatusResponse>(
       `${this.apiUrl}/edit-status/${email}`, 
-      request,  // Send the request object directly as JSON
-      httpOptions
+      request
     ).pipe(
-      catchError(error => {
-        console.error('Profile update error details:', error);
-  
-        if (error.error instanceof Blob) {
-          return from(error.error.text()).pipe(
-            tap(text => console.error('Error response content:', text)), 
-            mergeMap(() => throwError(() => error))
-          );
-        }
-  
-        return throwError(() => error);
-      })
+      catchError(error => this.handleError(error))
     );
   }
-  
-  
 }

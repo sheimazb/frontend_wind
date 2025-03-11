@@ -190,7 +190,7 @@
       <div class="flex flex-col sm:flex-row gap-3">
         <!-- Modified save button with loading state -->
         <button   
-          (click)="toggleEdit()"
+          (click)="isEditing ? saveProfile() : toggleEdit()"
           [disabled]="isLoading"
           [class]="isEditing 
             ? (isLoading ? 'bg-gradient-to-r from-green-300 to-green-400' : 'bg-gradient-to-r from-green-500 to-green-600') 

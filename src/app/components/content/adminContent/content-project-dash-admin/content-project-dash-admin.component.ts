@@ -1,15 +1,21 @@
-import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ElementRef, ViewChildren, QueryList } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import ApexCharts from 'apexcharts'; 
 import { Router, RouterModule } from '@angular/router';
-import {MatTooltipModule} from '@angular/material/tooltip';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ProjectService, Project } from '../../../../services/project.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import ApexCharts from 'apexcharts';
+
 @Component({
   selector: 'app-content-project-dash-admin',
   standalone: true,
   imports: [
+    CommonModule,
+    FormsModule,
     RouterModule,
     MatIconModule,
     MatDividerModule,
@@ -18,115 +24,264 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     MatTooltipModule
   ],
   templateUrl: './content-project-dash-admin.component.html',
-  styleUrls: ['./content-project-dash-admin.component.css']
+  styleUrls: ['./content-project-dash-admin.component.css'],
+  styles: [`
+    h3 {
+      margin: 0 !important;
+      padding: 0 !important;
+      line-height: 1.2 !important;
+    }
+  `]
 })
 export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
-  constructor(private router: Router) {}
+  projects: Project[] = [];
+  filteredProjects: Project[] = [];
+  isLoading = false;
+  errorMessage = '';
+  searchQuery = '';
+  charts: { [key: string]: ApexCharts } = {};
 
-  @ViewChild('chartTwoContainer', { static: false }) chartContainer!: ElementRef;
+  @ViewChildren('chartContainer') chartContainers!: QueryList<ElementRef>;
 
-  ngOnInit(): void {}
+  constructor(
+    private router: Router,
+    private projectService: ProjectService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadProjects();
+  }
 
   ngAfterViewInit(): void {
-    this.initChart();
+    // Wait for projects to load before initializing charts
+    setTimeout(() => {
+      this.initializeCharts();
+    }, 0);
   }
-  initChart(): void {
-    const chartOptions = {
-      series: [
-        {
-          name: "Activity",
-          data: [44, 55, 41, 67, 22, 43, 65],
-        },
-        {
-          name: "Errors",
-          data: [13, 23, 20, 8, 13, 27, 15],
-        },
-      ],
-      colors: ["#7D4FFE", "#DA919F"],
-      chart: {
-        type: "bar",
-        height: 335,
-        stacked: true,
-        toolbar: {
-          show: false,
-        },
-        zoom: {
-          enabled: false,
-        },
-        foreColor: '#64748B', // Couleur de texte par défaut pour le graphique
+
+  loadProjects(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.projectService.getAllProjects().subscribe({
+      next: (projects) => {
+        this.projects = projects;
+        this.filteredProjects = projects;
+        this.isLoading = false;
+        // Initialize charts after projects are loaded
+        setTimeout(() => {
+          this.initializeCharts();
+        }, 0);
       },
-      responsive: [
-        {
-          breakpoint: 1536,
-          options: {
-            plotOptions: {
-              bar: {
-                borderRadius: 0,
-                columnWidth: "25%",
+      error: (error) => {
+        console.error('Error loading projects:', error);
+        this.errorMessage = 'Failed to load projects. Please try again later.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  onSearchProjects(event: Event): void {
+    const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
+    this.searchQuery = searchTerm;
+    
+    if (!searchTerm) {
+      this.filteredProjects = this.projects;
+    } else {
+      this.filteredProjects = this.projects.filter(project => 
+        project.name.toLowerCase().includes(searchTerm) ||
+        project.description.toLowerCase().includes(searchTerm) ||
+        project.tags?.some(tag => tag.toLowerCase().includes(searchTerm))
+      );
+    }
+
+    // Reinitialize charts after filtering
+    setTimeout(() => {
+      this.initializeCharts();
+    }, 0);
+  }
+
+  initializeCharts(): void {
+    // Destroy existing charts first
+    Object.values(this.charts).forEach(chart => chart.destroy());
+    this.charts = {};
+
+    this.chartContainers.forEach((container, index) => {
+      if (this.filteredProjects[index]) {
+        const project = this.filteredProjects[index];
+        const chartOptions = {
+          series: [
+            {
+              name: "Activity",
+              data: [44, 55, 41, 67, 22, 43, 65],
+            },
+            {
+              name: "Errors",
+              data: [13, 23, 20, 8, 13, 27, 15],
+            },
+          ],
+          chart: {
+            type: "bar",
+            height: 200,
+            stacked: true,
+            toolbar: {
+              show: false,
+            },
+            zoom: {
+              enabled: false,
+            },
+            background: 'transparent',
+            foreColor: '#6B7280',
+            fontFamily: 'Inter, sans-serif',
+            animations: {
+              enabled: true,
+              easing: 'easeinout',
+              speed: 800,
+              animateGradually: {
+                enabled: true,
+                delay: 150
+              },
+              dynamicAnimation: {
+                enabled: true,
+                speed: 350
+              }
+            }
+          },
+          colors: ["#E1567C", "#9F3996"],
+          fill: {
+            type: 'gradient',
+            gradient: {
+              type: "vertical",
+              shadeIntensity: 0.5,
+              gradientToColors: ["#F87EA1", "#C15DB5"],
+              inverseColors: false,
+              opacityFrom: 0.9,
+              opacityTo: 0.6,
+            },
+          },
+          plotOptions: {
+            bar: {
+              horizontal: false,
+              borderRadius: 6,
+              columnWidth: "40%",
+              borderRadiusApplication: "end",
+              borderRadiusWhenStacked: "last",
+            },
+          },
+          dataLabels: {
+            enabled: false,
+          },
+          xaxis: {
+            categories: ["M", "T", "W", "T", "F", "S", "S"],
+            axisBorder: {
+              show: false,
+            },
+            axisTicks: {
+              show: false,
+            },
+            labels: {
+              style: {
+                colors: '#6B7280',
+                fontSize: '12px',
+                fontWeight: 500,
               },
             },
           },
-        },
-      ],
-      plotOptions: {
-        bar: {
-          horizontal: false,
-          borderRadius: 0,
-          columnWidth: "25%",
-          borderRadiusApplication: "end",
-          borderRadiusWhenStacked: "last",
-        },
-      },
-      dataLabels: {
-        enabled: false,
-        style: {
-          colors: ['#64748B'] // Couleur du texte des étiquettes de données
-        }
-      },
-      xaxis: {
-        categories: ["M", "T", "W", "T", "F", "S", "S"],
-        labels: {
-          style: {
-            colors: '#64748B' // Couleur du texte de l'axe X
+          yaxis: {
+            show: true,
+            max: 100,
+            labels: {
+              style: {
+                colors: '#6B7280',
+                fontSize: '12px',
+                fontWeight: 500,
+              },
+              formatter: function (value: number) {
+                return value + '%';
+              },
+            },
+          },
+          grid: {
+            show: true,
+            borderColor: 'rgba(107, 114, 128, 0.1)',
+            strokeDashArray: 4,
+            position: 'back',
+            xaxis: {
+              lines: {
+                show: false
+              }
+            },
+            yaxis: {
+              lines: {
+                show: true
+              }
+            },
+            padding: {
+              top: 0,
+              right: 10,
+              bottom: 0,
+              left: 10
+            },
+          },
+          legend: {
+            position: 'top',
+            horizontalAlign: 'left',
+            offsetY: -8,
+            labels: {
+              colors: '#6B7280',
+            },
+            markers: {
+              radius: 4,
+              width: 16,
+              height: 16,
+            },
+            itemMargin: {
+              horizontal: 12
+            },
+          },
+          tooltip: {
+            theme: 'dark',
+            style: {
+              fontSize: '12px',
+              fontFamily: 'Inter, sans-serif',
+            },
+            y: {
+              formatter: function(value: number) {
+                return value + '%';
+              }
+            },
+            marker: {
+              show: true,
+            },
+            custom: function({ series, seriesIndex, dataPointIndex, w }: any) {
+              return '<div class="p-2">' +
+                '<div class="flex items-center gap-2">' +
+                '<span class="w-3 h-3 rounded-full" style="background: ' + w.globals.colors[seriesIndex] + '"></span>' +
+                '<span class="font-medium">' + w.globals.seriesNames[seriesIndex] + '</span>' +
+                '</div>' +
+                '<div class="text-2xl font-bold mt-1">' + series[seriesIndex][dataPointIndex] + '%</div>' +
+                '</div>';
+            }
           }
-        }
-      },
-      yaxis: {
-        labels: {
-          style: {
-            colors: '#64748B' // Couleur du texte de l'axe Y
-          }
-        }
-      },
-      legend: {
-        position: "top",
-        horizontalAlign: "left",
-        fontFamily: "Satoshi",
-        fontWeight: 500,
-        fontSize: "14px",
-        labels: {
-          colors: '#64748B' // Couleur du texte de la légende
-        },
-        markers: {
-          radius: 99,
-        },
-      },
-      fill: {
-        opacity: 1,
-      },
-    };
-  
-    if (this.chartContainer) {
-      const chart = new ApexCharts(this.chartContainer.nativeElement, chartOptions);
-      chart.render();
-    }
-  }   
-  // Project Settings route
+        };
+
+        const chart = new ApexCharts(container.nativeElement, chartOptions);
+        this.charts[project.id!] = chart;
+        chart.render();
+      }
+    });
+  }
+
   onProjectSettingsClick() {
     this.router.navigate(['/dashboard/project-settings']);
   }
+
   onAddProjectClick() {
     this.router.navigate(['/dashboard/add-project']);
+  }
+
+  onProjectDetailsClick(projectId: number) {
+    this.router.navigate(['/dashboard/project-details/' + projectId]);
   }
 }
 

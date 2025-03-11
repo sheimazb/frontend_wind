@@ -20,6 +20,9 @@ import { ForgotPasswordComponent } from './authentification/forgot-password/forg
 import { ResetPasswordComponent } from './authentification/reset-password/reset-password.component';
 import { AgenciesContentComponent } from './components/content/systemContent/agencies-content/agencies-content.component';
 import { HomePageComponent } from './pages/HomePage/homePage.component';
+import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
+import { ProjectDetailsComponent } from './pages/AdminPages/project-details/project-details.component';
+
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'home', component: HomePageComponent },
@@ -43,11 +46,13 @@ export const routes: Routes = [
             { path: 'project', component: ContentProjectDashAdminComponent },
             { path: 'project-settings', component: ProjectSettingsComponent },
             { path: 'add-project', component: AddProjectComponent },
+            { path: 'project-details/:id', component: ProjectDetailsComponent },
             { path: 'staff', component: ContentStaffComponent },
             { path: 'staff-details', component: StaffDetailsComponent },
             { path: 'staff-ticket', component: StaffTicketComponent },
             { path: 'alert', component: ContentAlertComponent },
             { path: 'profile', component: ProfileComponent },
+
 
           ]
         },
@@ -80,5 +85,9 @@ export const routes: Routes = [
 
           ]
 
+        },
+        {
+          path: 'unauthorized',
+          component: UnauthorizedComponent
         }
       ];

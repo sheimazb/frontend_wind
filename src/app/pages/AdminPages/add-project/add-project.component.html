@@ -1,189 +1,247 @@
 <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
-    <div class="mx-auto max-w-270">
-      <!-- Breadcrumb Start -->
-      <div
-        class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-      >
-        <h2 class="text-title-md2 font-bold text-black dark:text-white">
-          Create a new project 
-        </h2>
+  <div class="mx-auto max-w-270">
+    <!-- Breadcrumb Start -->
+    <div
+      class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <h2 class="text-title-md2 font-bold text-black dark:text-white">
+        Create New Project
+      </h2>
 
-        <nav>
-            <ol class="flex items-center gap-2">
-              <li>
-                <a
-                  class="font-medium dark:text-gray-300 cursor-pointer text-gray-700"
-                    (click)="onDashboardClick()"
-                  >Dashboard /</a>
-              </li>
-              <li class="font-medium text-purple-500 cursor-pointer">Create Project</li>
-            </ol>
-          </nav>
-      </div>
-      
-<!--section 3-->
-          <div class="flex flex-col gap-6">
-            <p class="dark:text-gray-400">Set up a separate project for each part of your application 
-                (for example, your API server and frontend client),<br>
-                 to quickly pinpoint which part of your application errors
-                  are coming from</p>
-<!--step 1-->
-            <div class="flex items-center space-x-3">
-                <div
-                  class="w-10 h-10 flex items-center justify-center bg-blue-500 text-white font-bold rounded-full"
-                >
-                  1
-                </div>
-                <!-- Texte -->
-                <span class="text-gray-900 dark:text-white font-medium"> Choose your platform </span>
-              </div>
-<!--technologies-->              
-            <div class="p-6 bg-gray-100 bg-transparent rounded-lg shadow-lg">
-                          
-                <!-- Grid View -->
-                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
-                    <!-- Icône Angular -->
-                    <button class="flex flex-col items-center justify-center p-3 rounded-lg bg-white dark:text-gray-300 dark:bg-darkbackground  shadow-md hover:bg-gray-200 transition">
-                        <ng-icon name="diAngularOriginal" size="30" />
-                      
-                        <span class="text-xs mt-1">Angular</span>
-                    </button>
-            
-                    <!-- Icône React -->
-                    <button class="flex flex-col items-center justify-center p-3 rounded-lg dark:text-gray-300 dark:bg-darkbackground bg-white shadow-md hover:bg-gray-200 transition">
-                        <ng-icon name="diReactOriginal" size="30" />
-                        <span class="text-xs mt-1">React</span>
-                    </button>
-            
-                    <!-- Icône Vue.js -->
-                    <button class="flex flex-col items-center justify-center p-3 rounded-lg dark:text-gray-300 dark:bg-darkbackground bg-white shadow-md hover:bg-gray-200 transition">
-                        <ng-icon name="diVuejsOriginal" size="30" />
-                          <span class="text-xs mt-1">Vue.js</span>
-                    </button>
-            
-                    <!-- Icône TypeScript -->
-                    <button class="flex flex-col items-center justify-center p-3 rounded-lg dark:text-gray-300 dark:bg-darkbackground bg-white shadow-md hover:bg-gray-200 transition">
-                        <ng-icon name="diTypescriptOriginal" size="30" />
-                          <span class="text-xs mt-1">TypeScript</span>
-                    </button>
-            
-                    <!-- Icône Node.js -->
-                    <button class="flex flex-col items-center justify-center p-3 rounded-lg dark:text-gray-300 dark:bg-darkbackground bg-white shadow-md hover:bg-gray-200 transition">
-                        <ng-icon name="diNodejsOriginal" size="30" />
-                          <span class="text-xs mt-1">Node.js</span>
-                    </button>
-            
-                    <!-- Icône Java -->
-                    <button class="flex flex-col items-center justify-center p-3 rounded-lg dark:text-gray-300 dark:bg-darkbackground bg-white shadow-md hover:bg-gray-200 transition">
-                        <ng-icon name="diJavaOriginal" size="30" />
-                          <span class="text-xs mt-1">Java</span>
-                    </button>
-                    <button class="flex flex-col items-center justify-center p-3 rounded-lg dark:text-gray-300 dark:bg-darkbackground bg-white shadow-md hover:bg-gray-200 transition">
-                        <ng-icon name="diSpringOriginal" size="30" />
-                          <span class="text-xs mt-1">SpringBoot</span>
-                    </button>
-                </div>
-            </div>
-<!--step 2-->
-            <div class="flex items-center  space-x-3">
-                <div
-                  class="w-10 h-10 flex items-center justify-center bg-blue-500 text-white font-bold rounded-full"
-                >
-                  2
-                </div>
-                <!-- Texte -->
-                <span class="text-gray-900 dark:text-white font-medium"> Name your project and assign it a team</span>
-              </div>
- <!--create Project-->
-              <div class="p-6 bg-gray-100 bg-transparent rounded-lg shadow-lg">
-                <form>
-                    <!-- Name Field -->
-                    <div class="grid grid-cols-2 items-center gap-4">
-                      <div>
-                        <label
-                          for="name"
-                          class="block text-sm font-medium dark:text-gray-300 text-gray-700"
-                        >
-                          Name <span class="text-red-500">*</span>
-                        </label>
-                        <p class="text-sm dark:text-gray-400 text-gray-500">
-                          A name for this project
-                        </p>
-                      </div>
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value="testwind"
-                        class="block w-full px-3 py-2 border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                      />
-                    </div>
-                   
-                    <!-- Platform Field -->
-                    <div class="grid grid-cols-2 items-center gap-4">
-                      <div>
-                        <label
-                          class="block font-medium dark:text-gray-300 text-gray-700"
-                          >Team</label
-                        >
-                        <p class="mt-1 text-sm dark:text-gray-400 text-gray-500">
-                         Assign a team for your project
-                        </p>
-                      </div>
-                      <select
-                        class="mt-2 w-full rounded border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-white px-3 py-2 focus:border-blue-500 focus:outline-none"
-                      >
-                        <option value="angular" selected>TeamDev</option>
-                        <option value="angular" selected>Team Amine</option>
-                        <option value="angular" selected>Team raed</option>
-
-                      </select>
-                    </div>
-
-                    <!-- Description Field -->
-                    <div class="grid mt-3 grid-cols-2 items-center gap-4">
-                      <div>
-                        <label
-                          for="description"
-                          class="block text-sm font-medium dark:text-gray-300 text-gray-700"
-                        >
-                          Description <span class="text-red-500">*</span>
-                        </label>
-                        <p class="text-sm dark:text-gray-400 text-gray-500">
-                          A description for this project
-                        </p>
-                      </div>
-                      <textarea
-                        id="description"
-                        name="description"
-                        class="block w-full px-3 py-2 border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                      >testwind it's a project for our erp system</textarea>
-                    </div>
-                  </form>
-              </div>
-<!--step 3-->
-            <div class="flex items-center  space-x-3">
-                <div
-                  class="w-10 h-10 flex items-center justify-center bg-blue-500 text-white font-bold rounded-full"
-                >
-                  3
-                </div>
-                <!-- Texte -->
-                <span class="text-gray-900 dark:text-white font-medium">Ready to create</span>
-              </div>
-          </div>
-          <div class="p-6 flex flex-row items-center justify-between bg-gray-100 bg-transparent rounded-lg shadow-lg">
-            <p class="dark:text-gray-400">now you are able to create your prject! <br> <b>Congratulations! 🎉</b> </p>
-            <button
-          
-            class="h-fit border rounded-md flex justify-center items-center gap-2 p-2 dark:text-white dark:border-gray-600 text-gray-700 bg-gray-300 dark:bg-purple-500 w-full sm:w-auto min-w-[150px]"
-          >
-          
-            <span class="text-sm md:text-base">Create Project</span>
-            <mat-icon>keyboard_arrow_right</mat-icon>
-          </button>
-          </div>
-          <div>
-        </div>
+      <nav>
+        <ol class="flex items-center gap-2">
+          <li>
+            <a
+              class="font-medium dark:text-gray-300 cursor-pointer text-gray-700"
+              (click)="onDashboardClick()"
+              >Dashboard /</a
+            >
+          </li>
+          <li class="font-medium text-purple-500 cursor-pointer">
+            Add Project
+          </li>
+        </ol>
+      </nav>
     </div>
-</div>  
+
+    <!--section 3-->
+    <div class="flex flex-col gap-6">
+      <p class="dark:text-gray-400">
+        Set up a separate project for each part of your application (for
+        example, your API server and frontend client),<br />
+        to quickly pinpoint which part of your application errors are coming
+        from
+      </p>
+      <!--step 1-->
+      <div class="flex items-center space-x-3">
+        <div
+          class="w-10 h-10 flex items-center justify-center bg-blue-500 text-white font-bold rounded-full"
+        >
+          1
+        </div>
+        <!-- Texte -->
+        <span class="text-gray-900 dark:text-white font-medium">
+          Choose your platform
+        </span>
+      </div>
+      <!--technologies-->
+      <div class="p-6 bg-gray-50 dark:bg-gray-900/80 rounded-lg shadow-lg">
+        <!-- Grid View -->
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
+          <!-- Technology buttons -->
+          <button
+            *ngFor="let tech of ['Angular', 'React', 'Vue.js', 'TypeScript', 'Node.js', 'Java', 'SpringBoot']"
+            (click)="selectTechnology(tech)"
+            [class.selected]="selectedTechnology === tech"
+            class="flex flex-col items-center justify-center p-3 rounded-lg bg-white dark:text-gray-300 dark:bg-darkbackground shadow-md hover:bg-gray-200 transition"
+            [ngClass]="{'ring-2 ring-purple-500': selectedTechnology === tech}"
+          >
+            <ng-icon [name]="'di' + tech.toLowerCase().replace('.', '') + 'Original'" size="30" />
+            <span class="text-xs mt-1">{{tech}}</span>
+          </button>
+        </div>
+      </div>
+      <!--step 2-->
+      <div class="flex items-center space-x-3">
+        <div
+          class="w-10 h-10 flex items-center justify-center bg-blue-500 text-white font-bold rounded-full"
+        >
+          2
+        </div>
+        <!-- Texte -->
+        <span class="text-gray-900 dark:text-white font-medium"
+          >Name your project and assign it a team</span
+        >
+      </div>
+      <!--create Project-->
+      <div class="p-6 bg-gray-50 dark:bg-gray-900/80 rounded-lg shadow-lg">
+        <form #projectForm="ngForm" id="projectForm" (ngSubmit)="onSubmit()">
+          <!-- Name Field -->
+          <div class="grid grid-cols-2 items-center gap-4">
+            <div>
+              <label
+                for="name"
+                class="block text-sm font-medium dark:text-gray-300 text-gray-700"
+              >
+                Name <span class="text-red-500">*</span>
+              </label>
+              <p class="text-sm dark:text-gray-400 text-gray-500">
+                A name for this project
+              </p>
+            </div>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              [(ngModel)]="project.name"
+              required
+              class="block w-full px-3 py-2 border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+
+          <!-- Description Field -->
+          <div class="grid mt-3 grid-cols-2 items-center gap-4">
+            <div>
+              <label
+                for="description"
+                class="block text-sm font-medium dark:text-gray-300 text-gray-700"
+              >
+                Description <span class="text-red-500">*</span>
+              </label>
+              <p class="text-sm dark:text-gray-400 text-gray-500">
+                A description for this project
+              </p>
+            </div>
+            <textarea
+              id="description"
+              name="description"
+              [(ngModel)]="project.description"
+              required
+              class="block w-full px-3 py-2 border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            ></textarea>
+          </div>
+          <!-- Repository Link Field -->
+          <div class="grid mt-3 grid-cols-2 items-center gap-4">
+            <div>
+              <label
+                for="repositoryLink"
+                class="block text-sm font-medium dark:text-gray-300 text-gray-700"
+              >
+                Repository Link <span class="text-red-500">*</span>
+              </label>
+              <p class="text-sm dark:text-gray-400 text-gray-500">
+                Add a link to your project repository
+              </p>
+            </div>
+            <input
+              type="url"
+              id="repositoryLink"
+              name="repositoryLink"
+              [(ngModel)]="project.repositoryLink"
+              required
+              class="block w-full px-3 py-2 border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+
+          <!-- Deadline Date Field -->
+          <div class="grid mt-3 grid-cols-2 items-center gap-4">
+            <div>
+              <label
+                for="deadlineDate"
+                class="block text-sm font-medium dark:text-gray-300 text-gray-700"
+              >
+                Deadline Date <span class="text-red-500">*</span>
+              </label>
+              <p class="text-sm dark:text-gray-400 text-gray-500">
+                Deadline for the project
+              </p>
+            </div>
+            <input
+              type="date"
+              id="deadlineDate"
+              name="deadlineDate"
+              [(ngModel)]="project.deadlineDate"
+              required
+              class="block w-full px-3 py-2 border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+
+          <!-- Allowed Roles Field -->
+          <div class="grid mt-3 grid-cols-2 items-center gap-4">
+            <div>
+              <label
+                class="block text-sm font-medium dark:text-gray-300 text-gray-700"
+              >
+                Allowed Roles <span class="text-red-500">*</span>
+              </label>
+              <p class="text-sm dark:text-gray-400 text-gray-500">
+                Select roles allowed in the project
+              </p>
+            </div>
+            <div class="flex gap-4">
+              <div class="flex items-center">
+                <input
+                  type="checkbox"
+                  id="tester"
+                  name="tester"
+                  ngModel
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                />
+                <label
+                  for="tester"
+                  class="ml-2 text-sm font-medium dark:text-gray-300 text-gray-700"
+                  >Tester</label
+                >
+              </div>
+              <div class="flex items-center">
+                <input
+                  type="checkbox"
+                  id="developer"
+                  name="developer"
+                  ngModel
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                />
+                <label
+                  for="developer"
+                  class="ml-2 text-sm font-medium dark:text-gray-300 text-gray-700"
+                  >Developer</label
+                >
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <!--step 3-->
+      <div class="flex items-center space-x-3">
+        <div
+          class="w-10 h-10 flex items-center justify-center bg-blue-500 text-white font-bold rounded-full"
+        >
+          3
+        </div>
+        <!-- Texte -->
+        <span class="text-gray-900 dark:text-white font-medium"
+          >Ready to create</span
+        >
+      </div>
+    </div>
+    <div
+      class="p-6 flex flex-row items-center justify-between mt-6 bg-gray-50 dark:bg-gray-900/80 rounded-lg shadow-lg"
+    >
+      <p class="dark:text-gray-400">
+        now you are able to create your project! <br />
+        <b>Congratulations! 🎉</b>
+      </p>
+      <button
+        type="submit"
+        form="projectForm"
+        [disabled]="isLoading"
+        class="h-fit border rounded-md flex justify-center items-center gap-2 p-2 dark:text-white dark:border-gray-600 text-gray-700 bg-gray-300 dark:bg-purple-500 w-full sm:w-auto min-w-[150px]"
+      >
+        <span class="text-sm md:text-base">{{ isLoading ? 'Creating...' : 'Create Project' }}</span>
+        <mat-icon *ngIf="!isLoading">keyboard_arrow_right</mat-icon>
+        <mat-icon *ngIf="isLoading" class="animate-spin">refresh</mat-icon>
+      </button>
+    </div>
+    <div></div>
+  </div>
+</div>

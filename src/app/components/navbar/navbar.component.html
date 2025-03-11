@@ -1,6 +1,6 @@
 <nav class="fixed w-full z-50">
   <!-- Dynamic background with blur effect -->
-  <div class="absolute inset-0 bg-purple-900/30  dark:bg-[#111036]/95 backdrop-blur-md transition-colors duration-300"></div>
+  <div class="absolute inset-0   bg-[#111036]/95 backdrop-blur-md transition-colors duration-300"></div>
   <div class="px-3 py-3 lg:px-5 lg:pl-3 relative">
     <div class="flex items-center justify-between">
       <!-- Logo Section - Left Side -->
@@ -29,7 +29,7 @@
 
         <div class="flex items-center h-12">
             <img 
-              [src]="darkMode ? 'assets/darkLogo.png' : ' assets/lightLogo.png'" 
+              [src]="darkMode ? 'assets/darkLogo.png' : ' assets/darkLogo.png'" 
               alt="WindLogs Logo" 
               class="h-full w-auto object-contain hover:brightness-110 transition-all duration-300" 
             />
@@ -67,7 +67,7 @@
               type="text"
               name="search"
               id="topbar-search"
-              class="bg-gray-100 dark:bg-[#202045] border-gray-200 dark:border-none text-gray-800 dark:text-white sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 transition-colors duration-300"
+              class=" bg-[#202045]  dark:border-none text-white sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 transition-colors duration-300"
               placeholder="Rechercher"
             />
           </div>
@@ -81,7 +81,7 @@
           id="toggleSidebarMobileSearch"
           type="button"
           (click)="toggleSearchForm()"
-          class="lg:hidden text-gray-700 dark:text-white hover:text-gray-500 dark:hover:text-gray-300 p-2 rounded-lg transition-colors duration-300"
+          class="lg:hidden text-white hover:text-gray-300 p-2 rounded-lg transition-colors duration-300"
         >
           <span class="sr-only">Search</span>
           <svg

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, catchError, map, tap } from 'rxjs';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { Observable, catchError, map, tap, throwError, of } from 'rxjs';
 
 // Interface for the registration data
 export interface RegisterRequest {
@@ -14,20 +14,24 @@ export interface LoginRequest {
   email: string;
   password: string;
 }
+
 export interface ForgotPasswordRequest {
   email: string;
 }
+
 export interface ResetPasswordRequest {
   code: string;
   password: string;
-  
 }
+
 export interface LoginResponse {
   token: string;
   email: string;
   fullName: string;
   role: string;
+  id: number;
 }
+
 export interface ChangePasswordRequest {
   email: string;
   currentPassword: string;
@@ -52,7 +56,41 @@ export class AuthService {
     localStorage.setItem('user', JSON.stringify({
       email: response.email,
       fullName: response.fullName,
-      role: response.role
+      role: response.role,
+      id: response.id
+    }));
+  }
+
+  private handleError(error: any) {
+    console.error('Auth Service Error:', error);
+    
+    // If the error is already formatted by our interceptor
+    if (error.status && error.message) {
+      return throwError(() => error);
+    }
+
+    // If it's an HTTP error
+    if (error instanceof HttpErrorResponse) {
+      // Check if it's actually a successful text response
+      if (error.status === 200 && error.error instanceof ProgressEvent) {
+        return throwError(() => ({
+          status: 200,
+          message: 'Operation completed successfully',
+          success: true
+        }));
+      }
+
+      const message = error.error?.message || 'An unexpected error occurred';
+      return throwError(() => ({
+        status: error.status,
+        message: message
+      }));
+    }
+
+    // For any other type of error
+    return throwError(() => ({
+      status: 500,
+      message: 'An unexpected error occurred'
     }));
   }
 
@@ -78,14 +116,9 @@ export class AuthService {
     return this.http.post(`${this.baseUrl}/register`, data, this.httpOptions)
       .pipe(
         map(response => {
-          // If we get here, it means the request was successful
-          // Even if response is empty or null
-          return response || { success: true };
+          return response || { success: true, message: 'Registration successful' };
         }),
-        catchError(error => {
-          console.error('Registration error:', error);
-          throw error;
-        })
+        catchError(error => this.handleError(error))
       );
   }
 
@@ -93,92 +126,95 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.baseUrl}/authenticate`, data, this.httpOptions)
       .pipe(
         tap(response => this.setUserData(response)),
-        catchError(error => {
-          console.error('Login error:', error);
-          throw error;
-        })
+        catchError(error => this.handleError(error))
       );
   }
+
   forgotPassword(data: ForgotPasswordRequest): Observable<any> {
-    return this.http.post(`${this.baseUrl}/forgot_password?email=${data.email}`, this.httpOptions)
-      .pipe(
-        map(response => {
-          return response;
-        })
-      );
+    return this.http.post(`${this.baseUrl}/forgot_password?email=${data.email}`, {}, {
+      ...this.httpOptions,
+      responseType: 'text'
+    }).pipe(
+      map(response => ({ success: true, message: response || 'Password reset email sent' })),
+      catchError(error => this.handleError(error))
+    );
   }
+
   resetPassword(data: ResetPasswordRequest): Observable<any> {
     return this.http.post(
       `${this.baseUrl}/reset_password?token=${data.code}&password=${data.password}`,
-   
-      this.httpOptions
+      {},
+      { ...this.httpOptions, responseType: 'text' }
     ).pipe(
-      map(response => {
-        return response;
-      })
+      map(response => ({ success: true, message: response || 'Password reset successful' })),
+      catchError(error => this.handleError(error))
     );
   }
+
   changePassword(request: ChangePasswordRequest): Observable<any> {
-    return this.http.post(`${this.baseUrl}/change-password`, request, {
-      withCredentials: true // Important if you're using session cookies
-    }).pipe(
-      map(response => response),
-      catchError(error => {
-        console.error('Password change error:', error);
-        throw error;
-      })
+    return this.http.post(
+      `${this.baseUrl}/change-password`,
+      request,
+      { ...this.httpOptions, responseType: 'text' }
+    ).pipe(
+      map(response => ({ success: true, message: response || 'Password changed successfully' })),
+      catchError(error => this.handleError(error))
     );
   }
   
   activateAccount(code: string): Observable<any> {
-    // For GET requests, we don't need to set Content-Type header
-    return this.http.get(`${this.baseUrl}/activate-account?token=${code}`)
-      .pipe(
-        map(response => {
-          console.log('Raw activation response:', response);
-          // Always return a consistent response format
-          return {
-            success: true,
-            message: 'Account activated successfully'
-          };
-        }),
-        catchError(error => {
-          console.error('Account activation error:', error);
-          // If it's a 200 status but treated as error, handle it as success
-          if (error.status === 200) {
-            return [{
-              success: true,
-              message: 'Account activated successfully'
-            }];
-          }
-          throw error;
-        })
-      );
+    return this.http.get(
+      `${this.baseUrl}/activate-account?token=${code}`,
+      { responseType: 'text' }
+    ).pipe(
+      map(response => ({
+        success: true,
+        message: response || 'Account activated successfully'
+      })),
+      catchError(error => {
+        if (error.status === 200) {
+          return [{ success: true, message: 'Account activated successfully' }];
+        }
+        return this.handleError(error);
+      })
+    );
   }
 
   requestPasswordChange(data: ChangePasswordRequest): Observable<any> {
-    const token = this.getToken();
-    const httpOptionsWithAuth = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }),
-      responseType: 'text' as 'json'
-    };
-
-    return this.http.post(`${this.baseUrl}/request-password-change`, data, httpOptionsWithAuth);
+    return this.http.post(
+      `${this.baseUrl}/request-password-change`,
+      data,
+      { ...this.httpOptions, responseType: 'text' }
+    ).pipe(
+      map(response => ({
+        success: true,
+        message: response || 'Password change requested successfully'
+      })),
+      catchError(error => this.handleError(error))
+    );
   }
 
   verifyAndChangePassword(token: string, newPassword: string): Observable<any> {
-    const authToken = this.getToken();
-    const httpOptionsWithAuth = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}`
-      }),
-      responseType: 'text' as 'json' 
-    };
-
-    return this.http.post(`${this.baseUrl}/verify-and-change-password`, { token, newPassword }, httpOptionsWithAuth);
+    return this.http.post(
+      `${this.baseUrl}/verify-and-change-password`,
+      { token, newPassword },
+      { ...this.httpOptions, responseType: 'text' }
+    ).pipe(
+      map(response => ({
+        success: true,
+        message: response || 'Password changed successfully'
+      })),
+      catchError(error => {
+        // If it's a successful text response but treated as error
+        if (error.status === 200 && error.error instanceof ProgressEvent) {
+          return of({
+            success: true,
+            message: 'Password changed successfully'
+          });
+        }
+        console.error('Error in verifyAndChangePassword:', error);
+        return this.handleError(error);
+      })
+    );
   }
 } 
