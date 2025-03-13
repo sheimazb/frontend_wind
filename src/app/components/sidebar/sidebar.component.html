@@ -1,171 +1,90 @@
 <aside
   id="sidebar"
-  class="fixed hidden z-20 h-full top-0 left-0 pt-16 flex lg:flex flex-shrink-0 flex-col w-64 transition-width duration-75"
+  class="fixed hidden z-10 h-full top-0 left-0 pt-20 pl-6 pb-3 lg:flex flex-shrink-0 flex-col w-fit transition-width duration-75"
   aria-label="Sidebar"
 >
   <div
-    class="relative flex-1 flex flex-col min-h-0 border-r border-white/10 dark:border-white/10 bg-[#111036] backdrop-blur-md pt-0"
+    class="relative flex-1 flex flex-col min-h-0  bg-transparent backdrop-blur-md pt-0"
   >
-    <div class="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-      <div class="flex-1 px-3 divide-y divide-white/10 space-y-1">
-        <ul class="space-y-2 pb-2">
-          <li>
-            <form action="#" method="GET" class="lg:hidden">
-              <label for="mobile-search" class="sr-only">Search</label>
-              <div class="relative">
-                <div
-                  class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
-                >
-                  <svg
-                    class="w-5 h-5 text-white/50"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-                    ></path>
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  name="email"
-                  id="mobile-search"
-                  class="bg-[#111036]/50 border border-white/10 text-white text-sm rounded-lg focus:ring-[#E1567C] focus:border-[#E1567C] block w-full pl-10 p-2.5 placeholder-white/30"
-                  placeholder="Search"
-                />
-              </div>
-            </form>
-          </li>
-          <!-- Partner Menu Items -->
-          <ng-container *ngIf="isPartner">
-            <li>
-              <a
-                (click)="onDashboardClick()"
-                [class.bg-[#E1567C]]="activeMenu === 'project'"
-                class="text-base text-white/75 font-normal rounded-lg flex items-center p-2 hover:bg-white/10 group cursor-pointer transition-all duration-200"
-              >
-                <svg
-                  class="w-6 h-6 text-white/50 group-hover:text-white transition duration-200"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
-                  ></path>
-                </svg>
-                <span class="ml-3 group-hover:text-white transition-colors">Projects</span>
-              </a>
-            </li>
-            <li>
-              <a
-                (click)="onStaffClick()"
-                [class.bg-[#E1567C]]="activeMenu === 'staff'"
-                class="text-base text-white/75 font-normal rounded-lg flex items-center p-2 hover:bg-white/10 group cursor-pointer transition-all duration-200"
-              >
-                <svg
-                  class="w-6 h-6 text-white/50 group-hover:text-white transition duration-200"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 2a4 4 0 110 8 4 4 0 010-8zm-6 16c0-3 3-5 6-5s6 2 6 5v2H6v-2zm12 2v-2c0-1.1-.9-2-2-2h-2c2 0 4 1 4 3v1h2v-1z"
-                  ></path>
-                </svg>
-                <span class="ml-3 group-hover:text-white transition-colors">Staff</span>
-              </a>
-            </li>
-            <li>
-              <a
-                (click)="onStatsClick()"
-                [class.bg-[#E1567C]]="activeMenu === 'stats'"
-                class="text-base text-white/75 font-normal rounded-lg flex items-center p-2 hover:bg-white/10 group cursor-pointer transition-all duration-200"
-              >
-                <svg
-                  class="w-6 h-6 text-white/50 group-hover:text-white transition duration-200"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M2 11a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1v-6zM8 7a1 1 0 011-1h2a1 1 0 011 1v10a1 1 0 01-1 1h-2a1 1 0 01-1-1V7zM14 3a1 1 0 011-1h2a1 1 0 011 1v14a1 1 0 01-1 1h-2a1 1 0 01-1-1V3z"
-                  ></path>
-                </svg>
-                <span class="ml-3 group-hover:text-white transition-colors">Stats</span>
-              </a>
-            </li>
-            <li>
-              <a
-                (click)="onAlertClick()"
-                [class.bg-[#E1567C]]="activeMenu === 'alert'"
-                class="text-base text-white/75 font-normal rounded-lg flex items-center p-2 hover:bg-white/10 group cursor-pointer transition-all duration-200"
-              >
-                <svg
-                  class="w-6 h-6 text-white/50 group-hover:text-white transition duration-200"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M8.257 3.099c.766-1.36 2.72-1.36 3.486 0l6.518 11.571c.75 1.33-.213 2.98-1.743 2.98H3.482c-1.53 0-2.493-1.65-1.743-2.98L8.257 3.1zm.993 10.401a1.25 1.25 0 102.5 0 1.25 1.25 0 00-2.5 0zm.25-2.75a1 1 0 011-1h.006a1 1 0 011 1v1a1 1 0 01-1 1h-.006a1 1 0 01-1-1v-1z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-                <span class="ml-3 group-hover:text-white transition-colors">Alert</span>
-              </a>
-            </li>
-          </ng-container>
-          <ng-container *ngIf="isAdmin">
-            <li>
-              <a
-                (click)="onAgenciesClick()"
-                [class.bg-[#c5b3b834]]="activeMenu === 'agencies'"
-                class="text-base border border-[#e1567b49] text-white/75 font-normal rounded-lg flex items-center p-2 hover:bg-white/10 group cursor-pointer transition-all duration-200"
-              >
-                <svg 
-                  class="w-6 h-6 dark:text-white/50 text-primary/50 group-hover:text-white transition duration-200"
-                  fill="currentColor" 
-                  viewBox="0 0 24 24" 
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path 
-                    fill-rule="evenodd" 
-                    d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14a1 1 0 11-2 0 1 1 0 012 0zm-2-3V7h2v6h-2z" 
-                    clip-rule="evenodd"
-                  />
-                </svg>
-                <span class="ml-3 group-hover:text-white transition-colors">Agencies</span>
-              </a>
-            </li>
-          </ng-container>
-          <!-- Tester Menu Items -->
-          <ng-container *ngIf="isTester">
-            <li>
-              <a
-                (click)="onIssuesClick()"
-                [class.bg-[#E1567C]]="activeMenu === 'issues'"
-                class="text-base text-white/75 font-normal rounded-lg flex items-center p-2 hover:bg-white/10 group cursor-pointer transition-all duration-200"
-              >
-                <svg 
-                  class="w-6 h-6 text-white/50 group-hover:text-white transition duration-200"
-                  fill="currentColor" 
-                  viewBox="0 0 24 24" 
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path 
-                    fill-rule="evenodd" 
-                    d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14a1 1 0 11-2 0 1 1 0 012 0zm-2-3V7h2v6h-2z" 
-                    clip-rule="evenodd"
-                  />
-                </svg>
-                <span class="ml-3 group-hover:text-white transition-colors">Issues</span>
-              </a>
-            </li>
-          </ng-container>
-        </ul>
+    <div class="flex flex-col justify-between h-screen bg-white dark:bg-slate-900 py-4 px-3 shadow-xl rounded-3xl">
+      <!-- Menu buttons -->
+      <div class="flex flex-col items-center space-y-1">
+        <!-- Projects button -->
+        <ng-container *ngIf="isPartner">
+          <button 
+            class="sidebar-btn"
+            [class.active-sidebar-btn]="activeMenu === 'project'"
+            (click)="onDashboardClick()"
+          >
+            <ng-icon class="text-gray-600 " size="25" name="letsFolderOpen"></ng-icon>
+          </button>
+        </ng-container>
+
+        <!-- Staff button -->
+        <ng-container *ngIf="isPartner">
+          <button 
+            class="sidebar-btn"
+            [class.active-sidebar-btn]="activeMenu === 'staff'"
+            (click)="onStaffClick()"
+          >
+            <ng-icon class="text-gray-600 hover:text-gray-300" size="25" name="letsUser"></ng-icon>
+          </button>
+        </ng-container>
+
+        <!-- Stats button -->
+        <ng-container *ngIf="isPartner">
+          <button 
+            class="sidebar-btn"
+            [class.active-sidebar-btn]="activeMenu === 'stats'"
+            (click)="onStatsClick()"
+          >
+            <ng-icon class="text-gray-600 hover:text-gray-300" size="25" name="letsStat"></ng-icon>
+          </button>
+        </ng-container>
+
+        <!-- Alert button -->
+        <ng-container *ngIf="isPartner">
+          <button 
+            class="sidebar-btn"
+            [class.active-sidebar-btn]="activeMenu === 'alert'"
+            (click)="onAlertClick()"
+          >
+            <ng-icon class="text-gray-500 hover:text-gray-300" size="25" name="saxNotificationBingOutline"></ng-icon>
+          </button>
+        </ng-container>
+
+        <!-- Issues button -->
+        <ng-container *ngIf="isTester">
+          <button 
+            class="sidebar-btn"
+            [class.active-sidebar-btn]="activeMenu === 'issues'"
+            (click)="onIssuesClick()"
+          >
+            <ng-icon class="text-gray-500 hover:text-gray-300" size="25" name="saxNotificationBingOutline"></ng-icon>
+          </button>
+        </ng-container>
+
+        <!-- Agencies button -->
+        <ng-container *ngIf="isAdmin">
+          <button 
+            class="sidebar-btn"
+            [class.active-sidebar-btn]="activeMenu === 'agencies'"
+            (click)="onAgenciesClick()"
+          >
+            <ng-icon class="text-gray-500 hover:text-gray-300" size="25" name="saxNotificationBingOutline"></ng-icon>
+          </button>
+        </ng-container>
+      </div>
+
+      <!-- Bottom buttons -->
+      <div class="flex flex-col items-center justify-center space-y-2">
+        <button class="sidebar-btn-b">
+          <ng-icon class="text-gray-700 hover:text-gray-300" size="25" name="letsHomeDuotone"></ng-icon>
+        </button>
+        
+        <button class="sidebar-btn-b">
+          <ng-icon class="text-gray-700 hover:text-gray-300" size="25" name="saxLogoutBulk"></ng-icon>
+        </button>
       </div>
     </div>
   </div>

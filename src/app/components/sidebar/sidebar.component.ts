@@ -3,14 +3,28 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { SidebarService } from '../../services/sidebar.service';
+import { NgIcon, provideIcons } from '@ng-icons/core';
 import { Subscription } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
+import { letsFolderOpen,letsUser ,letsStat} from '@ng-icons/lets-icons/regular';
+import { letsHomeDuotone} from '@ng-icons/lets-icons/duotone';
+
+import { saxNotificationBingOutline} from '@ng-icons/iconsax/outline';
+import { saxLogoutBulk} from '@ng-icons/iconsax/bulk';
+
+
+
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule,MatIconModule,NgIcon],
   templateUrl: './sidebar.component.html',
-  styleUrl: './sidebar.component.css'
+  styleUrl: './sidebar.component.css',
+  viewProviders: [provideIcons({
+    letsFolderOpen,letsUser,letsStat,letsHomeDuotone,
+    saxNotificationBingOutline,saxLogoutBulk
+  })]
 })
 export class SidebarComponent implements OnInit, OnDestroy {
   userRole: string | null = null;

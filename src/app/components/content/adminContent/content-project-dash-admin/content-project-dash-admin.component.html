@@ -5,7 +5,7 @@
     <div class="flex flex-col sm:flex-row justify-between gap-4 sm:gap-2 mb-0">
       <div>
         <p
-          class="dark:text-gray-200 text-2xl sm:text-3xl md:text-4xl flex items-center gap-2"
+          class="dark:text-gray-200 text-gray-700 font-bree text-2xl sm:text-3xl md:text-4xl flex items-center gap-2"
         >
           Projects
           <mat-icon
@@ -19,13 +19,13 @@
       <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
         <button
           (click)="onAddProjectClick()"
-          class="group relative h-fit px-6 py-3 rounded-md flex justify-center items-center gap-2 text-white bg-gradient-to-r from-[#E1567C] to-[#9F3996] hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl w-full sm:w-auto"
+          class="group relative h-fit px-6 py-3 rounded-full flex justify-center items-center gap-2 text-white bg-indigo-600 hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl w-full sm:w-auto"
         >
           <mat-icon
-            class="group-hover:rotate-90 transition-transform duration-300"
+            class="group-hover:rotate-45 transition-transform duration-200 text-base"
             >add_circle_outline</mat-icon
           >
-          <span class="text-sm md:text-base font-semibold">Create Project</span>
+          <span class="text-sm md:text-base font-bree">Create Project</span>
         </button>
       </div>
     </div>
@@ -39,7 +39,7 @@
           type="text"
           (input)="onSearchProjects($event)"
           [value]="searchQuery"
-          class="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+          class="w-full pl-12 pr-4 py-3 rounded-full border shadow-lg border-gray-200 bg-white dark:border-slate-900 dark:bg-slate-900 backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
           placeholder="Search projects by name or description..."
         />
         <div
@@ -69,7 +69,7 @@
               type="text"
               [(ngModel)]="tagSearchQuery"
               (input)="onSearchByTag()"
-              class="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+              class="w-full pl-12 pr-4 py-3 rounded-full shadow-lg border border-gray-200  bg-white dark:border-slate-900 dark:bg-slate-900 backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
               placeholder="Search by tag..."
             />
             <div class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
@@ -118,17 +118,17 @@
     >
       <div
         *ngFor="let project of filteredProjects"
-        class="group relative overflow-hidden rounded-xl before:absolute before:inset-0 before:z-0 before:bg-gradient-to-b before:from-white/5 before:to-white/0 dark:before:from-white/[0.07] dark:before:to-white/0 after:absolute after:inset-0 after:-z-10 after:rounded-xl after:bg-gradient-to-b after:from-gray-100 after:to-white/80 dark:after:from-[#1a1b23] dark:after:to-[#1a1b23]/80 backdrop-blur-xl border border-white/10 dark:border-white/5 shadow-lg"
+        class="group relative overflow-hidden rounded-xl before:absolute before:inset-0 before:z-0 before:bg-gradient-to-b before:from-white/5 before:to-white/0 dark:before:from-white/[0.07] dark:before:to-white/0 after:absolute after:inset-0 after:-z-10 after:rounded-xl after:bg-gradient-to-b after:from-gray-100 after:to-white/80 dark:after:from-[#1a1b23] dark:after:to-[#1a1b23]/80 backdrop-blur-xl border border-white/10 dark:border-white/5 shadow-xl"
       >
         <!-- Project Header -->
         <div
-          class="relative p-6 border-b border-gray-200/10 dark:border-gray-800/20 min-h-[90px] flex flex-col justify-between dark:bg-gray-900"
+          class="relative bg-white p-6 border-b border-gray-200 dark:border-gray-800/20 min-h-[90px] flex flex-col justify-between dark:bg-slate-900"
         >
           <div class="flex items-start justify-between">
             <div class="flex items-start gap-4">
               <!-- Project Icon with glossy effect -->
               <div
-                class="relative bg-gradient-to-br from-[#E1567C] to-[#9F3996] p-3 rounded-xl shadow-lg flex-shrink-0 before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-b before:from-white/20 before:to-transparent"
+                class="relative bg-gradient-to-br from-[#36349b] to-[#71399f] p-3 rounded-xl shadow-lg flex-shrink-0 before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-b before:from-white/20 before:to-transparent"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -148,19 +148,19 @@
               <!-- Project Info -->
               <div class="flex flex-col justify-start gap-2 -space-y-1">
                 <h3
-                  class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors m-0 p-0"
+                  class="text-xl font-bree text-gray-900 dark:text-white m-0 p-0"
                 >
                   {{ project.name }}
                 </h3>
                 <p
-                  class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 m-0 p-0"
+                  class="text-sm font-bree text-gray-600 dark:text-gray-400 line-clamp-2 m-0 p-0"
                 >
                   {{ project.description }}
                 </p>
                 <div class="flex flex-wrap gap-2 mt-4 min-h-[28px]">
                   <span
                     *ngFor="let tag of project.tags"
-                    class="px-3 py-1 text-xs rounded-full font-medium bg-purple-100/80 text-purple-700 backdrop-blur-sm dark:bg-purple-900/30 dark:text-purple-300 border border-purple-200/50 dark:border-purple-700/30"
+                    class="px-3 py-1 text-xs rounded-full font-medium bg-blue-100/80 text-blue-700 backdrop-blur-sm dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/30"
                   >
                     {{ tag }}
                   </span>
@@ -201,7 +201,7 @@
         </div>
 
         <!-- Project Stats -->
-        <div class="relative p-6 bg-white dark:bg-gray-900">
+        <div class="relative p-6 bg-white dark:bg-slate-900">
           <!-- Chart Container with glass effect -->
           <div
             class="relative h-[200px] mb-6 rounded-lg overflow-hidden bg-white/40 dark:bg-gray-900 backdrop-blur-sm border border-white/20 dark:border-white/5"
@@ -216,14 +216,15 @@
             ></div>
           </div>
           <!-- View Details Button with glass effect -->
+           <div class="flex justify-end">
           <button
             (click)="onProjectDetailsClick(project?.id ?? 0)"
-            class="relative w-full py-3 px-4 rounded-lg font-semibold bg-gradient-to-r from-[#E1567C] to-[#9F3996] hover:opacity-90 transition-all duration-300 flex items-center justify-center gap-2 group before:absolute before:inset-0 before:bg-gradient-to-b before:from-white/20 before:to-transparent before:rounded-lg"
+            class="relative w-fit h-fit py-3 px-4 rounded-full font-semibold bg-transparent border border-gray-400  transition-all duration-300 flex items-center justify-center gap-2 group hover:bg-slate-100"
           >
-            <span class="relative z-10 text-white">View Project</span>
+            <span class="relative text-gray-600 dark:text-white">View Project</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              class="relative z-10 h-5 w-5 text-white group-hover:translate-x-1 transition-transform"
+              class="relative z-10 h-5 w-5 text-gray-900 dark:text-white group-hover:translate-x-1 transition-transform"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -235,7 +236,7 @@
                 d="M13 7l5 5m0 0l-5 5m5-5H6"
               />
             </svg>
-          </button>
+          </button></div>
         </div>
       </div>
     </div>
@@ -250,7 +251,7 @@
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          class="h-8 w-8 text-purple-600 dark:text-purple-400"
+          class="h-8 w-8 text-indigo-600 dark:text-purple-400"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"

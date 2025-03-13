@@ -188,17 +188,9 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
               }
             }
           },
-          colors: ["#E1567C", "#9F3996"],
+          colors: ["#3B82F6", "#E1567C"], // Activity (blue), Errors (red)
           fill: {
-            type: 'gradient',
-            gradient: {
-              type: "vertical",
-              shadeIntensity: 0.5,
-              gradientToColors: ["#F87EA1", "#C15DB5"],
-              inverseColors: false,
-              opacityFrom: 0.9,
-              opacityTo: 0.6,
-            },
+            type: 'solid',
           },
           plotOptions: {
             bar: {
@@ -312,6 +304,7 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
 
   onProjectSettingsClick(projectId: number) {
     this.router.navigate(['/dashboard/project-settings', projectId]);

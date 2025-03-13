@@ -22,6 +22,8 @@
     "@angular/router": "^17.3.0",
     "@ng-icons/core": "^26.3.0",
     "@ng-icons/devicon": "^30.2.0",
+    "@ng-icons/iconsax": "^31.1.0",
+    "@ng-icons/lets-icons": "^31.1.0",
     "apexcharts": "^4.4.0",
     "ngx-toastr": "^19.0.0",
     "rxjs": "~7.8.0",

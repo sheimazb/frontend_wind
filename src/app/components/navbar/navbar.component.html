@@ -1,7 +1,9 @@
 <nav class="fixed w-full z-50">
   <!-- Dynamic background with blur effect -->
-  <div class="absolute inset-0   bg-[#111036]/95 backdrop-blur-md transition-colors duration-300"></div>
-  <div class="px-3 py-3 lg:px-5 lg:pl-3 relative">
+  <div
+    class="absolute inset-0 bg-transparent backdrop-blur-md transition-colors duration-300"
+  ></div>
+  <div class="px-3 py-3 lg:px-10 lg:pl-9 relative">
     <div class="flex items-center justify-between">
       <!-- Logo Section - Left Side -->
       <div class="flex items-center justify-start">
@@ -26,30 +28,20 @@
             ></path>
           </svg>
         </button>
-
-        <div class="flex items-center h-12">
-            <img 
-              [src]="darkMode ? 'assets/darkLogo.png' : ' assets/darkLogo.png'" 
-              alt="WindLogs Logo" 
-              class="h-full w-auto object-contain hover:brightness-110 transition-all duration-300" 
-            />
+       
+        <div class="flex items-center gap-2 h-12">
+          <div
+            class="triangle-shape hover:brightness-110  dark:border-white transition-all rotate-90 duration-300"
+          ></div>
+          <p class="text-[#030018] dark:text-white text-l pt-3 text-"><b>WINDLOGS</b></p>
         </div>
       </div>
 
-      <!-- Search Form - This will toggle on mobile and always show on desktop -->
-      <div
-        [class.hidden]="!showSearchForm && !isLargeScreen"
-        class="lg:flex lg:flex-1 lg:mx-4"
-      >
-        <form
-          action="#"
-          method="GET"
-          class="w-full flex flex-col lg:flex-row gap-3 items-center"
-        >
-          <div class="relative w-full lg:w-64">
-            <div
-              class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
-            >
+      <!-- Search Bar - Center -->
+      <div class="hidden lg:flex flex-1  justify-center mx-4">
+        <form action="#" method="GET" class="w-full max-w-lg">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg
                 class="w-5 h-5 text-gray-400"
                 fill="currentColor"
@@ -67,7 +59,7 @@
               type="text"
               name="search"
               id="topbar-search"
-              class=" bg-[#202045]  dark:border-none text-white sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 transition-colors duration-300"
+              class="bg-white dark:bg-slate-900 dark:text-gray-200 shadow-lg dark:border-none text-gray-700 sm:text-sm rounded-full focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 transition-colors duration-300"
               placeholder="Rechercher"
             />
           </div>
@@ -98,9 +90,42 @@
           </svg>
         </button>
 
+        <!-- Mobile search form (shows when toggle button is clicked) -->
+        <div
+          [class.hidden]="!showSearchForm && !isLargeScreen"
+          class="lg:hidden absolute top-full left-0 right-0 bg-white dark:bg-gray-800 p-4 z-50"
+        >
+          <form action="#" method="GET" class="w-full">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg
+                  class="w-5 h-5 text-gray-400"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+              </div>
+              <input
+                type="text"
+                name="search"
+                id="mobile-topbar-search"
+                class="bg-white dark:border-none text-gray-700 sm:text-sm rounded-full focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 transition-colors duration-300"
+                placeholder="Rechercher"
+              />
+            </div>
+          </form>
+        </div>
+
         <div class="flex items-center gap-4 2xsm:gap-7">
           <!--Dark mode -->
-          <div>
+           <!--Dark mode -->
+           <div>
             <label
               [class]="darkMode ? 'bg-blue-500' : 'bg-gray-600'"
               class="relative m-0 block h-7.5 w-14 rounded-full cursor-pointer transition-colors duration-300"
@@ -153,7 +178,7 @@
           </div>
           <!-- Message-->
           <a
-            class="relative flex h-10 w-10 items-center justify-center rounded-full border-[0.5px] border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-[#202045] text-gray-700 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
+            class="relative flex h-10 w-10 items-center justify-center rounded-full border-[0.5px] border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-[#202045] text-gray-700 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
             href="#"
           >
             <span
@@ -193,7 +218,7 @@
           </a>
           <!--Notification-->
           <a
-            class="relative flex h-10 w-10 items-center justify-center rounded-full border-[0.5px] border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-[#202045] text-gray-700 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
+            class="relative flex h-10 w-10 items-center justify-center rounded-full border-[0.5px] border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-[#202045] text-gray-700 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
             href="#"
           >
             <svg
@@ -228,7 +253,10 @@
                 >
               </span>
 
-              <span *ngIf="isAdmin" class="h-12 w-14 rounded-full flex items-center">
+              <span
+                *ngIf="isAdmin"
+                class="h-12 w-14 rounded-full flex items-center"
+              >
                 <img
                   src="https://cdn3d.iconscout.com/3d/premium/thumb/administrator-3d-icon-download-in-png-blend-fbx-gltf-file-formats--male-management-employee-supervisor-administration-avatar-pack-people-icons-4741054.png"
                   alt="Profile Image"
@@ -236,7 +264,10 @@
                 />
               </span>
 
-              <span *ngIf="!isAdmin"  class="h-12 w-14 rounded-full flex items-center">
+              <span
+                *ngIf="!isAdmin"
+                class="h-12 w-14 rounded-full flex items-center"
+              >
                 <img
                   [src]="profileImage"
                   alt="Profile Image"

@@ -1,11 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-     "./src/**/*.{html,ts}",
+    "./src/**/*.{html,ts}",
   ],
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        bree: ['Bree Serif', 'serif'], // Add Bree Serif font
+      },
       colors: {
         primary: '#111036',
         stroke: '#E2E8F0',
@@ -35,5 +38,4 @@ module.exports = {
     },
   },
   plugins: [],
-}
-
+};

@@ -1,0 +1,9 @@
+.triangle-shape {
+    width: 0;
+    height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 35px solid #0f073d; /* Using your theme color */
+   /*  border-bottom: 35px solid wheat; Using your theme color */
+
+  }
