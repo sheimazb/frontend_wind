@@ -30,6 +30,7 @@ export interface LoginResponse {
   fullName: string;
   role: string;
   id: number;
+  tenant: string;
 }
 
 export interface ChangePasswordRequest {
@@ -57,7 +58,8 @@ export class AuthService {
       email: response.email,
       fullName: response.fullName,
       role: response.role,
-      id: response.id
+      id: response.id,
+      tenant: response.tenant
     }));
   }
 
@@ -107,10 +109,20 @@ export class AuthService {
     return !!this.getToken();
   }
 
-  logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-  }
+ /* logout(): Observable<any> { 
+    return this.http.post(`${this.baseUrl}/logout`, {}, this.httpOptions).pipe(
+      tap(() => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }),
+      catchError(error => this.handleError(error))
+    );
+  }*/
+
+    logout(){
+      localStorage.removeItem('token');
+        localStorage.removeItem('user');
+    }
 
   register(data: RegisterRequest): Observable<any> {
     return this.http.post(`${this.baseUrl}/register`, data, this.httpOptions)

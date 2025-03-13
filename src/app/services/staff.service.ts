@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { map, catchError } from "rxjs/operators";
 import { StaffRequest } from "../models/staff.model";
 import { Observable, throwError } from "rxjs";
+import { User } from "../models/user.model";
 
 @Injectable({
     providedIn: 'root'
@@ -20,4 +21,12 @@ export class StaffService {
             }
           });
     }
+    getStaffByPartnerTenant(): Observable<User[]> {
+        return this.http.get<User[]>(`${this.baseUrl}/my-staff`);
+    }
+
+    getStaffById(id: string): Observable<any> {
+      return this.http.get<any>(`${this.baseUrl}/${id}`);
+    }
+
 }

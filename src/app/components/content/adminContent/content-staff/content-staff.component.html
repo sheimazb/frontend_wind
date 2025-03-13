@@ -29,6 +29,8 @@
     <div class="flex-grow">
       <input
         type="text"
+        (input)="onSearchStaff($event)"
+        [value]="searchQuery"
         placeholder="Search Staff Profile"
         class="w-full border dark:bg-darkbackground dark:border-gray-600 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
@@ -93,13 +95,18 @@
   
 
   <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-center text-red-500">
+        {{ errorMessage }}
+      </div>
+
     <!-- Grid view -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full"  *ngIf="!isLoading">
       <!-- Card 1 -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 text-center shadow-lg">
-        <img src="data:image/jpeg;base64,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" alt="Profile" class="w-16 h-16 mx-auto rounded-full border-2 border-gray-600">
-        <h3 class="dark:text-white text-gray-800  mt-2 font-bold"> <b>Hbib Bourgiba </b></h3>
-        <p class="text-gray-400 text-sm">Testeur</p>
+      <div *ngFor="let staff of filteredStaff"  class="bg-white dark:bg-gray-800 rounded-xl p-4 text-center shadow-lg" >
+        <img src="https://img.freepik.com/free-psd/3d-illustration-with-online-avatar_23-2151303048.jpg" alt="Profile" class="w-16 h-16 mx-auto rounded-full border-2 border-gray-600">
+        <h3 class="dark:text-white text-gray-800  mt-2 font-bold"> <b>{{staff.firstname}} {{staff.lastname}} </b></h3>
+        <p class="text-gray-400 text-sm">{{staff.role}}</p>
         <div class="mt-4 flex justify-around text-sm text-gray-300">
           <div class="text-gray-500" ><span class="font-bold text-blue-500">3</span> Projects</div>
           <div class="text-gray-500"><span class="font-bold text-yellow-500">4</span> Tickets</div>
@@ -107,25 +114,11 @@
         </div>
         <div class="flex flex-row gap-3 justify-end">
         <button class="mt-4 h-fit px-4 py-2 bg-gray-400 dark:bg-gray-500 text-white rounded-md hover:bg-gray-600">Add Task</button>
-        <button (click)="onStaffDetailsClick()" class="mt-4 h-fit px-4 py-2 bg-gray-400 dark:bg-gray-500 text-white rounded-md hover:bg-gray-600"> Details</button>
+        <button (click)="onStaffDetailsClick(staff?.id ?? 0)" class="mt-4 h-fit px-4 py-2 bg-gray-400 dark:bg-gray-500 text-white rounded-md hover:bg-gray-600"> Details</button>
         </div>
       </div>
   
-      <!-- Card 2 (Duplicate and modify this structure for more cards) -->
-      <div class=" bg-white dark:bg-gray-800 rounded-xl p-4 text-center shadow-lg">
-        <img src="https://media.licdn.com/dms/image/v2/D4D03AQGVSDOLsw4XGw/profile-displayphoto-shrink_200_200/B4DZOHwR26HQAg-/0/1733149401866?e=1744243200&v=beta&t=L9g4psutizdcKCXhlqE2Xb5Qj66PqMeuFP_9RBuoGCc" alt="Profile" class="w-16 h-16 mx-auto rounded-full border-2 border-gray-600">
-        <h3 class="dark:text-white text-gray-800 mt-2 font-bold"> <b>Chaima ZBIDI</b></h3>
-        <p class="text-gray-400 text-sm">Web Developer</p>
-        <div class="mt-4 flex justify-around text-sm text-gray-300">
-            <div class="text-gray-500" ><span class="font-bold text-blue-500">3</span> Projects</div>
-            <div class="text-gray-500"><span class="font-bold text-yellow-500">4</span> Tickets</div>
-            <div class="text-gray-500"><span class="font-bold text-green-500">10%</span> Solutions</div>
-        </div>
-        <div class="flex flex-row gap-3 justify-end">
-        <button class="mt-4 h-fit px-4 py-2 bg-gray-400 dark:bg-gray-500 text-white rounded-md hover:bg-gray-600">Add Task</button>
-        <button (click)="onStaffDetailsClick()" class="mt-4 h-fit px-4 py-2 bg-gray-400 dark:bg-gray-500 text-white rounded-md hover:bg-gray-600"> Details</button>
-        </div>
-      </div>
+     
     </div>
   </div>
   

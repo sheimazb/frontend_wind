@@ -43,8 +43,50 @@
           <ng-template mat-tab-label>
             <mat-icon class="mr-2">group</mat-icon> Project Members
           </ng-template>
-            <div *ngFor="let member of members">
-            <p>{{ member.firstname }} {{ member.lastname }}</p>
+          
+          <!-- Current Project Members -->
+          <div class="mt-6">
+            <h3 class="text-xl font-semibold mb-4 dark:text-white">Current Project Members</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div *ngFor="let member of members" class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-lg font-medium dark:text-white">{{ member.firstname }} {{ member.lastname }}</p>
+                    <p class="text-gray-500 dark:text-gray-400">{{ member.email }}</p>
+                  </div>
+                  <button 
+                    mat-raised-button 
+                    color="warn"
+                    (click)="removeUserFromProject(member.id)"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Available Staff -->
+          <div class="mt-8">
+            <h3 class="text-xl font-semibold mb-4 dark:text-white">Available Staff</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div *ngFor="let staff of availableStaff" class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-lg font-medium dark:text-white">{{ staff.firstname }} {{ staff.lastname }}</p>
+                    <p class="text-gray-500 dark:text-gray-400">{{ staff.email }}</p>
+                  </div>
+                  <button 
+                    mat-raised-button 
+                    color="primary"
+                    (click)="addUserToProject(staff.id)"
+                    [disabled]="isUserMember(staff.id)"
+                  >
+                    Add to Project
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </mat-tab>
       

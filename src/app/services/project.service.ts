@@ -86,8 +86,18 @@ export class ProjectService {
     return this.http.post<Project>(`${this.apiUrl}/${projectId}/users/${userId}`, {});
   }
 
+  // Remove user from project
+  removeUserFromProject(projectId: number, userId: number): Observable<Project> {
+    return this.http.delete<Project>(`${this.apiUrl}/${projectId}/users/${userId}`);
+  }
+
   // Get project members
   getProjectMembers(projectId: number): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/${projectId}/users`);
+  }
+
+  // Get user projects
+  getUserProjects(userId: number): Observable<Project[]> {
+    return this.http.get<Project[]>(`${this.apiUrl}/user/${userId}`);
   }
 }

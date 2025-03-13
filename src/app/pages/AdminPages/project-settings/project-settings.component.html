@@ -48,12 +48,9 @@
           <div class="p-6 dark:bg-darkbackground">
             <form>
               <!-- Name Field -->
-              <div class="grid grid-cols-2 items-center gap-4">
+              <div class="grid grid-cols-2 items-center gap-4 mb-6">
                 <div>
-                  <label
-                    for="name"
-                    class="block text-sm font-medium dark:text-gray-300 text-gray-700"
-                  >
+                  <label for="name" class="block text-sm font-medium dark:text-gray-300 text-gray-700">
                     Name <span class="text-red-500">*</span>
                   </label>
                   <p class="text-sm dark:text-gray-400 text-gray-500">
@@ -64,47 +61,192 @@
                   type="text"
                   id="name"
                   name="name"
-                  value="testwind"
+                  [(ngModel)]="project.name"
                   class="block w-full px-3 py-2 border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
 
-              <!-- Project ID Field -->
-              <div class="grid grid-cols-2 items-center gap-4">
+              <!-- Description Field -->
+              <div class="grid grid-cols-2 items-center gap-4 mb-6">
                 <div>
-                  <label
-                    class="block font-medium dark:text-gray-300 text-gray-700"
-                    >Project ID</label
-                  >
-                  <p class="mt-1 text-sm dark:text-gray-400 text-gray-500">
-                    The unique identifier for this project. It cannot be
-                    modified.
+                  <label for="description" class="block text-sm font-medium dark:text-gray-300 text-gray-700">
+                    Description
+                  </label>
+                  <p class="text-sm dark:text-gray-400 text-gray-500">
+                    Detailed description of the project
+                  </p>
+                </div>
+                <textarea
+                  id="description"
+                  name="description"
+                  [(ngModel)]="project.description"
+                  rows="3"
+                  class="block w-full px-3 py-2 border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                ></textarea>
+              </div>
+
+              <!-- Technologies Field -->
+              <div class="grid grid-cols-2 items-center gap-4 mb-6">
+                <div>
+                  <label for="technologies" class="block text-sm font-medium dark:text-gray-300 text-gray-700">
+                    Technologies
+                  </label>
+                  <p class="text-sm dark:text-gray-400 text-gray-500">
+                    Technologies used in the project
                   </p>
                 </div>
                 <input
                   type="text"
-                  value="4508762112524368"
-                  disabled
-                  class="w-full rounded border dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 border-gray-300 bg-gray-100 px-3 py-2 cursor-not-allowed"
+                  id="technologies"
+                  name="technologies"
+                  [(ngModel)]="project.technologies"
+                  class="block w-full px-3 py-2 border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
 
-              <!-- Platform Field -->
-              <div class="grid grid-cols-2 items-center gap-4">
+              <!-- Repository Link Field -->
+              <div class="grid grid-cols-2 items-center gap-4 mb-6">
                 <div>
-                  <label
-                    class="block font-medium dark:text-gray-300 text-gray-700"
-                    >Platform</label
-                  >
-                  <p class="mt-1 text-sm dark:text-gray-400 text-gray-500">
-                    The primary platform for this project
+                  <label for="repositoryLink" class="block text-sm font-medium dark:text-gray-300 text-gray-700">
+                    Repository Link
+                  </label>
+                  <p class="text-sm dark:text-gray-400 text-gray-500">
+                    Link to the project repository
                   </p>
                 </div>
-                <select
-                  class="mt-2 w-full rounded border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-white px-3 py-2 focus:border-blue-500 focus:outline-none"
-                >
-                  <option value="angular" selected>Angular</option>
-                </select>
+                <input
+                  type="url"
+                  id="repositoryLink"
+                  name="repositoryLink"
+                  [(ngModel)]="project.repositoryLink"
+                  class="block w-full px-3 py-2 border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+
+              <!-- Progress Percentage Field -->
+              <div class="grid grid-cols-2 items-center gap-4 mb-6">
+                <div>
+                  <label for="progressPercentage" class="block text-sm font-medium dark:text-gray-300 text-gray-700">
+                    Progress
+                  </label>
+                  <p class="text-sm dark:text-gray-400 text-gray-500">
+                    Project completion percentage
+                  </p>
+                </div>
+                <input
+                  type="number"
+                  id="progressPercentage"
+                  name="progressPercentage"
+                  [(ngModel)]="project.progressPercentage"
+                  min="0"
+                  max="100"
+                  class="block w-full px-3 py-2 border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+
+              <!-- Deadline Date Field -->
+              <div class="grid grid-cols-2 items-center gap-4 mb-6">
+                <div>
+                  <label for="deadlineDate" class="block text-sm font-medium dark:text-gray-300 text-gray-700">
+                    Deadline
+                  </label>
+                  <p class="text-sm dark:text-gray-400 text-gray-500">
+                    Project deadline date
+                  </p>
+                </div>
+                <input
+                  type="date"
+                  id="deadlineDate"
+                  name="deadlineDate"
+                  [(ngModel)]="project.deadlineDate"
+                  class="block w-full px-3 py-2 border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+
+              <!-- Tags Field -->
+              <div class="grid grid-cols-2 items-start gap-4 mb-6">
+                <div>
+                  <label class="block text-sm font-medium dark:text-gray-300 text-gray-700">
+                    Tags
+                  </label>
+                  <p class="text-sm dark:text-gray-400 text-gray-500">
+                    Add tags to categorize your project
+                  </p>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <div class="flex flex-wrap gap-2">
+                    <div *ngFor="let tag of projectTags" 
+                         class="flex items-center gap-1 px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">
+                      <span class="text-sm">{{tag}}</span>
+                      <button (click)="removeTag(tag)" class="text-gray-500 hover:text-red-500">
+                        <mat-icon class="text-sm">close</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="flex gap-2">
+                    <input
+                      type="text"
+                      [(ngModel)]="newTag"
+                      name="newTag"
+                      placeholder="Add a tag"
+                      (keyup.enter)="addTag()"
+                      class="block flex-1 px-3 py-2 border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                    <button 
+                      (click)="addTag()"
+                      type="button"
+                      class="px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">
+                      Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Documentation URLs Field -->
+              <div class="grid grid-cols-2 items-start gap-4 mb-6">
+                <div>
+                  <label class="block text-sm font-medium dark:text-gray-300 text-gray-700">
+                    Documentation URLs
+                  </label>
+                  <p class="text-sm dark:text-gray-400 text-gray-500">
+                    Add links to project documentation
+                  </p>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <div *ngFor="let url of project.documentationUrls; let i = index" class="flex gap-2">
+                    <input
+                      type="url"
+                      [ngModel]="project.documentationUrls[i]"
+                      (ngModelChange)="project.documentationUrls[i] = $event"
+                      [name]="'docUrl' + i"
+                      class="block flex-1 px-3 py-2 border dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-300 bg-gray-100 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                    <button 
+                      (click)="removeDocUrl(i)"
+                      type="button"
+                      class="px-3 py-2 text-red-500 hover:text-red-700">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                  <button 
+                    (click)="addDocUrl()"
+                    type="button"
+                    class="self-start px-3 py-2 text-purple-600 hover:text-purple-700 flex items-center gap-1">
+                    <mat-icon>add</mat-icon>
+                    Add URL
+                  </button>
+                </div>
+              </div>
+
+              <!-- Save Button -->
+              <div class="flex justify-end mt-8">
+                <button
+                  type="submit"
+                  (click)="saveProject()"
+                  class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 flex items-center gap-2">
+                  <mat-icon>save</mat-icon>
+                  Save Changes
+                </button>
               </div>
             </form>
           </div>
@@ -143,6 +285,8 @@
                   </p>
                 </div>
                 <button
+                  (click)="onDeleteProjectClick(projectId)"
+                  type="button"
                   class="h-fit border rounded-md flex justify-center items-center gap-2 p-2 text-white dark:border-gray-600 bg-red-600 sm:w-auto"
                 >
                   <mat-icon>delete</mat-icon>

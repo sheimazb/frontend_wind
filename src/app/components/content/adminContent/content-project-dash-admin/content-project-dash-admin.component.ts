@@ -36,9 +36,10 @@ import ApexCharts from 'apexcharts';
 export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
   projects: Project[] = [];
   filteredProjects: Project[] = [];
-  isLoading = false;
+  isLoading = true;
   errorMessage = '';
   searchQuery = '';
+  tagSearchQuery = '';
   charts: { [key: string]: ApexCharts } = {};
 
   @ViewChildren('chartContainer') chartContainers!: QueryList<ElementRef>;
@@ -81,24 +82,64 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onSearchProjects(event: Event): void {
-    const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
-    this.searchQuery = searchTerm;
-    
-    if (!searchTerm) {
-      this.filteredProjects = this.projects;
-    } else {
-      this.filteredProjects = this.projects.filter(project => 
-        project.name.toLowerCase().includes(searchTerm) ||
-        project.description.toLowerCase().includes(searchTerm) ||
-        project.tags?.some(tag => tag.toLowerCase().includes(searchTerm))
-      );
-    }
-
+  onSearchProjects(event: any): void {
+    this.searchQuery = event.target.value;
+    this.applyFilters();
     // Reinitialize charts after filtering
     setTimeout(() => {
       this.initializeCharts();
     }, 0);
+  }
+
+  onSearchByTag() {
+    if (this.tagSearchQuery.trim()) {
+      this.projectService.searchProjectsByTag(this.tagSearchQuery.trim()).subscribe({
+        next: (projects) => {
+          this.filteredProjects = projects;
+          // Apply text search filter if exists
+          if (this.searchQuery.trim()) {
+            this.filteredProjects = this.filteredProjects.filter(project =>
+              project.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+              project.description.toLowerCase().includes(this.searchQuery.toLowerCase())
+            );
+          }
+          // Reinitialize charts after tag filtering
+          setTimeout(() => {
+            this.initializeCharts();
+          }, 0);
+        },
+        error: (error) => {
+          this.errorMessage = 'Failed to search projects by tag. Please try again.';
+        }
+      });
+    } else {
+      this.applyFilters();
+      // Reinitialize charts after clearing tag filter
+      setTimeout(() => {
+        this.initializeCharts();
+      }, 0);
+    }
+  }
+
+  clearTagSearch() {
+    this.tagSearchQuery = '';
+    this.applyFilters();
+    // Reinitialize charts after clearing tag search
+    setTimeout(() => {
+      this.initializeCharts();
+    }, 0);
+  }
+
+  private applyFilters() {
+    this.filteredProjects = [...this.projects];
+    
+    // Apply text search filter
+    if (this.searchQuery.trim()) {
+      this.filteredProjects = this.filteredProjects.filter(project =>
+        project.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        project.description.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    }
   }
 
   initializeCharts(): void {
@@ -272,8 +313,8 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onProjectSettingsClick() {
-    this.router.navigate(['/dashboard/project-settings']);
+  onProjectSettingsClick(projectId: number) {
+    this.router.navigate(['/dashboard/project-settings', projectId]);
   }
 
   onAddProjectClick() {

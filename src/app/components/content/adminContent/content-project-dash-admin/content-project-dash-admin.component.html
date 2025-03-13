@@ -1,5 +1,5 @@
 <!-- Main Container with gradient background -->
-<div class="min-h-screen ">
+<div class="min-h-screen">
   <div class="flex flex-col max-w-screen-2xl gap-6 p-4 sm:p-6 md:p-10 mx-auto">
     <!-- Section 1: Header with gradient effect -->
     <div class="flex flex-col sm:flex-row justify-between gap-4 sm:gap-2 mb-0">
@@ -21,7 +21,10 @@
           (click)="onAddProjectClick()"
           class="group relative h-fit px-6 py-3 rounded-md flex justify-center items-center gap-2 text-white bg-gradient-to-r from-[#E1567C] to-[#9F3996] hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl w-full sm:w-auto"
         >
-          <mat-icon class="group-hover:rotate-90 transition-transform duration-300">add_circle_outline</mat-icon>
+          <mat-icon
+            class="group-hover:rotate-90 transition-transform duration-300"
+            >add_circle_outline</mat-icon
+          >
           <span class="text-sm md:text-base font-semibold">Create Project</span>
         </button>
       </div>
@@ -30,8 +33,8 @@
 
     <!-- Section 2: Search with modern styling -->
     <div class="flex flex-col sm:flex-row justify-start gap-4 sm:gap-2 mb-8">
+      <!-- Project Search -->
       <div class="relative lg:w-96 w-full">
-        
         <input
           type="text"
           (input)="onSearchProjects($event)"
@@ -39,101 +42,198 @@
           class="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
           placeholder="Search projects by name or description..."
         />
-        <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <div
+          class="absolute inset-y-0 left-4 flex items-center pointer-events-none"
+        >
+          <svg
+            class="w-5 h-5 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
+        </div>
+      </div>
+
+      <!-- Tag Search -->
+      <div class="relative lg:w-96 w-full">
+        <div class="flex items-center gap-2">
+          <div class="relative flex-1">
+            <input
+              type="text"
+              [(ngModel)]="tagSearchQuery"
+              (input)="onSearchByTag()"
+              class="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+              placeholder="Search by tag..."
+            />
+            <div class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+              <mat-icon class="text-gray-400">local_offer</mat-icon>
+            </div>
+          </div>
+          <!-- Clear Tag Filter -->
+          <button 
+            *ngIf="tagSearchQuery"
+            (click)="clearTagSearch()"
+            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            matTooltip="Clear tag filter"
+          >
+            <mat-icon class="text-gray-500">close</mat-icon>
+          </button>
+        </div>
+        <!-- Active Tag Filter Indicator -->
+        <div *ngIf="tagSearchQuery" class="mt-2 flex items-center gap-2">
+          <span class="text-sm text-gray-500 dark:text-gray-400">Filtering by tag:</span>
+          <span class="px-3 py-1 text-xs rounded-full font-medium bg-purple-100/80 text-purple-700 backdrop-blur-sm dark:bg-purple-900/30 dark:text-purple-300 border border-purple-200/50 dark:border-purple-700/30">
+            {{tagSearchQuery}}
+          </span>
         </div>
       </div>
     </div>
 
     <!-- Loading State -->
     <div *ngIf="isLoading" class="flex justify-center items-center p-8">
-      <div class="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"
+      ></div>
     </div>
 
     <!-- Error Message -->
-    <div *ngIf="errorMessage" class="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-center text-red-500">
+    <div
+      *ngIf="errorMessage"
+      class="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-center text-red-500"
+    >
       {{ errorMessage }}
     </div>
 
     <!-- Projects Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" *ngIf="!isLoading">
-      <div *ngFor="let project of filteredProjects" 
-        class="group relative overflow-hidden rounded-xl
-        before:absolute before:inset-0 before:z-0 
-        before:bg-gradient-to-b before:from-white/5 before:to-white/0 
-        dark:before:from-white/[0.07] dark:before:to-white/0
-        after:absolute after:inset-0 after:-z-10 after:rounded-xl
-        after:bg-gradient-to-b after:from-gray-100 after:to-white/80
-        dark:after:from-[#1a1b23] dark:after:to-[#1a1b23]/80
-        backdrop-blur-xl border border-white/10 dark:border-white/5
-        shadow-lg">
-        
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      *ngIf="!isLoading"
+    >
+      <div
+        *ngFor="let project of filteredProjects"
+        class="group relative overflow-hidden rounded-xl before:absolute before:inset-0 before:z-0 before:bg-gradient-to-b before:from-white/5 before:to-white/0 dark:before:from-white/[0.07] dark:before:to-white/0 after:absolute after:inset-0 after:-z-10 after:rounded-xl after:bg-gradient-to-b after:from-gray-100 after:to-white/80 dark:after:from-[#1a1b23] dark:after:to-[#1a1b23]/80 backdrop-blur-xl border border-white/10 dark:border-white/5 shadow-lg"
+      >
         <!-- Project Header -->
-        <div class="relative p-6 border-b border-gray-200/10 dark:border-gray-800/20 min-h-[90px] flex flex-col justify-between
-         dark:bg-gray-900">
+        <div
+          class="relative p-6 border-b border-gray-200/10 dark:border-gray-800/20 min-h-[90px] flex flex-col justify-between dark:bg-gray-900"
+        >
           <div class="flex items-start justify-between">
             <div class="flex items-start gap-4">
-               <!-- Project Icon with glossy effect -->
-               <div class="relative bg-gradient-to-br from-[#E1567C] to-[#9F3996] p-3 rounded-xl shadow-lg flex-shrink-0
-               before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-b before:from-white/20 before:to-transparent">
-               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-               </svg>
-             </div>
+              <!-- Project Icon with glossy effect -->
+              <div
+                class="relative bg-gradient-to-br from-[#E1567C] to-[#9F3996] p-3 rounded-xl shadow-lg flex-shrink-0 before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-b before:from-white/20 before:to-transparent"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-white relative z-10"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
               <!-- Project Info -->
               <div class="flex flex-col justify-start gap-2 -space-y-1">
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors m-0 p-0">{{ project.name }}</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 m-0 p-0">{{ project.description }}</p>
+                <h3
+                  class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors m-0 p-0"
+                >
+                  {{ project.name }}
+                </h3>
+                <p
+                  class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 m-0 p-0"
+                >
+                  {{ project.description }}
+                </p>
                 <div class="flex flex-wrap gap-2 mt-4 min-h-[28px]">
-                  <span *ngFor="let tag of project.tags" 
-                    class="px-3 py-1 text-xs rounded-full font-medium
-                    bg-purple-100/80 text-purple-700 backdrop-blur-sm
-                    dark:bg-purple-900/30 dark:text-purple-300
-                    border border-purple-200/50 dark:border-purple-700/30">
+                  <span
+                    *ngFor="let tag of project.tags"
+                    class="px-3 py-1 text-xs rounded-full font-medium bg-purple-100/80 text-purple-700 backdrop-blur-sm dark:bg-purple-900/30 dark:text-purple-300 border border-purple-200/50 dark:border-purple-700/30"
+                  >
                     {{ tag }}
                   </span>
                 </div>
               </div>
-             
             </div>
-            
-            
-            
-            <!-- Settings Button with glass effect -->
-            <button (click)="onProjectSettingsClick()" 
-              class="relative p-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 
-              transition-colors flex-shrink-0 rounded-lg
-              hover:bg-white/10 dark:hover:bg-white/5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </button>
+
+            <div class="flex flex-row gap-1">
+              <!-- Settings Button with glass effect -->
+              <button
+                (click)="onProjectSettingsClick(project?.id ?? 0)"
+                class="relative p-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors flex-shrink-0 rounded-lg hover:bg-white/10 dark:hover:bg-white/5"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </button>
+           
+            </div>
           </div>
         </div>
 
         <!-- Project Stats -->
         <div class="relative p-6 bg-white dark:bg-gray-900">
           <!-- Chart Container with glass effect -->
-          <div class="relative h-[200px] mb-6 rounded-lg overflow-hidden
-            bg-white/40 dark:bg-gray-900 backdrop-blur-sm
-            border border-white/20 dark:border-white/5">
-            <div class="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent dark:from-white/5"></div>
-            <div [id]="'chart-' + project.id" #chartContainer class="w-full h-full relative z-10"></div>
+          <div
+            class="relative h-[200px] mb-6 rounded-lg overflow-hidden bg-white/40 dark:bg-gray-900 backdrop-blur-sm border border-white/20 dark:border-white/5"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent dark:from-white/5"
+            ></div>
+            <div
+              [id]="'chart-' + project.id"
+              #chartContainer
+              class="w-full h-full relative z-10"
+            ></div>
           </div>
           <!-- View Details Button with glass effect -->
-          <button (click)="onProjectDetailsClick(project?.id ?? 0)" class="relative w-full py-3 px-4 rounded-lg font-semibold 
-            bg-gradient-to-r from-[#E1567C] to-[#9F3996] 
-            hover:opacity-90 transition-all duration-300
-            flex items-center justify-center gap-2 group
-            before:absolute before:inset-0 before:bg-gradient-to-b before:from-white/20 before:to-transparent before:rounded-lg">
+          <button
+            (click)="onProjectDetailsClick(project?.id ?? 0)"
+            class="relative w-full py-3 px-4 rounded-lg font-semibold bg-gradient-to-r from-[#E1567C] to-[#9F3996] hover:opacity-90 transition-all duration-300 flex items-center justify-center gap-2 group before:absolute before:inset-0 before:bg-gradient-to-b before:from-white/20 before:to-transparent before:rounded-lg"
+          >
             <span class="relative z-10 text-white">View Project</span>
-            <svg xmlns="http://www.w3.org/2000/svg" 
-              class="relative z-10 h-5 w-5 text-white group-hover:translate-x-1 transition-transform" 
-              fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="relative z-10 h-5 w-5 text-white group-hover:translate-x-1 transition-transform"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              />
             </svg>
           </button>
         </div>
@@ -141,16 +241,37 @@
     </div>
 
     <!-- No Projects Message -->
-    <div *ngIf="!isLoading && filteredProjects.length === 0" 
-      class="text-center p-8 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
-      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+    <div
+      *ngIf="!isLoading && filteredProjects.length === 0"
+      class="text-center p-8 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700"
+    >
+      <div
+        class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 mb-4"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-8 w-8 text-purple-600 dark:text-purple-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+          />
         </svg>
       </div>
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No projects found</h3>
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+        No projects found
+      </h3>
       <p class="text-gray-500 dark:text-gray-400">
-        {{ searchQuery ? 'Try a different search term.' : 'Create your first project to get started!' }}
+        {{
+          searchQuery
+            ? "Try a different search term."
+            : "Create your first project to get started!"
+        }}
       </p>
     </div>
   </div>
