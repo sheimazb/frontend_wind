@@ -42,16 +42,22 @@ export class LoginComponent {
     if (user) {
       switch (user.role) {
         case 'PARTNER':
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/dashboard/project']);
           break;
         case 'DEVELOPER':
-          this.router.navigate(['/dashboardTesteur']);
+          this.router.navigate(['/dashboard/tasks']);
+          break;
+        case 'TESTER':
+          this.router.navigate(['/dashboard/issues']);
+          break;
+        case 'CHEF':
+          this.router.navigate(['/dashboard/project-management']);
           break;
         case 'ADMIN':
-          this.router.navigate(['/dashboardAdmin']);
+          this.router.navigate(['/dashboard/agencies']);
           break;
         default:
-          this.router.navigate(['/login']);
+          this.router.navigate(['/dashboard']);
       }
     }
   }
@@ -61,9 +67,9 @@ export class LoginComponent {
   }
 
   onSignInClick(){
-    this.router.navigate(['/dashboardTesteur']);
-
+    this.router.navigate(['/dashboard']);
   }
+  
   onSignUpClick(){
     this.router.navigate(['/signup']);
   }

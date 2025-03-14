@@ -29,7 +29,7 @@ export class ProjectDetailsComponent implements OnInit {
   ) {}
 
   onDashboardClick() {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/dashboard/project']);
   }
 
   ngOnInit(): void {

@@ -9,18 +9,31 @@
     <div class="flex flex-col justify-between h-screen bg-white dark:bg-slate-900 py-4 px-3 shadow-xl rounded-3xl">
       <!-- Menu buttons -->
       <div class="flex flex-col items-center space-y-1">
-        <!-- Projects button -->
+        <!-- Admin Dashboard - Admin Only -->
+        <ng-container *ngIf="isAdmin">
+          <button 
+            class="sidebar-btn"
+            [class.active-sidebar-btn]="activeMenu === 'admin'"
+            (click)="onAdminClick()"
+          >
+            <ng-icon class="text-gray-600" size="25" name="letsFolderOpen"></ng-icon>
+            <span class="sr-only">Admin Dashboard</span>
+          </button>
+        </ng-container>
+
+        <!-- Projects button - Partner & Admin -->
         <ng-container *ngIf="isPartner">
           <button 
             class="sidebar-btn"
             [class.active-sidebar-btn]="activeMenu === 'project'"
             (click)="onDashboardClick()"
           >
-            <ng-icon class="text-gray-600 " size="25" name="letsFolderOpen"></ng-icon>
+            <ng-icon class="text-gray-600" size="25" name="letsFolderOpen"></ng-icon>
+            <span class="sr-only">Projects</span>
           </button>
         </ng-container>
 
-        <!-- Staff button -->
+        <!-- Staff button - Partner & Admin -->
         <ng-container *ngIf="isPartner">
           <button 
             class="sidebar-btn"
@@ -28,10 +41,11 @@
             (click)="onStaffClick()"
           >
             <ng-icon class="text-gray-600 hover:text-gray-300" size="25" name="letsUser"></ng-icon>
+            <span class="sr-only">Staff</span>
           </button>
         </ng-container>
 
-        <!-- Stats button -->
+        <!-- Stats button - Partner & Admin -->
         <ng-container *ngIf="isPartner">
           <button 
             class="sidebar-btn"
@@ -39,10 +53,11 @@
             (click)="onStatsClick()"
           >
             <ng-icon class="text-gray-600 hover:text-gray-300" size="25" name="letsStat"></ng-icon>
+            <span class="sr-only">Stats</span>
           </button>
         </ng-container>
 
-        <!-- Alert button -->
+        <!-- Alert button - Partner & Admin -->
         <ng-container *ngIf="isPartner">
           <button 
             class="sidebar-btn"
@@ -50,10 +65,11 @@
             (click)="onAlertClick()"
           >
             <ng-icon class="text-gray-500 hover:text-gray-300" size="25" name="saxNotificationBingOutline"></ng-icon>
+            <span class="sr-only">Alerts</span>
           </button>
         </ng-container>
 
-        <!-- Issues button -->
+        <!-- Issues button - Tester & Admin -->
         <ng-container *ngIf="isTester">
           <button 
             class="sidebar-btn"
@@ -61,10 +77,47 @@
             (click)="onIssuesClick()"
           >
             <ng-icon class="text-gray-500 hover:text-gray-300" size="25" name="saxNotificationBingOutline"></ng-icon>
+            <span class="sr-only">Issues</span>
           </button>
         </ng-container>
 
-        <!-- Agencies button -->
+        <!-- Project Management - Chef & Admin -->
+        <ng-container *ngIf="isChef">
+          <button 
+            class="sidebar-btn"
+            [class.active-sidebar-btn]="activeMenu === 'project-management'"
+            (click)="onProjectManagementClick()"
+          >
+            <ng-icon class="text-gray-500 hover:text-gray-300" size="25" name="saxNotificationBingOutline"></ng-icon>
+            <span class="sr-only">Project Management</span>
+          </button>
+        </ng-container>
+
+        <!-- Tasks - Developer & Admin -->
+        <ng-container *ngIf="isDeveloper">
+          <button 
+            class="sidebar-btn"
+            [class.active-sidebar-btn]="activeMenu === 'tasks'"
+            (click)="onTasksClick()"
+          >
+            <ng-icon class="text-gray-500 hover:text-gray-300" size="25" name="saxNotificationBingOutline"></ng-icon>
+            <span class="sr-only">Tasks</span>
+          </button>
+        </ng-container>
+
+        <!-- Technical Resources - Technical Team & Admin -->
+        <ng-container *ngIf="isTechnicalTeam">
+          <button 
+            class="sidebar-btn"
+            [class.active-sidebar-btn]="activeMenu === 'technical-resources'"
+            (click)="onTechnicalResourcesClick()"
+          >
+            <ng-icon class="text-gray-500 hover:text-gray-300" size="25" name="saxNotificationBingOutline"></ng-icon>
+            <span class="sr-only">Technical Resources</span>
+          </button>
+        </ng-container>
+
+        <!-- Agencies button - Admin Only
         <ng-container *ngIf="isAdmin">
           <button 
             class="sidebar-btn"
@@ -72,18 +125,23 @@
             (click)="onAgenciesClick()"
           >
             <ng-icon class="text-gray-500 hover:text-gray-300" size="25" name="saxNotificationBingOutline"></ng-icon>
+            <span class="sr-only">Agencies</span>
           </button>
-        </ng-container>
+        </ng-container> -->
       </div>
 
       <!-- Bottom buttons -->
       <div class="flex flex-col items-center justify-center space-y-2">
-        <button class="sidebar-btn-b">
+        <!-- Home button -->
+        <button class="sidebar-btn-b" (click)="onHomeClick()">
           <ng-icon class="text-gray-700 hover:text-gray-300" size="25" name="letsHomeDuotone"></ng-icon>
+          <span class="sr-only">Home</span>
         </button>
         
-        <button class="sidebar-btn-b">
+        <!-- Logout button -->
+        <button class="sidebar-btn-b" (click)="onLogoutClick()">
           <ng-icon class="text-gray-700 hover:text-gray-300" size="25" name="saxLogoutBulk"></ng-icon>
+          <span class="sr-only">Logout</span>
         </button>
       </div>
     </div>
@@ -92,7 +150,7 @@
 
 <!-- Backdrop for mobile sidebar -->
 <div
-  class="bg-black/50 backdrop-blur-sm hidden fixed inset-0 z-10"
+  class="bg-black/40 backdrop-blur-md hidden fixed inset-0 z-15"
   id="sidebarBackdrop"
   (click)="closeSidebarOnMobile()"
 ></div>
