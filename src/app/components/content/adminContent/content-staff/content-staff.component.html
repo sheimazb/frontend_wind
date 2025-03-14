@@ -3,7 +3,7 @@
   <div class="flex flex-col sm:flex-row justify-between gap-4 sm:gap-2">
     <div>
       <p
-        class="dark:text-gray-200 text-2xl sm:text-3xl md:text-4xl flex items-center gap-2"
+        class="dark:text-gray-200  text-gray-700 font-bree text-2xl sm:text-3xl md:text-4xl flex items-center gap-2"
       >
         Staff
         <mat-icon
@@ -16,9 +16,11 @@
     </div>
     <button
     (click)="openDialog()"
-    class="h-fit border rounded-md flex justify-center items-center gap-2 p-2 text-white dark:border-gray-600 bg-purple-500 sm:w-auto"
+    class="h-fit border px-6 py-3 font-bree rounded-full flex justify-center items-center gap-2 p-2 text-white dark:border-indigo-600 bg-indigo-600 hover:opacity-90  sm:w-auto"
   >
-    <mat-icon>add</mat-icon>
+  <mat-icon
+  class="group-hover:rotate-45 transition-transform duration-200 text-base"
+  >add_circle_outline</mat-icon>
     <span class="text-sm md:text-base">Add Staff</span>
   </button>
   </div>
@@ -32,59 +34,14 @@
         (input)="onSearchStaff($event)"
         [value]="searchQuery"
         placeholder="Search Staff Profile"
-        class="w-full border dark:bg-darkbackground dark:border-gray-600 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="w-full dark:bg-slate-900 shadow-xl rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
-    </div>
-  
-    <!-- Grid and List View Toggle -->
-    <div class="flex items-center gap-2">
-      <button
-        class="p-2 border dark:bg-darkbackground dark:border-gray-600 border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-2 focus:ring-blue-500"
-        aria-label="Grid View"
-      >
-        <!-- Grid Icon -->
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="w-5 h-5 dark:text-gray-400"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M6.75 6.75h4.5v4.5h-4.5v-4.5zM6.75 12.75h4.5v4.5h-4.5v-4.5zM12.75 6.75h4.5v4.5h-4.5v-4.5zM12.75 12.75h4.5v4.5h-4.5v-4.5z"
-          />
-        </svg>
-      </button>
-  
-      <button
-        class="p-2 border dark:bg-darkbackground dark:border-gray-600 border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-2 focus:ring-blue-500"
-        aria-label="List View"
-      >
-        <!-- List Icon -->
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="w-5 h-5 text-gray-400"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M4.5 6.75h15m-15 5.25h15m-15 5.25h15"
-          />
-        </svg>
-      </button>
     </div>
   
     <!-- Sort By Dropdown -->
     <div>
       <select
-        class="border dark:border-gray-600 dark:bg-darkbackground dark:text-white border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="border dark:border-slate-900 dark:bg-slate-900 dark:text-white border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         <option>Sort By: Name</option>
         <option>Sort By: Projects</option>
@@ -101,10 +58,19 @@
       </div>
 
     <!-- Grid view -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full"  *ngIf="!isLoading">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full"  *ngIf="!isLoading">
       <!-- Card 1 -->
-      <div *ngFor="let staff of filteredStaff"  class="bg-white dark:bg-gray-800 rounded-xl p-4 text-center shadow-lg" >
-        <img src="https://img.freepik.com/free-psd/3d-illustration-with-online-avatar_23-2151303048.jpg" alt="Profile" class="w-16 h-16 mx-auto rounded-full border-2 border-gray-600">
+      <div *ngFor="let staff of filteredStaff"
+        class="
+        bg-white dark:bg-slate-900 rounded-xl p-4 text-center shadow-xl
+        hover:shadow-2xl transition-shadow duration-300 font-bree
+        "
+      >
+        <img
+          src="https://img.freepik.com/premium-vector/people-profile-icon_24877-40756.jpg?semt=ais_hybrid"
+          alt="Profile"
+          class="w-16 h-16 mx-auto rounded-full border-2 border-transparent"
+        />
         <h3 class="dark:text-white text-gray-800  mt-2 font-bold"> <b>{{staff.firstname}} {{staff.lastname}} </b></h3>
         <p class="text-gray-400 text-sm">{{staff.role}}</p>
         <div class="mt-4 flex justify-around text-sm text-gray-300">
@@ -113,8 +79,8 @@
           <div class="text-gray-500"><span class="font-bold text-green-500">3%</span> Solutions</div>
         </div>
         <div class="flex flex-row gap-3 justify-end">
-        <button class="mt-4 h-fit px-4 py-2 bg-gray-400 dark:bg-gray-500 text-white rounded-md hover:bg-gray-600">Add Task</button>
-        <button (click)="onStaffDetailsClick(staff?.id ?? 0)" class="mt-4 h-fit px-4 py-2 bg-gray-400 dark:bg-gray-500 text-white rounded-md hover:bg-gray-600"> Details</button>
+        <button class="mt-4 h-fit px-4 py-2 bg-transparent text-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900/30 border border-blue-500 rounded-full ">Add Task</button>
+        <button (click)="onStaffDetailsClick(staff?.id ?? 0)" class="mt-4 h-fit px-4 py-2 bg-transparent dark:hover:bg-gray-700/40 hover:bg-gray-100 text-gray-600 border border-gray-400 rounded-full hover:opacity-90"> Details</button>
         </div>
       </div>
   

@@ -49,7 +49,7 @@ export const routes: Routes = [
             { path: 'project-details/:id', component: ProjectDetailsComponent },
             { path: 'staff', component: ContentStaffComponent },
             { path: 'staff-details/:id', component: StaffDetailsComponent },
-            { path: 'staff-ticket', component: StaffTicketComponent },
+            { path: 'staff-ticket/:id', component: StaffTicketComponent },
             { path: 'alert', component: ContentAlertComponent },
             { path: 'profile', component: ProfileComponent },
 

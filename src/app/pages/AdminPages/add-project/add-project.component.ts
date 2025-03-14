@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { ProjectService, Project } from '../../../services/project.service';
+import { ProjectService } from '../../../services/project.service';
+import { Project } from '../../../models/project.model';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
@@ -29,14 +30,17 @@ export class AddProjectComponent implements OnInit {
   selectedTechnology: string | null = null;
   isLoading = false;
   
-  project: Project = {
+  project: Project = new Project({
     name: '',
     description: '',
     technologies: [],
     repositoryLink: '',
-    deadlineDate: '',
-    tags: []
-  };
+    deadlineDate: new Date().toISOString().split('T')[0],
+    tags: [],
+    progressPercentage: 0,
+    status: 'Active',
+    priority: 'Medium'
+  });
 
   constructor(
     private router: Router, 
@@ -60,20 +64,11 @@ export class AddProjectComponent implements OnInit {
       return;
     }
 
-    // Set default values for the project
-    this.project = {
-      name: '',
-      description: '',
-      technologies: [],
-      repositoryLink: '',
-      deadlineDate: '',
-      tags: []
-    };
-
     // Set default deadline date to one month from now
     const date = new Date();
     date.setMonth(date.getMonth() + 1);
     this.project.deadlineDate = date.toISOString().split('T')[0];
+    this.project.dueDate = this.project.deadlineDate;
   }
 
   onDashboardClick() {
@@ -158,5 +153,19 @@ export class AddProjectComponent implements OnInit {
       return false;
     }
     return true;
+  }
+
+  resetForm() {
+    this.project = new Project({
+      name: '',
+      description: '',
+      technologies: [],
+      repositoryLink: '',
+      deadlineDate: new Date().toISOString().split('T')[0],
+      tags: [],
+      progressPercentage: 0,
+      status: 'Active',
+      priority: 'Medium'
+    });
   }
 }

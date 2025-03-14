@@ -25,6 +25,18 @@ export class Project {
     allowedRoles: Role[] = [];  // Changed from Set to array
     creator: User | null = null;
     projectUsers: ProjectUser[] = [];  // Changed from Set to array
+    
+    // Additional properties for the modern UI
+    startDate: string = new Date().toISOString().split('T')[0];
+    dueDate: string = this.deadlineDate;
+    status: 'Active' | 'Pending' | 'Delayed' = 'Active';
+    priority: 'High' | 'Medium' | 'Low' = 'Medium';
+    progress: number = 0;
+    manager: string = '';
+    totalTasks: number = 0;
+    completedTasks: number = 0;
+    inProgressTasks: number = 0;
+    pendingTasks: number = 0;
 
     constructor(init?: Partial<Project>) {
         if (init) {
@@ -35,9 +47,13 @@ export class Project {
                     init.technologies;
             }
             
-            // Handle date
+            // Handle dates
             if (init.deadlineDate) {
                 this.deadlineDate = new Date(init.deadlineDate).toISOString().split('T')[0];
+                this.dueDate = this.deadlineDate; // Sync dueDate with deadlineDate
+            }
+            if (init.startDate) {
+                this.startDate = new Date(init.startDate).toISOString().split('T')[0];
             }
 
             // Handle arrays
@@ -46,15 +62,21 @@ export class Project {
             this.allowedRoles = init.allowedRoles || [];
             this.projectUsers = init.projectUsers || [];
 
+            // Handle progress
+            this.progress = init.progress || init.progressPercentage || 0;
+
             // Handle all other properties
             Object.assign(this, {
                 ...init,
                 technologies: this.technologies,  // Use our processed value
                 deadlineDate: this.deadlineDate,  // Use our processed value
+                startDate: this.startDate,
+                dueDate: this.dueDate,
                 tags: this.tags,
                 documentationUrls: this.documentationUrls,
                 allowedRoles: this.allowedRoles,
-                projectUsers: this.projectUsers
+                projectUsers: this.projectUsers,
+                progress: this.progress
             });
         }
     }

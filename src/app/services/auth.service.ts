@@ -120,8 +120,28 @@ export class AuthService {
   }*/
 
     logout(){
+      // Call the backend API to invalidate the token
+      const token = this.getToken();
+      if (token) {
+        // Make the API call but don't wait for it to complete
+        this.http.post(`${this.baseUrl}/logout`, {}, {
+          headers: new HttpHeaders({
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          })
+        }).pipe(
+          catchError(error => {
+            console.error('Logout API error:', error);
+            return of(null);
+          })
+        ).subscribe(() => {
+          console.log('Logout API call completed');
+        });
+      }
+      
+      // Always clear local storage regardless of API call success
       localStorage.removeItem('token');
-        localStorage.removeItem('user');
+      localStorage.removeItem('user');
     }
 
   register(data: RegisterRequest): Observable<any> {

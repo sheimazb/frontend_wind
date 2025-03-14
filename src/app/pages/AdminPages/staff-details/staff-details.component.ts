@@ -6,7 +6,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { CommonModule } from '@angular/common';
 import { User } from '../../../models/user.model';
 import { StaffService } from '../../../services/staff.service';
-import { ProjectService, Project } from '../../../services/project.service';
+import { ProjectService } from '../../../services/project.service';
+import { Project } from '../../../models/project.model';
 
 @Component({
   selector: 'app-staff-details',
@@ -94,5 +95,15 @@ export class StaffDetailsComponent implements OnInit {
 
   onProjectClick(projectId: number) {
     this.router.navigate(['/dashboard/project-details', projectId]);
+  }
+
+  onViewTickets(projectId: number) {
+    this.router.navigate(['/dashboard/staff-ticket', projectId]);
+  }
+
+  getTechnologies(technologies: string | string[]): string[] {
+    if (!technologies) return [];
+    if (Array.isArray(technologies)) return technologies;
+    return technologies.split(',').map(tech => tech.trim());
   }
 }

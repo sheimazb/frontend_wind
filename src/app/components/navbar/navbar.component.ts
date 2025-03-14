@@ -131,8 +131,17 @@ export class NavbarComponent implements OnInit {
   }
 
   logout() {
+    // Show loading indicator if needed
+    this.isLoading = true;
+    
+    // Call the auth service logout method
     this.authService.logout();
-    this.router.navigate(['/login']);
+    
+    // Navigate to login page after a short delay to ensure the API call has time to start
+    setTimeout(() => {
+      this.isLoading = false;
+      this.router.navigate(['/login']);
+    }, 300);
   }
 
   toggleSearchForm() {

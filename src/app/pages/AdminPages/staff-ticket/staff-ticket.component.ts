@@ -14,9 +14,12 @@ import { MatDialogModule, MatDialog, MatDialogRef } from '@angular/material/dial
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Task interface
 interface TaskItem {
+  id?: number;
   title: string;
   description?: string;
   image?: string;
@@ -24,6 +27,8 @@ interface TaskItem {
     text: string;
     completed: boolean;
   }[];
+  priority: 'Low' | 'Medium' | 'High';
+  dueDate: string;
 }
 
 // Dialog Component
@@ -112,7 +117,9 @@ export class TaskDialogComponent {
   task: TaskItem = {
     title: '',
     description: '',
-    subtasks: [{text: '', completed: false}]
+    subtasks: [{text: '', completed: false}],
+    priority: 'Low',
+    dueDate: new Date().toISOString()
   };
 
   constructor(public dialogRef: MatDialogRef<TaskDialogComponent>) {}
@@ -143,7 +150,9 @@ export class TaskDialogComponent {
     CdkDropList,
     CdkDrag,
     MatDialogModule,
-    TaskDialogComponent
+    TaskDialogComponent,
+    MatIconModule,
+    MatTooltipModule
   ],
   templateUrl: './staff-ticket.component.html',
   styleUrl: './staff-ticket.component.css'
@@ -151,16 +160,31 @@ export class TaskDialogComponent {
 export class StaffTicketComponent {
   todo: TaskItem[] = [
     {
-      title: 'Task title',
+      title: 'Design System',
+      description: 'Create a cohesive design system for the application',
       subtasks: [
-        { text: 'Here is task one', completed: false },
-        { text: 'Here is task Two', completed: true },
-        { text: 'Here is task Three', completed: false }
-      ]
+        { text: 'Color palette', completed: false },
+        { text: 'Typography', completed: false },
+        { text: 'Components', completed: false }
+      ],
+      priority: 'High',
+      dueDate: new Date(2024, 3, 15).toISOString()
     }
   ];
 
-  inProgress: TaskItem[] = [];
+  inProgress: TaskItem[] = [
+    {
+      title: 'User Authentication',
+      subtasks: [
+        { text: 'Login form', completed: true },
+        { text: 'Registration', completed: false },
+        { text: 'Password reset', completed: false }
+      ],
+      priority: 'Medium',
+      dueDate: new Date(2024, 3, 20).toISOString()
+    }
+  ];
+
   completed: TaskItem[] = [];
 
   constructor(

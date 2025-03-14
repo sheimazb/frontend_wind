@@ -1,16 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { User } from '../models/user.model';
-export interface Project {
-  id?: number;
-  name: string;  // maps to 'nom' in backend
-  description: string;
-  technologies: string | string[];  // handle both string and array
-  repositoryLink: string;
-  deadlineDate: string;  // maps to 'deadlineAlert' in backend
-  tags?: string[];  // Add tags property as optional
-}
+import { Project } from '../models/project.model';
 
 @Injectable({
   providedIn: 'root'
@@ -22,53 +14,59 @@ export class ProjectService {
 
   // Create a project
   createProject(project: Project): Observable<Project> {
-    // Log incoming project data
-    console.log('Received project data:', {
-      name: project.name,
-      description: project.description,
-      technologies: project.technologies,
-      repositoryLink: project.repositoryLink,
-      deadlineDate: project.deadlineDate
-    });
-
     // Transform the data to match backend expectations
     const backendProject = {
-      name: project.name,  // 'name' maps to 'nom' in backend
+      name: project.name,
       description: project.description,
       technologies: Array.isArray(project.technologies) ? project.technologies.join(',') : project.technologies,
       repositoryLink: project.repositoryLink,
-      deadlineDate: project.deadlineDate,  // 'deadlineDate' maps to 'deadlineAlert' in backend
-      tags: project.tags || []
+      deadlineDate: project.deadlineDate,
+      tags: project.tags || [],
+      progressPercentage: project.progress || project.progressPercentage || 0,
+      status: project.status,
+      priority: project.priority,
+      manager: project.manager
     };
 
-    // Log the transformed data
-    console.log('Transformed data for backend:', backendProject);
-    
-    // Make the API call with Content-Type header
-    return this.http.post<Project>(
-      `${this.apiUrl}/create`, 
-      backendProject,
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
+    return this.http.post<any>(`${this.apiUrl}/create`, backendProject, {
+      headers: { 'Content-Type': 'application/json' }
+    }).pipe(
+      map(response => new Project(response))
     );
   }
 
   // Get project by ID
   getProjectById(id: number): Observable<Project> {
-    return this.http.get<Project>(`${this.apiUrl}/${id}`);
+    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+      map(response => new Project(response))
+    );
   }
 
   // Get all projects by tenant 
   getAllProjects(): Observable<Project[]> {
-    return this.http.get<Project[]>(this.apiUrl);
+    return this.http.get<any[]>(this.apiUrl).pipe(
+      map(projects => projects.map(p => new Project(p)))
+    );
   }
 
   // Update project
   updateProject(id: number, project: Project): Observable<Project> {
-    return this.http.put<Project>(`${this.apiUrl}/${id}`, project);
+    const backendProject = {
+      name: project.name,
+      description: project.description,
+      technologies: Array.isArray(project.technologies) ? project.technologies.join(',') : project.technologies,
+      repositoryLink: project.repositoryLink,
+      deadlineDate: project.deadlineDate,
+      tags: project.tags || [],
+      progressPercentage: project.progress || project.progressPercentage || 0,
+      status: project.status,
+      priority: project.priority,
+      manager: project.manager
+    };
+
+    return this.http.put<any>(`${this.apiUrl}/${id}`, backendProject).pipe(
+      map(response => new Project(response))
+    );
   }
 
   // Delete project
@@ -78,17 +76,9 @@ export class ProjectService {
 
   // Search projects by tag
   searchProjectsByTag(tag: string): Observable<Project[]> {
-    return this.http.get<Project[]>(`${this.apiUrl}/search?tag=${tag}`);
-  }
-
-  // Add user to project
-  addUserToProject(projectId: number, userId: number): Observable<Project> {
-    return this.http.post<Project>(`${this.apiUrl}/${projectId}/users/${userId}`, {});
-  }
-
-  // Remove user from project
-  removeUserFromProject(projectId: number, userId: number): Observable<Project> {
-    return this.http.delete<Project>(`${this.apiUrl}/${projectId}/users/${userId}`);
+    return this.http.get<any[]>(`${this.apiUrl}/search?tag=${tag}`).pipe(
+      map(projects => projects.map(p => new Project(p)))
+    );
   }
 
   // Get project members
@@ -96,8 +86,20 @@ export class ProjectService {
     return this.http.get<User[]>(`${this.apiUrl}/${projectId}/users`);
   }
 
+  // Add user to project
+  addUserToProject(projectId: number, userId: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${projectId}/users/${userId}`, {});
+  }
+
+  // Remove user from project
+  removeUserFromProject(projectId: number, userId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${projectId}/users/${userId}`);
+  }
+
   // Get user projects
   getUserProjects(userId: number): Observable<Project[]> {
-    return this.http.get<Project[]>(`${this.apiUrl}/user/${userId}`);
+    return this.http.get<any[]>(`${this.apiUrl}/user/${userId}`).pipe(
+      map(projects => projects.map(p => new Project(p)))
+    );
   }
 }

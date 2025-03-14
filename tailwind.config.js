@@ -7,7 +7,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        bree: ['Bree Serif', 'serif'], // Add Bree Serif font
+        sans: ['Bree Serif', 'serif'],
+        bree: ['Bree Serif', 'serif'],
       },
       colors: {
         primary: '#111036',

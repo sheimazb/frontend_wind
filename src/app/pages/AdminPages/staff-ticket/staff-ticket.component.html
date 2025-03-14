@@ -1,160 +1,283 @@
-<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
-  <div class="mx-auto max-w-270">
-    <!-- Breadcrumb Start -->
-    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <h2 class="text-title-md2 font-bold text-black dark:text-white">Tickets</h2>
-      <nav>
-        <ol class="flex items-center gap-2">
-          <li>
-            <a class="font-medium dark:text-gray-300 cursor-pointer text-gray-700" (click)="onDashboardClick()">Dashboard /</a>
-          </li>
-          <li class="font-medium text-purple-500 cursor-pointer">Tickets</li>
-        </ol>
-      </nav>
+<!-- Main Container -->
+<div class="min-h-screen">
+  <!-- Header Section -->
+  <div class="">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white font-bree">Project Tickets</h1>
+        </div>
+        <nav class="flex" aria-label="Breadcrumb">
+          <ol class="flex items-center space-x-2">
+            <li>
+              <a (click)="onDashboardClick()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 cursor-pointer">Dashboard</a>
+            </li>
+            <li>
+              <span class="text-gray-400 dark:text-gray-500">/</span>
+            </li>
+            <li>
+              <span class="text-indigo-600 dark:text-indigo-400">Tickets</span>
+            </li>
+          </ol>
+        </nav>
+      </div>
     </div>
   </div>
 
-  <div class="flex flex-col gap-6">
-    <!-- Header section -->
-    <div class="dark:bg-darkbackground bg-white p-4 rounded-sm h-fit flex items-center justify-between shadow-sm">
-      <h2 class="dark:text-white text-black text-lg">Tasks</h2>
-      <!-- Avatars and Add Button -->
-      <div class="flex items-center space-x-3">
-        <!-- Your existing avatar section -->
-        <button
-        (click)="openNewTaskDialog()"
-        class="bg-purple-500 text-white text-sm px-4 py-2 rounded-md hover:bg-purple-700">
-          + Add task
-        </button>
+  <!-- Content Container -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header Actions -->
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-2">
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Status:</span>
+          <select class="bg-white dark:bg-slate-800 border border-gray-300 dark:border-gray-700 rounded-full text-sm px-3 py-1.5">
+            <option>All Tickets</option>
+            <option>Open</option>
+            <option>In Progress</option>
+            <option>Completed</option>
+          </select>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Sort by:</span>
+          <select class="bg-white dark:bg-slate-800 border border-gray-300 dark:border-gray-700 rounded-full text-sm px-3 py-1.5">
+            <option>Latest</option>
+            <option>Oldest</option>
+            <option>Priority</option>
+          </select>
+        </div>
       </div>
+      <button
+        (click)="openNewTaskDialog()"
+        class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full transition-colors shadow-xl">
+        <mat-icon class="text-sm mr-2">add</mat-icon>
+        <span>New Ticket</span>
+      </button>
     </div>
 
-    <!-- Kanban board -->
-    <div class="flex justify-center">
-      <div cdkDropListGroup>
-        <!-- Todo section -->
-        <div class="example-container">
-          <h2 class="dark:text-white">To Do's ({{todo.length}})</h2>
-          <div
-            cdkDropList
-            [cdkDropListData]="todo"
-            class="example-list"
-            (cdkDropListDropped)="drop($event)">
-            @for (task of todo; track task) {
-              <div class="example-box dark:border-gray-100 rounded-sm bg-white dark:bg-darkbackground dark:text-white" cdkDrag>
-                <div class="flex justify-between items-center mb-4">
-                  <h2 class="text-lg font-semibold">{{task.title}}</h2>
-                  <button class="text-gray-400 hover:text-white">&#8226;&#8226;&#8226;</button>
+    <!-- Kanban Board -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6" cdkDropListGroup>
+      <!-- To Do Column -->
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl p-4">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white font-bree">
+            To Do
+            <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">({{todo.length}})</span>
+          </h2>
+          <span class="flex items-center justify-center w-8 h-8 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium">
+            {{todo.length}}
+          </span>
+        </div>
+        
+        <div
+          cdkDropList
+          [cdkDropListData]="todo"
+          class="space-y-3 min-h-[200px]"
+          (cdkDropListDropped)="drop($event)">
+          @for (task of todo; track task) {
+            <div 
+              class="bg-gray-50 dark:bg-slate-800 rounded-lg p-4 shadow-xl border border-gray-200 dark:border-gray-700 cursor-move hover:shadow-md transition-shadow"
+              cdkDrag>
+              <div class="flex items-start justify-between mb-2">
+                <h3 class="text-base font-medium text-gray-900 dark:text-white">{{task.title}}</h3>
+                <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+              </div>
+              
+              @if (task.description) {
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{task.description}}</p>
+              }
+
+              @if (task.image) {
+                <div class="mb-3 rounded-lg overflow-hidden">
+                  <img [src]="task.image" alt="Task preview" class="w-full h-32 object-cover">
                 </div>
-                @if (task.description) {
-                  <p class="text-gray-400 text-sm mb-4">{{task.description}}</p>
-                }
-                @if (task.image) {
-                  <div class="mb-4">
-                    <img [src]="task.image" alt="Task preview" class="rounded-lg w-full">
+              }
+
+              <div class="space-y-2">
+                @for (subtask of task.subtasks; track subtask) {
+                  <div class="flex items-center">
+                    <input
+                      type="checkbox"
+                      [checked]="subtask.completed"
+                      class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 dark:border-gray-600 dark:focus:ring-indigo-600"
+                    />
+                    <span class="ml-2 text-sm text-gray-600 dark:text-gray-300" [class.line-through]="subtask.completed">
+                      {{subtask.text}}
+                    </span>
                   </div>
                 }
-                <ul class="space-y-2">
-                  @for (subtask of task.subtasks; track subtask) {
-                    <li class="flex items-center">
-                      <input
-                        type="checkbox"
-                        [checked]="subtask.completed"
-                        class="form-checkbox text-blue-500 rounded focus:ring-0 focus:outline-none"
-                      />
-                      <label class="ml-2 text-gray-300" [class.line-through]="subtask.completed">
-                        {{subtask.text}}
-                      </label>
-                    </li>
-                  }
-                </ul>
               </div>
-            }
-          </div>
+
+              <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                      Task
+                    </span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                      {{task.priority || 'Low'}}
+                    </span>
+                  </div>
+                  <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                    <mat-icon class="text-sm mr-1">schedule</mat-icon>
+                    <span>{{task.dueDate | date:'shortDate'}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- In Progress Column -->
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl p-4">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white font-bree">
+            In Progress
+            <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">({{inProgress.length}})</span>
+          </h2>
+          <span class="flex items-center justify-center w-8 h-8 bg-yellow-50 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 rounded-full text-sm font-medium">
+            {{inProgress.length}}
+          </span>
         </div>
 
-        <!-- In Progress section -->
-        <div class="example-container">
-          <h2 class="dark:text-white">In Progress ({{inProgress.length}})</h2>
-          <div
-            cdkDropList
-            [cdkDropListData]="inProgress"
-            class="example-list"
-            (cdkDropListDropped)="drop($event)">
-            @for (task of inProgress; track task) {
-              <div class="example-box dark:border-gray-100 rounded-sm bg-white dark:bg-darkbackground dark:text-white" cdkDrag>
-                <!-- Same task template as above -->
-                <div class="flex justify-between items-center mb-4">
-                  <h2 class="text-lg font-semibold">{{task.title}}</h2>
-                  <button class="text-gray-400 hover:text-white">&#8226;&#8226;&#8226;</button>
+        <div
+          cdkDropList
+          [cdkDropListData]="inProgress"
+          class="space-y-3 min-h-[200px]"
+          (cdkDropListDropped)="drop($event)">
+          @for (task of inProgress; track task) {
+            <div 
+              class="bg-gray-50 dark:bg-slate-800 rounded-lg p-4 shadow-xl border border-gray-200 dark:border-gray-700 cursor-move hover:shadow-md transition-shadow"
+              cdkDrag>
+              <!-- Same task template as above -->
+              <div class="flex items-start justify-between mb-2">
+                <h3 class="text-base font-medium text-gray-900 dark:text-white">{{task.title}}</h3>
+                <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+              </div>
+              
+              @if (task.description) {
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{task.description}}</p>
+              }
+
+              @if (task.image) {
+                <div class="mb-3 rounded-lg overflow-hidden">
+                  <img [src]="task.image" alt="Task preview" class="w-full h-32 object-cover">
                 </div>
-                @if (task.description) {
-                  <p class="text-gray-400 text-sm mb-4">{{task.description}}</p>
-                }
-                @if (task.image) {
-                  <div class="mb-4">
-                    <img [src]="task.image" alt="Task preview" class="rounded-lg w-full">
+              }
+
+              <div class="space-y-2">
+                @for (subtask of task.subtasks; track subtask) {
+                  <div class="flex items-center">
+                    <input
+                      type="checkbox"
+                      [checked]="subtask.completed"
+                      class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 dark:border-gray-600 dark:focus:ring-indigo-600"
+                    />
+                    <span class="ml-2 text-sm text-gray-600 dark:text-gray-300" [class.line-through]="subtask.completed">
+                      {{subtask.text}}
+                    </span>
                   </div>
                 }
-                <ul class="space-y-2">
-                  @for (subtask of task.subtasks; track subtask) {
-                    <li class="flex items-center">
-                      <input
-                        type="checkbox"
-                        [checked]="subtask.completed"
-                        class="form-checkbox text-blue-500 rounded focus:ring-0 focus:outline-none"
-                      />
-                      <label class="ml-2 text-gray-300" [class.line-through]="subtask.completed">
-                        {{subtask.text}}
-                      </label>
-                    </li>
-                  }
-                </ul>
               </div>
-            }
-          </div>
+
+              <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                      Task
+                    </span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                      {{task.priority || 'Low'}}
+                    </span>
+                  </div>
+                  <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                    <mat-icon class="text-sm mr-1">schedule</mat-icon>
+                    <span>{{task.dueDate | date:'shortDate'}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Completed Column -->
+      <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl p-4">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white font-bree">
+            Completed
+            <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">({{completed.length}})</span>
+          </h2>
+          <span class="flex items-center justify-center w-8 h-8 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full text-sm font-medium">
+            {{completed.length}}
+          </span>
         </div>
 
-        <!-- Completed section -->
-        <div class="example-container">
-          <h2 class="dark:text-white">Completed ({{completed.length}})</h2>
-          <div
-            cdkDropList
-            [cdkDropListData]="completed"
-            class="example-list"
-            (cdkDropListDropped)="drop($event)">
-            @for (task of completed; track task) {
-              <div class="example-box dark:border-gray-100 rounded-sm bg-white dark:bg-darkbackground dark:text-white" cdkDrag>
-                <!-- Same task template as above -->
-                <div class="flex justify-between items-center mb-4">
-                  <h2 class="text-lg font-semibold">{{task.title}}</h2>
-                  <button class="text-gray-400 hover:text-white">&#8226;&#8226;&#8226;</button>
+        <div
+          cdkDropList
+          [cdkDropListData]="completed"
+          class="space-y-3 min-h-[200px]"
+          (cdkDropListDropped)="drop($event)">
+          @for (task of completed; track task) {
+            <div 
+              class="bg-gray-50 dark:bg-slate-800 rounded-lg p-4 shadow-xl border border-gray-200 dark:border-gray-700 cursor-move hover:shadow-md transition-shadow"
+              cdkDrag>
+              <!-- Same task template as above -->
+              <div class="flex items-start justify-between mb-2">
+                <h3 class="text-base font-medium text-gray-900 dark:text-white">{{task.title}}</h3>
+                <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+              </div>
+              
+              @if (task.description) {
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{task.description}}</p>
+              }
+
+              @if (task.image) {
+                <div class="mb-3 rounded-lg overflow-hidden">
+                  <img [src]="task.image" alt="Task preview" class="w-full h-32 object-cover">
                 </div>
-                @if (task.description) {
-                  <p class="text-gray-400 text-sm mb-4">{{task.description}}</p>
-                }
-                @if (task.image) {
-                  <div class="mb-4">
-                    <img [src]="task.image" alt="Task preview" class="rounded-lg w-full">
+              }
+
+              <div class="space-y-2">
+                @for (subtask of task.subtasks; track subtask) {
+                  <div class="flex items-center">
+                    <input
+                      type="checkbox"
+                      [checked]="subtask.completed"
+                      class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 dark:border-gray-600 dark:focus:ring-indigo-600"
+                    />
+                    <span class="ml-2 text-sm text-gray-600 dark:text-gray-300" [class.line-through]="subtask.completed">
+                      {{subtask.text}}
+                    </span>
                   </div>
                 }
-                <ul class="space-y-2">
-                  @for (subtask of task.subtasks; track subtask) {
-                    <li class="flex items-center">
-                      <input
-                        type="checkbox"
-                        [checked]="subtask.completed"
-                        class="form-checkbox text-blue-500 rounded focus:ring-0 focus:outline-none"
-                      />
-                      <label class="ml-2 text-gray-300" [class.line-through]="subtask.completed">
-                        {{subtask.text}}
-                      </label>
-                    </li>
-                  }
-                </ul>
               </div>
-            }
-          </div>
+
+              <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                      Task
+                    </span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                      {{task.priority || 'Low'}}
+                    </span>
+                  </div>
+                  <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                    <mat-icon class="text-sm mr-1">schedule</mat-icon>
+                    <span>{{task.dueDate | date:'shortDate'}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
         </div>
       </div>
     </div>

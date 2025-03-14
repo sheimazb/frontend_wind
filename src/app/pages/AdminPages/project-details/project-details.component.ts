@@ -4,9 +4,10 @@ import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { ProjectService, Project } from '../../../services/project.service';
+import { ProjectService } from '../../../services/project.service';
 import { StaffService } from '../../../services/staff.service';
 import { User } from '../../../models/user.model';
+import { Project } from '../../../models/project.model';
 
 @Component({
   selector: 'app-project-details',
@@ -16,16 +17,7 @@ import { User } from '../../../models/user.model';
   styleUrls: ['./project-details.component.css']
 })
 export class ProjectDetailsComponent implements OnInit {
-  project: Project = {
-    id: 0,
-    name: '',
-    description: '',
-    technologies: '',
-    repositoryLink: '',
-    deadlineDate: '',
-    tags: []
-  };
-  
+  project: Project = new Project();
   members: User[] = [];
   availableStaff: User[] = [];
 
@@ -50,8 +42,28 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   loadProjectDetails(projectId: number) {
-    this.projectService.getProjectById(projectId).subscribe((project) => {
-      this.project = project;
+    this.projectService.getProjectById(projectId).subscribe((projectData) => {
+      this.project = new Project(projectData);
+      
+      // Set additional UI properties if not provided by the backend
+      if (!this.project.startDate) {
+        this.project.startDate = new Date().toISOString().split('T')[0];
+      }
+      if (!this.project.status) {
+        this.project.status = 'Active';
+      }
+      if (!this.project.priority) {
+        this.project.priority = 'Medium';
+      }
+      if (!this.project.progress) {
+        this.project.progress = this.project.progressPercentage || 0;
+      }
+      
+      // Set task counts if not provided
+      this.project.totalTasks = this.project.totalTasks || 0;
+      this.project.completedTasks = this.project.completedTasks || 0;
+      this.project.inProgressTasks = this.project.inProgressTasks || 0;
+      this.project.pendingTasks = this.project.pendingTasks || 0;
     });
   }
 

@@ -20,6 +20,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     'auth/request-password-change'
   ];
 
+  // Special routes that need token but should not redirect on failure
+  const specialRoutes = [
+    'auth/logout'
+  ];
+
   // Log the request URL for debugging
   console.log('Request URL:', req.url);
   
@@ -27,12 +32,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isPublicRoute = publicRoutes.some(route => req.url.includes(route));
   console.log('Is public route:', isPublicRoute);
   
+  // Check if it's a special route like logout
+  const isSpecialRoute = specialRoutes.some(route => req.url.includes(route));
+  
   if (isPublicRoute) {
     return next(req);
   }
 
   // For protected routes, check token
-  if (!token) {
+  if (!token && !isSpecialRoute) {
     router.navigate(['/login']);
     return throwError(() => ({
       status: 401,
