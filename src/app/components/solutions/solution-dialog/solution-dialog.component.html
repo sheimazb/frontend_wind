@@ -1,0 +1,28 @@
+<div class="solution-dialog-container h-full flex flex-col" [class.fullscreen-mode]="isFullWidth">
+  <!-- Header - Fixed at top -->
+  <div class="flex justify-between items-center px-6 py-4 bg-gray-50 dark:bg-gray-800 shadow-sm z-10">
+    <h2 mat-dialog-title class="text-gray-800 dark:text-white text-xl font-semibold flex items-center">
+      <span>{{ existingSolution ? 'Edit Solution' : 'Add Solution' }}</span>
+      <span *ngIf="isFullWidth" class="ml-3 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+        Full page
+      </span>
+    </h2>
+    <button mat-icon-button (click)="toggleDialogWidth()" class="text-gray-700 dark:text-gray-300">
+      <mat-icon>{{ isFullWidth ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+    </button>
+  </div>
+
+  <!-- Content - Scrollable -->
+  <mat-dialog-content 
+    class="flex-grow overflow-auto p-4 bg-white dark:bg-slate-900"
+    [ngStyle]="{'height': isFullWidth ? 'calc(100vh - 72px)' : 'auto', 'min-height': isFullWidth ? 'calc(100vh - 72px)' : '400px'}">
+    <app-solution-form
+      [ticketId]="ticketId"
+      [existingSolution]="existingSolution"
+      (solutionSaved)="onSolutionSaved($event)"
+      (cancel)="onCancel()"
+      class="h-full">
+    </app-solution-form>
+  </mat-dialog-content>
+</div>
+  

@@ -3,7 +3,17 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { letsFolderOpen, letsUser, letsStat } from '@ng-icons/lets-icons/regular';
+import { 
+   letsFolderOpen,
+   letsUser, 
+   letsStat,
+   letsArhivesAlt,
+   lets3dBox,
+   letsFileDock,
+  letsTicket,
+  letsBoxes,
+  letsTicketAlt
+ } from '@ng-icons/lets-icons/regular';
 import { letsHomeDuotone } from '@ng-icons/lets-icons/duotone';
 import { saxNotificationBingOutline } from '@ng-icons/iconsax/outline';
 import { saxLogoutBulk } from '@ng-icons/iconsax/bulk';
@@ -19,8 +29,8 @@ import { Role } from '../../models/role.enum';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css',
   viewProviders: [provideIcons({
-    letsFolderOpen, letsUser, letsStat, letsHomeDuotone,
-    saxNotificationBingOutline, saxLogoutBulk
+    letsFolderOpen, letsUser, letsStat, letsHomeDuotone, letsArhivesAlt,lets3dBox,letsFileDock,
+    saxNotificationBingOutline, saxLogoutBulk,letsTicket,letsBoxes,letsTicketAlt
   })]
 })
 export class SidebarComponent implements OnInit, OnDestroy {
@@ -42,7 +52,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
     projectManagement: '/dashboard/project-management',
     tasks: '/dashboard/tasks',
     technicalResources: '/dashboard/technical-resources',
-    admin: '/dashboard/admin'
+    admin: '/dashboard/admin',
+    ticketList: '/dashboard/ticket-list',
+    kanban: '/dashboard/kanban'
   };
 
   constructor(
@@ -141,6 +153,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
       this.activeMenu = 'alert';
     } else if (url.includes('/issues')) {
       this.activeMenu = 'issues';
+    } else if (url.includes('/kanban')) {
+      this.activeMenu = 'kanban';
+    } else if (url.includes('/ticket-list')) {
+      this.activeMenu = 'ticket-list';
     } else if (url === '/dashboard') {
       this.activeMenu = 'dashboard';
     }
@@ -159,8 +175,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
     return this.userRole === Role.TESTER;
   }
   
-  get isChef(): boolean {
-    return this.userRole === Role.CHEF;
+  get isManager(): boolean {
+    return this.userRole === Role.MANAGER;
   }
   
   get isDeveloper(): boolean {
@@ -170,7 +186,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   get isTechnicalTeam(): boolean {
     return this.userRole === Role.DEVELOPER || 
            this.userRole === Role.TESTER || 
-           this.userRole === Role.CHEF;
+           this.userRole === Role.MANAGER;
   }
 
   // Navigation methods
@@ -224,8 +240,19 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.closeSidebarOnMobile();
   }
   
+  onTicketsClick() {
+    this.router.navigate([this.routes.ticketList]);
+    this.closeSidebarOnMobile();
+  }
+  
+  onKanbanClick() {
+    // Use router.navigateByUrl to force route refresh
+    this.router.navigateByUrl(this.routes.kanban);
+    this.closeSidebarOnMobile();
+  }
+  
   onAdminClick() {
-    this.router.navigate([this.routes.agencies]);
+    this.router.navigate([this.routes.admin]);
     this.closeSidebarOnMobile();
   }
   

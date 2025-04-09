@@ -1,0 +1,390 @@
+/* Full width mat-form-field */
+:host ::ng-deep .mat-mdc-form-field {
+  width: 100%;
+}
+
+/* Consistent styling for form fields */
+:host ::ng-deep .mat-mdc-text-field-wrapper {
+  background-color: transparent;
+}
+
+/* Dark mode adjustments */
+:host-context(.dark-theme) ::ng-deep .mat-mdc-form-field-label {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+:host-context(.dark-theme) ::ng-deep .mat-mdc-form-field-outline {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* Additional form field spacing */
+.mat-form-field + .mat-form-field {
+  margin-top: 8px;
+}
+
+/* Dialog close button hover effect */
+.dialog-close-button:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Form styling */
+form {
+  width: 100%;
+}
+
+/* Input fields */
+input, textarea, select {
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+/* Dark mode text */
+.dark-mode input, .dark-mode textarea, .dark-mode select {
+  background-color: #2d3748;
+  color: #e2e8f0;
+  border-color: #4a5568;
+}
+
+/* Priority indicators */
+.priority-indicator {
+  display: inline-block;
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.priority-low {
+  background-color: #10b981;  /* green-500 */
+}
+
+.priority-medium {
+  background-color: #f59e0b;  /* yellow-500 */
+}
+
+.priority-high {
+  background-color: #ef4444;  /* red-500 */
+}
+
+/* Form validation hints */
+.validation-hint {
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin-top: 0.25rem;
+}
+
+/* Custom select dropdown arrow */
+select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Dialog animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+:host {
+  display: block;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Submit button disabled state */
+button[type="submit"]:disabled {
+  background-color: rgba(139, 92, 246, 0.5);
+  cursor: not-allowed;
+}
+
+/* Rounded full */
+.rounded-full {
+  border-radius: 9999px;
+}
+
+/* Ring effect for selected priority */
+.ring-2 {
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+.ring-offset-2 {
+  --tw-ring-offset-width: 2px;
+}
+
+/* Dialog title */
+.mat-dialog-title {
+  margin: 0;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.dark-theme .mat-dialog-title {
+  background-color: #1f2937;
+  border-color: #374151;
+  color: #f9fafb;
+}
+
+/* Form layout */
+.create-ticket-dialog {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.ticket-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+/* Form fields */
+.full-width {
+  width: 100%;
+}
+
+/* Assignee dropdown */
+.assignee-field {
+  position: relative;
+  width: 100%;
+}
+
+.assignee-field label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+.dark-theme .assignee-field label {
+  color: #9ca3af;
+}
+
+.custom-dropdown {
+  position: relative;
+  width: 100%;
+  min-height: 42px;
+  padding: 0.5rem 1rem;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s;
+}
+
+.dark-theme .custom-dropdown {
+  background-color: #1f2937;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+.custom-dropdown:hover {
+  border-color: #9ca3af;
+}
+
+.custom-dropdown:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.selected-value {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.role-label {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.dark-theme .role-label {
+  color: #9ca3af;
+}
+
+/* Dropdown options */
+.dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.25rem;
+  max-height: 250px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 50;
+}
+
+.dark-theme .dropdown-options {
+  background-color: #1f2937;
+  border-color: #4b5563;
+}
+
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  color: #6b7280;
+}
+
+.dark-theme .loading-indicator {
+  color: #9ca3af;
+}
+
+.no-options {
+  padding: 1rem;
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.dark-theme .no-options {
+  color: #9ca3af;
+}
+
+.options-list {
+  padding: 0.25rem;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  border-radius: 0.25rem;
+  transition: all 0.2s;
+}
+
+.option:hover, .option.active {
+  background-color: #f3f4f6;
+}
+
+.dark-theme .option:hover, .dark-theme .option.active {
+  background-color: #374151;
+}
+
+.option:focus {
+  outline: none;
+  background-color: #f3f4f6;
+  box-shadow: 0 0 0 2px #8b5cf6;
+}
+
+.dark-theme .option:focus {
+  background-color: #374151;
+}
+
+.assignee-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.assignee-info .name {
+  font-weight: 500;
+  color: #111827;
+}
+
+.dark-theme .assignee-info .name {
+  color: #f9fafb;
+}
+
+.assignee-info .role {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.dark-theme .assignee-info .role {
+  color: #9ca3af;
+}
+
+/* Priority colors */
+.priority-low {
+  background-color: #10b981;
+}
+
+.priority-medium {
+  background-color: #f59e0b;
+}
+
+.priority-high {
+  background-color: #ef4444;
+}
+
+.priority-critical {
+  background-color: #8b5cf6;
+}
+
+/* Dialog actions */
+.mat-dialog-actions {
+  padding: 1rem;
+  border-top: 1px solid #e5e7eb;
+  margin: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.dark-theme .mat-dialog-actions {
+  border-color: #374151;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Utility classes */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Form validation */
+.ng-invalid.ng-touched {
+  border-color: #ef4444;
+}
+
+.dark-theme .ng-invalid.ng-touched {
+  border-color: #f87171;
+}
+
+.validation-message {
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin-top: 0.25rem;
+}
+
+.dark-theme .validation-message {
+  color: #f87171;
+} 

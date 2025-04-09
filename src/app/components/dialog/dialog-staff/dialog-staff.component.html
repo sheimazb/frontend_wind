@@ -9,7 +9,7 @@
             id="firstname"
             type="text"
             formControlName="firstname"
-            class="dark:bg-gray-700 bg-white text-white p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            class="dark:bg-gray-700 bg-white dark:text-white text-black p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             placeholder="Enter your firstname"
           />
           <small class="text-red-500" *ngIf="contactForm.get('firstname')?.invalid && contactForm.get('firstname')?.touched">
@@ -24,7 +24,7 @@
             id="lastname"
             type="text"
             formControlName="lastname"
-            class="dark:bg-gray-700 bg-white text-white p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            class="dark:bg-gray-700 bg-white dark:text-white text-black p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             placeholder="Enter your lastname"
           />
           <small class="text-red-500" *ngIf="contactForm.get('lastname')?.invalid && contactForm.get('lastname')?.touched">
@@ -39,7 +39,7 @@
             id="email"
             type="email"
             formControlName="email"
-            class="dark:bg-gray-700 bg-white text-white p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            class="dark:bg-gray-700 bg-white dark:text-white text-black  p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             placeholder="Enter your email"
           />
           <small class="text-red-500" *ngIf="contactForm.get('email')?.invalid && contactForm.get('email')?.touched">

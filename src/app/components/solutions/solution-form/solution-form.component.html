@@ -1,0 +1,120 @@
+<div class="h-full flex flex-col bg-white dark:bg-slate-900 rounded-lg">
+  <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+    {{ existingSolution ? 'Edit Solution' : 'Create Solution' }}
+  </h2>
+
+  <form [formGroup]="solutionForm" (ngSubmit)="onSubmit()" class="flex flex-col flex-grow overflow-hidden">
+    <!-- Loading spinner -->
+    <div *ngIf="isLoading" class="absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-slate-800/70 z-10 rounded-lg">
+      <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+    </div>
+
+    <div class="flex-grow overflow-y-auto space-y-4 pr-2 pb-4">
+      <!-- Title field -->
+      <div>
+        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Title*</label>
+        <input formControlName="title" 
+               placeholder="Enter a descriptive title..." 
+               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white">
+        <div *ngIf="solutionForm.get('title')?.invalid && solutionForm.get('title')?.touched" class="text-red-500 text-sm mt-1">
+          <p *ngIf="solutionForm.get('title')?.hasError('required')">Title is required</p>
+          <p *ngIf="solutionForm.get('title')?.hasError('minlength')">Title must be at least 5 characters</p>
+        </div>
+      </div>
+
+      <!-- Markdown Editor -->
+      <div class="flex flex-col">
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Content*</label>
+          <div class="flex space-x-1">
+            <button type="button" (click)="togglePreview()" class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">
+              {{ showPreview ? 'Hide Preview' : 'Show Preview' }}
+            </button>
+            <button type="button" (click)="insertMarkdown('**bold**')" class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded" title="Bold"><strong>B</strong></button>
+            <button type="button" (click)="insertMarkdown('*italic*')" class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded" title="Italic"><em>I</em></button>
+            <button type="button" (click)="insertMarkdown('# Heading')" class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded" title="Heading">H</button>
+            <button type="button" (click)="insertMarkdown('- List item')" class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded" title="List">•</button>
+            <button type="button" (click)="insertMarkdown('[Link](url)')" class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded" title="Link">🔗</button>
+            <button type="button" (click)="insertMarkdown('```\ncode\n```')" class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded" title="Code">&lt;/&gt;</button>
+          </div>
+        </div>
+        
+        <!-- Editor & Preview container -->
+        <div class="flex gap-4 h-64" [class.flex-col]="!showPreview" [class.md:flex-row]="showPreview">
+          <!-- Editor -->
+          <div class="flex-1 min-h-full">
+            <textarea 
+              #markdownEditor
+              formControlName="content" 
+              placeholder="Write your solution using Markdown..." 
+              class="w-full h-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white font-mono text-sm resize-none"
+              (keydown.tab)="handleTab($event)"></textarea>
+            <div *ngIf="solutionForm.get('content')?.invalid && solutionForm.get('content')?.touched" class="text-red-500 text-sm mt-1">
+              <p *ngIf="solutionForm.get('content')?.hasError('required')">Content is required</p>
+              <p *ngIf="solutionForm.get('content')?.hasError('minlength')">Content must be at least 50 characters</p>
+            </div>
+          </div>
+          
+          <!-- Preview -->
+          <div *ngIf="showPreview" class="flex-1 border border-gray-300 dark:border-gray-600 rounded-md p-4 overflow-y-auto bg-white dark:bg-gray-700 min-h-full">
+            <markdown [data]="solutionForm.get('content')?.value || '*No content yet*'" class="prose dark:prose-invert max-w-none"></markdown>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form fields in a grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Complexity*</label>
+          <select formControlName="complexity" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white">
+            <option *ngFor="let level of complexityLevels" [value]="level">{{ level }}</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Estimated Time (hours)*</label>
+          <input type="number" min="0" formControlName="estimatedTime" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white">
+        </div>
+        
+        <div>
+          <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Cost Estimation ($)*</label>
+          <input type="number" min="0" formControlName="costEstimation" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white">
+        </div>
+      </div>
+      
+      <div>
+        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Category*</label>
+        <input formControlName="category" placeholder="Enter solution category" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white">
+      </div>
+
+      <!-- File upload -->
+      <div class="p-3 border border-dashed border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800">
+        <label class="flex items-center justify-center cursor-pointer">
+          <mat-icon class="text-blue-500 mr-2">cloud_upload</mat-icon>
+          <span class="text-gray-600 dark:text-gray-400">Upload attachments</span>
+          <input #fileInput type="file" (change)="onFileSelected($event)" multiple class="hidden">
+        </label>
+      </div>
+
+      <!-- Selected files -->
+      <div *ngIf="selectedFiles.length > 0">
+        <div *ngFor="let file of selectedFiles" class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded mb-1">
+          <span class="text-sm truncate">{{ file.name }}</span>
+          <button mat-icon-button type="button" (click)="removeFile(file)" class="text-red-500">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action buttons - Fixed at the bottom -->
+    <div class="flex justify-end space-x-3 pt-3 border-t border-gray-200 dark:border-gray-700 mt-2 bg-white dark:bg-slate-900 sticky bottom-0 z-10">
+      <button type="button" (click)="onCancel()" [disabled]="isLoading" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300">
+        Cancel
+      </button>
+      <button type="submit" [disabled]="solutionForm.invalid || isLoading" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md">
+        {{ existingSolution ? 'Update' : 'Submit' }}
+      </button>
+    </div>
+  </form>
+</div> 

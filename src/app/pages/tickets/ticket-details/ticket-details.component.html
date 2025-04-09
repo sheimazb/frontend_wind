@@ -1,0 +1,279 @@
+<div class="ticket-details-container">
+  <div class="ticket-header">
+    <div class="navigation-buttons">
+      <button mat-icon-button color="primary" (click)="goBack()" aria-label="Go back">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <button mat-raised-button color="primary" [routerLink]="['/dashboard/tickets']" aria-label="Back to tickets list">
+        <mat-icon>list</mat-icon>
+        List View
+      </button>
+      <button mat-raised-button color="primary" [routerLink]="['/dashboard/kanban']" aria-label="View kanban board">
+        <mat-icon>view_kanban</mat-icon>
+        Kanban View
+      </button>
+    </div>
+    <h1 *ngIf="ticket">Ticket #{{ticket.id}}: {{ticket.title}}</h1>
+    <h1 *ngIf="!ticket && isLoading">Loading ticket details...</h1>
+    <h1 *ngIf="!ticket && !isLoading">Ticket not found</h1>
+  </div>
+
+  <!-- Loading spinner -->
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Error message if ticket not found -->
+  <div class="error-container" *ngIf="!ticket && !isLoading">
+    <mat-icon color="warn">error_outline</mat-icon>
+    <p>The requested ticket was not found. It may have been deleted or you don't have permission to view it.</p>
+    <button mat-raised-button color="primary" [routerLink]="['/dashboard/tickets']">Back to Tickets</button>
+  </div>
+
+  <!-- Ticket details content -->
+  <div class="ticket-content" *ngIf="ticket && !isLoading">
+    <mat-card class="ticket-info-card">
+      <mat-card-header>
+        <mat-card-title>Ticket Information</mat-card-title>
+        <div class="ticket-status">
+          <span class="status-chip" [ngClass]="getStatusClass(ticket.status)">
+            {{ticket.status}}
+          </span>
+          <span class="priority-chip" [ngClass]="getPriorityClass(ticket.priority)">
+            {{ticket.priority}}
+          </span>
+        </div>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-row">
+            <span class="info-label">ID:</span>
+            <span class="info-value">{{ticket.id}}</span>
+          </div>
+          
+          <div class="info-row">
+            <span class="info-label">Project:</span>
+            <span class="info-value">{{ticket.projectId || 'Not specified'}}</span>
+          </div>
+          
+          <div class="info-row">
+            <span class="info-label">Created by:</span>
+            <span class="info-value">
+              {{ticket.userEmail || 'Unknown'}}
+              <span *ngIf="isCreatedByCurrentUser()" class="current-user-tag">(you)</span>
+            </span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Assigned to:</span>
+            <span class="info-value">
+              {{ticket.assignedToEmail || 'Unassigned'}}
+              <span *ngIf="isAssignedToCurrentUser()" class="current-user-tag">(you)</span>
+            </span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Created:</span>
+            <span class="info-value">{{formatDate(ticket.createdAt)}}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Last updated:</span>
+            <span class="info-value">{{formatDate(ticket.updatedAt)}}</span>
+          </div>
+
+          <div class="info-row full-width">
+            <span class="info-label">Description:</span>
+            <span class="info-value description">{{ticket.description}}</span>
+          </div>
+
+          <div class="info-row full-width" *ngIf="ticket.logId">
+            <span class="info-label">Related to log:</span>
+            <span class="info-value">
+              <a [routerLink]="['/dashboard/issues-details', ticket.logId]">
+                {{ticket.logId}} ({{ticket.logType || 'Unknown type'}})
+              </a>
+            </span>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-button color="primary" 
+                [matMenuTriggerFor]="statusMenu" 
+                [disabled]="ticket.status === 'VERIFIED'">
+          Change Status
+        </button>
+        <mat-menu #statusMenu="matMenu">
+          <button mat-menu-item (click)="updateStatus('PENDING')" *ngIf="ticket.status !== 'PENDING'">
+            <mat-icon class="status-pending-icon">pending</mat-icon>
+            <span>Mark as Pending</span>
+          </button>
+          <button mat-menu-item (click)="updateStatus('RESOLVED')" *ngIf="ticket.status !== 'RESOLVED'">
+            <mat-icon class="status-resolved-icon">check_circle</mat-icon>
+            <span>Mark as Resolved</span>
+          </button>
+          <button mat-menu-item (click)="updateStatus('VERIFIED')" *ngIf="ticket.status !== 'VERIFIED'">
+            <mat-icon class="status-verified-icon">verified</mat-icon>
+            <span>Mark as Verified</span>
+          </button>
+        </mat-menu>
+
+        <button mat-button color="accent" [matMenuTriggerFor]="priorityMenu">
+          Change Priority
+        </button>
+        <mat-menu #priorityMenu="matMenu">
+          <button mat-menu-item (click)="updatePriority('LOW')" *ngIf="ticket.priority !== 'LOW'">
+            <mat-icon class="priority-low-icon">arrow_downward</mat-icon>
+            <span>Low</span>
+          </button>
+          <button mat-menu-item (click)="updatePriority('MEDIUM')" *ngIf="ticket.priority !== 'MEDIUM'">
+            <mat-icon>remove</mat-icon>
+            <span>Medium</span>
+          </button>
+          <button mat-menu-item (click)="updatePriority('HIGH')" *ngIf="ticket.priority !== 'HIGH'">
+            <mat-icon class="priority-high-icon">arrow_upward</mat-icon>
+            <span>High</span>
+          </button>
+          <button mat-menu-item (click)="updatePriority('CRITICAL')" *ngIf="ticket.priority !== 'CRITICAL'">
+            <mat-icon class="priority-critical-icon">priority_high</mat-icon>
+            <span>Critical</span>
+          </button>
+        </mat-menu>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Tabs for different sections -->
+    <mat-tab-group>
+      <!-- Comments Tab -->
+      <mat-tab label="Comments">
+        <div class="tab-content">
+          <!-- Add new comment -->
+          <div class="add-comment-section">
+            <h3>Add a Comment</h3>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Your comment</mat-label>
+              <textarea matInput [(ngModel)]="newCommentContent" placeholder="Share your thoughts or updates..." rows="3"></textarea>
+            </mat-form-field>
+            <div class="button-container">
+              <button mat-raised-button color="primary" 
+                      [disabled]="!newCommentContent.trim() || isSubmittingComment"
+                      (click)="submitComment()">
+                <mat-icon>send</mat-icon>
+                Submit Comment
+              </button>
+              <mat-spinner diameter="24" *ngIf="isSubmittingComment"></mat-spinner>
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <!-- Comments list -->
+          <div class="comments-section">
+            <h3 *ngIf="comments.length > 0">Comments ({{comments.length}})</h3>
+            <p *ngIf="comments.length === 0" class="no-items-message">No comments yet. Be the first to comment.</p>
+
+            <div class="comment-item" *ngFor="let comment of comments">
+              <div class="comment-header">
+                <span class="comment-author">{{comment.createdByEmail || 'Unknown user'}}</span>
+                <span class="comment-date">{{formatDate(comment.createdAt)}}</span>
+                <button mat-icon-button color="warn" 
+                        *ngIf="comment.createdByUserId?.toString() === currentUserId"
+                        (click)="deleteComment(comment.id!)"
+                        aria-label="Delete comment">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+              <div class="comment-content">
+                <p>{{comment.content}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Solution Tab -->
+      <mat-tab label="Solution">
+        <div class="tab-content">
+          <!-- Display current solution if exists -->
+          <div class="current-solution" *ngIf="ticket.hasSolution">
+            <h3>Current Solution</h3>
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Solution</mat-card-title>
+                <mat-card-subtitle *ngIf="solution">{{formatDate(solution.createdAt)}}</mat-card-subtitle>
+                <mat-card-subtitle *ngIf="!solution">{{formatDate(ticket.updatedAt)}}</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <!-- Solution loading spinner -->
+                <div *ngIf="isLoadingSolution" class="loading-container">
+                  <mat-spinner diameter="40"></mat-spinner>
+                </div>
+                
+                <!-- Solution content -->
+                <ng-container *ngIf="!isLoadingSolution">
+                  <div class="solution-description">
+                    <h4>Description:</h4>
+                    <p>{{solution?.description || ticket.description}}</p>
+                  </div>
+                  
+                  <ng-container *ngIf="solution">
+                    <div class="solution-code" *ngIf="solution.codeSnippet">
+                      <h4>Code Snippet:</h4>
+                      <pre>{{solution.codeSnippet}}</pre>
+                    </div>
+
+                    <div class="solution-links" *ngIf="solution.resourceLinks && solution.resourceLinks.length > 0">
+                      <h4>Resource Links:</h4>
+                      <ul>
+                        <li *ngFor="let link of solution.resourceLinks">
+                          <a [href]="link" target="_blank" rel="noopener noreferrer">{{link}}</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </ng-container>
+                </ng-container>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <p *ngIf="!ticket.hasSolution" class="no-items-message">No solution has been provided yet.</p>
+
+          <!-- Add solution form -->
+          <div class="add-solution-section" *ngIf="!ticket.hasSolution || ticket.status !== 'VERIFIED'">
+            <h3>{{ticket.hasSolution ? 'Update Solution' : 'Add Solution'}}</h3>
+            
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description</mat-label>
+              <textarea matInput [(ngModel)]="newSolutionDescription" placeholder="Describe the solution..." rows="4"></textarea>
+              <mat-hint align="start">Explain how you resolved the issue</mat-hint>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Code Snippet (optional)</mat-label>
+              <textarea matInput [(ngModel)]="newSolutionCodeSnippet" placeholder="Paste relevant code here..." rows="6"></textarea>
+              <mat-hint align="start">Share code that helped solve the issue</mat-hint>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Resource Links (optional)</mat-label>
+              <input matInput [(ngModel)]="newSolutionResourceLinks" placeholder="https://example.com, https://another-link.com">
+              <mat-hint align="start">Separate multiple links with commas</mat-hint>
+            </mat-form-field>
+            
+            <div class="button-container">
+              <button mat-raised-button color="primary" 
+                      [disabled]="!newSolutionDescription.trim() || isSubmittingSolution"
+                      (click)="submitSolution()">
+                <mat-icon>save</mat-icon>
+                {{ticket.hasSolution ? 'Update Solution' : 'Submit Solution'}}
+              </button>
+              <mat-spinner diameter="24" *ngIf="isSubmittingSolution"></mat-spinner>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

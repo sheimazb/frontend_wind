@@ -1,0 +1,219 @@
+<div class="p-6 max-w-md mx-auto">
+  <h2 id="dialog-title" class="text-xl font-semibold mb-5 text-center dark:text-white">Create Ticket</h2>
+
+  <form (ngSubmit)="onSubmit()" aria-labelledby="dialog-title">
+    <div class="mb-4">
+      <label for="ticket-title" class="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+        Title<span class="text-red-500" aria-hidden="true">*</span>
+        <span class="sr-only">(required)</span>
+      </label>
+      <input 
+        id="ticket-title"
+        [(ngModel)]="ticketData.title" 
+        name="title" 
+        required
+        aria-required="true"
+        aria-invalid="formSubmitted && !ticketData.title"
+        [ngClass]="getFieldValidationClass(ticketData.title)"
+        class="w-full px-3 py-2 border dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white" 
+      />
+      <div 
+        *ngIf="formSubmitted && !ticketData.title" 
+        class="text-red-500 mt-1 text-sm"
+        role="alert"
+      >
+        Title is required
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <label for="ticket-description" class="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+        Description<span class="text-red-500" aria-hidden="true">*</span>
+        <span class="sr-only">(required)</span>
+      </label>
+      <textarea 
+        id="ticket-description"
+        [(ngModel)]="ticketData.description" 
+        name="description" 
+        rows="4" 
+        required
+        aria-required="true"
+        aria-invalid="formSubmitted && !ticketData.description"
+        [ngClass]="getFieldValidationClass(ticketData.description)"
+        class="w-full px-3 py-2 border dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white resize-none"
+      ></textarea>
+      <div 
+        *ngIf="formSubmitted && !ticketData.description" 
+        class="text-red-500 mt-1 text-sm"
+        role="alert"
+      >
+        Description is required
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <label id="assignee-label" class="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+        Assignee (Project Members)<span class="text-red-500" aria-hidden="true">*</span>
+        <span class="sr-only">(required)</span>
+        <span *ngIf="loadingAssignees" class="ml-2 text-purple-500">
+          <mat-spinner [diameter]="16" class="inline-block" aria-label="Loading assignees"></mat-spinner>
+          <span aria-live="polite">Loading...</span>
+        </span>
+      </label>
+      
+      <!-- Custom dropdown with styled options -->
+      <div class="relative" [ngClass]="{'opacity-50 pointer-events-none': loadingAssignees}" #assigneeDropdown>
+        <button 
+          id="assignee-button"
+          type="button"
+          [attr.aria-expanded]="dropdownOpen"
+          aria-haspopup="listbox"
+          aria-labelledby="assignee-label assignee-button"
+          [attr.aria-describedby]="formSubmitted && !ticketData.assignedToUserId ? 'assignee-error' : null"
+          [ngClass]="getFieldValidationClass(ticketData.assignedToUserId)"
+          (click)="toggleDropdown()"
+          (keydown.escape)="dropdownOpen = false"
+          (keydown.arrowdown)="toggleDropdown()"
+          (keydown.arrowup)="toggleDropdown()"
+          class="w-full px-3 py-2 border dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white text-left flex justify-between items-center"
+        >
+          <span *ngIf="!ticketData.assignedToUserId">Select a project member</span>
+          <span *ngIf="ticketData.assignedToUserId">
+            {{ getSelectedAssigneeName() }}
+            <span *ngIf="getSelectedAssigneeRole()" class="text-xs text-gray-500 ml-1">
+              - {{ getSelectedAssigneeRole() }}
+            </span>
+          </span>
+          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        
+        <div 
+          *ngIf="dropdownOpen" 
+          id="assignee-listbox"
+          role="listbox"
+          aria-labelledby="assignee-label"
+          class="absolute left-0 right-0 mt-1 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto"
+          (keydown)="onDropdownKeydown($event)"
+        >
+          <div 
+            *ngFor="let person of assignees; let i = index" 
+            role="option"
+            [id]="'assignee-option-' + i"
+            [attr.aria-selected]="ticketData.assignedToUserId === person.id"
+            [attr.tabindex]="dropdownOpen ? 0 : -1"
+            [attr.data-index]="i"
+            (click)="selectAssignee(person.id)"
+            (keydown.enter)="selectAssignee(person.id)"
+            (keydown.space)="selectAssignee(person.id); $event.preventDefault()"
+            class="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer focus:outline-none focus:bg-purple-50 dark:focus:bg-purple-900"
+            [ngClass]="{'bg-purple-50 dark:bg-purple-900': ticketData.assignedToUserId === person.id || activeIndex === i}"
+          >
+            <div class="flex items-center">
+              <span [ngClass]="{'font-semibold': person.isCurrentUser}">
+                {{ person.name }} 
+                <span *ngIf="person.isCurrentUser" class="text-purple-600 dark:text-purple-400">(me)</span>
+              </span>
+            </div>
+            <div class="text-xs text-gray-500 mt-0.5" aria-hidden="true">{{ person.role }}</div>
+          </div>
+          
+          <div 
+            *ngIf="assignees.length === 0 && !loadingAssignees" 
+            class="px-3 py-2 text-gray-500 italic"
+            aria-live="polite"
+          >
+            No project members found
+          </div>
+        </div>
+      </div>
+      
+      <div 
+        *ngIf="formSubmitted && !ticketData.assignedToUserId" 
+        id="assignee-error"
+        class="text-red-500 mt-1 text-sm"
+        role="alert"
+      >
+        Please select an assignee
+      </div>
+      
+      <div 
+        *ngIf="assignees.length === 0 && !loadingAssignees" 
+        class="text-amber-500 mt-1 text-sm"
+        aria-live="polite"
+      >
+        Using default assignees as no project members were found
+      </div>
+    </div>
+
+    <div class="mb-6">
+      <label for="ticket-priority" class="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+        Priority<span class="text-red-500" aria-hidden="true">*</span>
+        <span class="sr-only">(required)</span>
+      </label>
+      <div class="relative">
+        <select 
+          id="ticket-priority"
+          [(ngModel)]="ticketData.priority" 
+          name="priority" 
+          required
+          aria-required="true"
+          class="w-full px-3 py-2 border dark:border-gray-600 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+        >
+          <option value="LOW">Low</option>
+          <option value="MEDIUM">Medium</option>
+          <option value="HIGH">High</option>
+          <option value="CRITICAL">Critical</option>
+        </select>
+        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none" aria-hidden="true">
+          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+      </div>
+      
+      <!-- Priority indicators (for visual users) -->
+      <div class="flex items-center mt-2 space-x-4 pl-1" aria-hidden="true">
+        <div class="flex items-center">
+          <span [ngClass]="{'ring-2 ring-offset-2': ticketData.priority === 'LOW'}" class="inline-block h-3 w-3 rounded-full bg-green-500 mr-1"></span>
+          <span class="text-xs text-gray-500 dark:text-gray-400">Low</span>
+        </div>
+        <div class="flex items-center">
+          <span [ngClass]="{'ring-2 ring-offset-2': ticketData.priority === 'MEDIUM'}" class="inline-block h-3 w-3 rounded-full bg-yellow-500 mr-1"></span>
+          <span class="text-xs text-gray-500 dark:text-gray-400">Medium</span>
+        </div>
+        <div class="flex items-center">
+          <span [ngClass]="{'ring-2 ring-offset-2': ticketData.priority === 'HIGH'}" class="inline-block h-3 w-3 rounded-full bg-red-500 mr-1"></span>
+          <span class="text-xs text-gray-500 dark:text-gray-400">High</span>
+        </div>
+        <div class="flex items-center">
+          <span [ngClass]="{'ring-2 ring-offset-2': ticketData.priority === 'CRITICAL'}" class="inline-block h-3 w-3 rounded-full bg-purple-500 mr-1"></span>
+          <span class="text-xs text-gray-500 dark:text-gray-400">Critical</span>
+        </div>
+      </div>
+      
+      <!-- For screen readers -->
+      <div class="sr-only" aria-live="polite">
+        Selected priority: {{ ticketData.priority }}
+      </div>
+    </div>
+
+    <div class="flex justify-between gap-3 pt-2">
+      <button 
+        type="button" 
+        (click)="onCancel()"
+        class="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors duration-200"
+      >
+        Cancel
+      </button>
+      <button 
+        type="submit" 
+        [disabled]="loadingAssignees"
+        class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+      >
+        Create Ticket
+      </button>
+    </div>
+  </form>
+</div> 

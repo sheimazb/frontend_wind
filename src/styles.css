@@ -64,3 +64,40 @@ body {
     top: 10px;
     margin: 0 -5px;
 }
+
+/* Snackbar styles */
+.success-snackbar {
+  --mdc-snackbar-container-color: #10b981 !important; /* Green for success */
+  --mdc-snackbar-supporting-text-color: white !important;
+  --mat-snack-bar-button-color: white !important;
+}
+
+.error-snackbar {
+  --mdc-snackbar-container-color: #ef4444 !important; /* Red for error */
+  --mdc-snackbar-supporting-text-color: white !important;
+  --mat-snack-bar-button-color: white !important;
+}
+
+.warning-snackbar {
+  --mdc-snackbar-container-color: #f59e0b !important; /* Yellow/amber for warning */
+  --mdc-snackbar-supporting-text-color: white !important;
+  --mat-snack-bar-button-color: white !important;
+}
+
+/* Custom styling for Material snackbars */
+.mat-mdc-snack-bar-container {
+  --mat-snack-bar-button-color: white;
+  --mdc-snackbar-supporting-text-font-family: 'Bree Serif', system-ui;
+  --mdc-snackbar-supporting-text-font-weight: 400;
+  --mdc-snackbar-supporting-text-line-height: 1.5;
+}
+
+/* Dark mode support for dialogs */
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-color: white;
+}
+
+html.dark .mat-mdc-dialog-container {
+  --mdc-dialog-container-color: #1e293b;
+  color: white;
+}

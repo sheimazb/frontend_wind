@@ -4,6 +4,8 @@ import { AppComponent } from './app/app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { importProvidersFrom } from '@angular/core';
 import { ToastrModule } from 'ngx-toastr';
+import { MarkdownModule, MARKED_OPTIONS } from 'ngx-markdown';
+import { marked } from 'marked';
 
 const updatedConfig = {
   ...appConfig,
@@ -21,6 +23,19 @@ const updatedConfig = {
         closeButton: true,
         tapToDismiss: true,
         newestOnTop: true
+      })
+    ),
+    importProvidersFrom(
+      MarkdownModule.forRoot({
+        markedOptions: {
+          provide: MARKED_OPTIONS,
+          useValue: {
+            gfm: true, // GitHub flavored markdown
+            breaks: true, // New lines as br elements
+            pedantic: false, // Don't be strict about spec compliance
+            renderer: new marked.Renderer()
+          }
+        }
       })
     )
   ]

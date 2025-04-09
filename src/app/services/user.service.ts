@@ -97,8 +97,37 @@ export class UserService {
 
     return this.http.post<ProfileResponse>(
       `${this.apiUrl}/update-profile/${email}`, 
-      formData
+      formData,
+      {
+        headers: {} // Let the browser set the correct Content-Type for FormData
+      }
     );
   }
   
+  // Update user profile without image (fallback method)
+  updateUserProfileBasic(email: string, profileData: Omit<ProfileRequest, 'image'>): Observable<ProfileResponse> {
+    console.log('Using basic profile update without image upload');
+    
+    // Create a JSON object instead of FormData
+    const basicProfileData = {
+      firstname: profileData.firstname,
+      lastname: profileData.lastname,
+      email: profileData.email,
+      role: profileData.role,
+      bio: profileData.bio || '',
+      phone: profileData.phone || '',
+      location: profileData.location || '',
+      company: profileData.company || '',
+      pronouns: profileData.pronouns || '',
+      lien: profileData.lien || ''
+    };
+
+    return this.http.post<ProfileResponse>(
+      `${this.apiUrl}/update-profile-basic/${email}`, 
+      basicProfileData,
+      {
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
 }

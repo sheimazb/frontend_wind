@@ -1,11 +1,17 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
-import { adminGuard, partnerGuard, testerGuard, chefGuard, developerGuard, technicalTeamGuard } from './guards/role-specific.guards';
+import { adminGuard, partnerGuard, testerGuard, managerGuard, developerGuard, technicalTeamGuard, issuesGuard, issueDetailsGuard } from './guards/role-specific.guards';
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
 import { DashboardLayoutComponent } from './layouts/dashboard-layout/dashboard-layout.component';
+import { TicketDetailsComponent } from './components/tickets/ticket-details/ticket-details.component';
+import { IssuePageComponent } from './pages/TesterPages/issue-page/issue-page.component';
 
 export const routes: Routes = [
   // Public routes (no guards)
+  {
+    path:'home',
+    loadComponent: () => import('./pages/HomePage/homePage.component').then(m => m.HomePageComponent)
+  },
   { 
     path: 'login', 
     loadComponent: () => import('./authentification/login/login.component').then(m => m.LoginComponent) 
@@ -120,21 +126,59 @@ export const routes: Routes = [
           .then(m => m.AddProjectComponent)
       },
       
-      // Tester routes
+      // Manager routes
       {
         path: 'issues',
-        canActivate: [testerGuard],
+        canActivate: [issuesGuard],
         loadComponent: () => import('./components/content/testerContent/issues/issues.component')
           .then(m => m.IssuesComponent)
       },
-      
-      // Chef routes
+
+      {
+        path: 'issues-details',
+        canActivate: [issueDetailsGuard],
+        component: IssuePageComponent
+      },
+
+      {
+        path: 'issues-details/:id',
+        canActivate: [issueDetailsGuard],
+        component: IssuePageComponent
+      },
+    
       {
         path: 'project-management',
-        canActivate: [chefGuard],
+        canActivate: [managerGuard],
         loadComponent: () => import('./pages/dashboard/features/project-management/project-management.component')
           .then(m => m.ProjectManagementComponent)
       },
+      
+      // Ticket management routes (available to technical team)
+      {
+        path: 'tickets',
+        canActivate: [technicalTeamGuard],
+        children: [
+          {
+            path: ':id',
+            component: TicketDetailsComponent
+          }
+        ]
+      },
+      
+      // Kanban board route (available to technical team)
+      {
+        path: 'kanban',
+        canActivate: [technicalTeamGuard],
+        loadComponent: () => import('./components/tickets/kanban-board/kanban-board.component')
+          .then(m => m.KanbanBoardComponent)
+      },
+         // ticket list route (available to technical team)
+         {
+          path: 'ticket-list',
+          canActivate: [technicalTeamGuard],
+          loadComponent: () => import('./components/tickets/list/list.component')
+            .then(m => m.ListComponent)
+        },
       
       // Developer routes
       {
@@ -161,6 +205,6 @@ export const routes: Routes = [
   },
   
   // Redirect to login for any unknown routes
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: '**', redirectTo: '/login' }
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  { path: '**', redirectTo: '/home' }
 ];

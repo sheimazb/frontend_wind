@@ -148,11 +148,29 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
+    // Check if user has permission
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+      this.errorMessage = 'User session not found. Please log in again.';
+      this.isLoading = false;
+      return;
+    }
+
+    const userData = JSON.parse(storedUser);
+    if (!userData.role) {
+      this.errorMessage = 'User role not found. Please log in again.';
+      this.isLoading = false;
+      return;
+    }
+
+    console.log('Current user data:', userData);
+    console.log('Updating profile with role:', userData.role);
+
     const profileRequest: ProfileRequest = {
       firstname: this.profileData.firstname.trim(),
       lastname: this.profileData.lastname.trim(),
       email: this.profileData.email.trim(),
-      role: this.profileData.role || '',
+      role: userData.role || '', // Use the current user's role from localStorage
       image: this.selectedImageFile,
       bio: this.profileData.bio?.trim() || '',
       phone: this.profileData.phone?.trim() || '',
@@ -167,35 +185,78 @@ export class ProfileComponent implements OnInit {
     this.userService.updateUserProfile(this.profileData.email, profileRequest)
       .subscribe({
         next: (response: ProfileResponse) => {
-          this.profileData = {
-            ...this.profileData,
-            firstname: response.firstname,
-            lastname: response.lastname,
-            pronouns: response.pronouns || '',
-            bio: response.bio || '',
-            location: response.location || '',
-            role: response.role || '',
-            company: response.company || '',
-            phone: response.phone || '',
-            email: response.email,
-            image: response.image || '',
-          };
-          this.profileImage = response.image || '';
-          this.isEditing = false;
-          this.selectedImageFile = null;
-          this.showSuccess = true;
-          setTimeout(() => (this.showSuccess = false), 3000);
-          this.originalData = { ...this.profileData };
+          this.handleSuccessfulUpdate(response);
         },
         error: (error) => {
           console.error('Profile update error:', error);
-          this.errorMessage = error.message || 'Failed to update profile. Please try again.';
-          this.isLoading = false;
+          
+          if (error.status === 403 || error.status === 415) {
+            // Try fallback method without image
+            console.log('Trying fallback method without image upload...');
+            this.tryFallbackUpdate(profileRequest);
+          } else if (error.status === 401) {
+            this.errorMessage = 'Your session has expired. Please log in again.';
+            this.isLoading = false;
+          } else {
+            this.errorMessage = error.message || 'Failed to update profile. Please try again.';
+            this.isLoading = false;
+          }
+        }
+      });
+  }
+
+  private tryFallbackUpdate(profileRequest: ProfileRequest): void {
+    // Create a copy without the image
+    const basicRequest = { ...profileRequest };
+    delete (basicRequest as any).image;
+
+    this.userService.updateUserProfileBasic(this.profileData.email, basicRequest)
+      .subscribe({
+        next: (response: ProfileResponse) => {
+          this.handleSuccessfulUpdate(response);
         },
-        complete: () => {
+        error: (error) => {
+          console.error('Fallback profile update error:', error);
+          
+          // Provide detailed error message
+          if (error.status === 403) {
+            let detailedError = 'You do not have permission to update your profile.';
+            if (error.error && typeof error.error === 'object') {
+              detailedError += ' Details: ' + JSON.stringify(error.error);
+            }
+            this.errorMessage = detailedError;
+          } else if (error.status === 401) {
+            this.errorMessage = 'Your session has expired. Please log in again.';
+          } else {
+            this.errorMessage = error.message || 'Failed to update profile. Please try again.';
+          }
+          
           this.isLoading = false;
         }
       });
+  }
+
+  private handleSuccessfulUpdate(response: ProfileResponse): void {
+    this.profileData = {
+      ...this.profileData,
+      firstname: response.firstname,
+      lastname: response.lastname,
+      pronouns: response.pronouns || '',
+      bio: response.bio || '',
+      location: response.location || '',
+      role: response.role || '',
+      company: response.company || '',
+      phone: response.phone || '',
+      email: response.email,
+      image: response.image || '',
+    };
+    this.profileImage = response.image || '';
+    this.isEditing = false;
+    this.selectedImageFile = null;
+    this.showSuccess = true;
+    setTimeout(() => (this.showSuccess = false), 3000);
+    this.originalData = { ...this.profileData };
+    this.isLoading = false;
   }
 
   onImageChange(event: Event): void {

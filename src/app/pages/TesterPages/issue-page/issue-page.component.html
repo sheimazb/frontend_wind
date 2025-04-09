@@ -1,27 +1,889 @@
-<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
-  <div class="mx-auto max-w-270">
-    <!-- Breadcrumb Start -->
-    <div
-      class="mb-6 flex flex-col gap-3 xl:items-center sm:flex-row sm:items-center sm:justify-between"
-    >
-      <h2 class="text-title-md2 font-bold text-black dark:text-white">
-        Issue Details
-      </h2>
+<div *ngIf="isLoading" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
+  <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-xl flex items-center gap-3">
+    <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+    <span class="text-gray-700 dark:text-gray-300">Loading...</span>
+  </div>
+</div>
 
-      <nav>
-        <ol class="flex items-center gap-2">
-          <li>
-            <a
-              class="font-medium dark:text-gray-300 cursor-pointer text-gray-700"
-              (click)="onDashboardClick()"
-              >Dashboard /</a
+<div class="container mx-auto px-4 py-6">
+  <!-- Breadcrumb and page actions -->
+  <div class="mb-6 flex items-center justify-between">
+    <div class="flex flex-col items-start gap-2">
+    <h1 class="text-2xl font-bold dark:text-white">Issue Details</h1>
+      <span *ngIf="log?.id" class="text-sm text-yellow-500 dark:text-gray-400"> <span class="text-gray-500 dark:text-gray-400">Project Tag  :</span> # {{ log?.tag }}</span>
+    </div>
+    <nav>
+      <ol class="flex items-center gap-2">
+        <li>
+          <a class="font-medium dark:text-gray-300 cursor-pointer text-gray-700 hover:text-blue-500 transition-colors" (click)="onDashboardClick()">Dashboard /</a>
+        </li>
+        <li class="font-medium text-blue-500 cursor-pointer">Issue Details</li>
+      </ol>
+    </nav>
+  </div>
+  
+  <!-- Issue Header - Enhanced with better visual hierarchy -->
+  <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md mb-6 overflow-hidden" *ngIf="log">
+    <!-- Header section with gradient background -->
+    <div class="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 dark:from-blue-900/30 dark:to-indigo-900/30 p-6 border-b dark:border-gray-700">
+      <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+        <!-- Issue summary -->
+        <div>
+          <div class="flex flex-wrap items-center gap-2 mb-3">
+            <span class="text-red-600 text-xl font-bold dark:text-red-400">{{ log.type }}</span>
+            <span 
+              [ngClass]="{
+                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300': isIssueHandled(),
+                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300': !isIssueHandled()
+              }"
+              class="text-xs font-medium px-2.5 py-0.5 rounded-full"
             >
-          </li>
-          <li class="font-medium text-purple-500 cursor-pointer">
-            Issue Details
-          </li>
-        </ol>
-      </nav>
+              {{ isIssueHandled() ? 'Handled' : 'Unhandled' }}
+            </span>
+            <span 
+              [ngClass]="{
+                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300': log.severity === 'HIGH',
+                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300': log.severity === 'MEDIUM',
+                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300': log.severity === 'LOW'
+              }"
+              class="text-xs font-medium px-2.5 py-0.5 rounded-full"
+            >
+              {{ log.severity }}
+            </span>
+          </div>
+          <p class="text-gray-800 dark:text-gray-200 text-lg font-medium mb-2">{{ log.description }}</p>
+          <div class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+            <span>{{ log.timestamp | date:'medium' }}</span>
+            <span class="w-1 h-1 bg-gray-400 rounded-full"></span>
+            <span>{{ log.className }}</span>
+            <span *ngIf="log.errorCode" class="w-1 h-1 bg-gray-400 rounded-full"></span>
+            <span *ngIf="log.errorCode" class="text-red-500 dark:text-red-400">{{ log.errorCode }}</span>
+          </div>
+        </div>
+        
+        <!-- Action buttons -->
+        <div class="flex flex-wrap gap-3">
+          <button class="px-3 py-2 border dark:border-gray-600 bg-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 inline-flex items-center rounded-full transition-colors shadow-sm">
+            <mat-icon class="text-gray-600 dark:text-gray-400">archive</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Issue Stats - Redesigned for better readability -->
+    <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-3 gap-6 border-b dark:border-gray-700">
+      <div class="flex flex-col relative">
+        <h3 class="text-sm text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-1">
+          Events
+          <button class="text-gray-400 dark:text-gray-500" matTooltip="Number of times this issue has occurred">
+            <mat-icon class="text-sm">info</mat-icon>
+          </button>
+        </h3>
+        <div class="flex items-center gap-3 group">
+          <span class="text-xl font-bold dark:text-white">{{ getOccurrenceCount() }}</span>
+          <div class="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden dark:bg-gray-700">
+            <div class="h-full bg-blue-500" [style.width.%]="getOccurrencePercentage()"></div>
+          </div>
+          <span class="text-xs text-gray-500 dark:text-gray-400">{{ getTimeAgo() }}</span>
+          
+          <!-- Detailed stats popup on hover -->
+          <div class="absolute left-0 top-full mt-2 z-10 bg-white dark:bg-slate-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 p-4 w-72 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
+            <div class="text-sm text-gray-700 dark:text-gray-300 space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="font-medium">First seen:</span>
+                <span>{{ occurrenceStats?.firstSeen | date:'medium' }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="font-medium">Last seen:</span>
+                <span>{{ occurrenceStats?.lastSeen | date:'medium' }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="font-medium">Total occurrences:</span>
+                <span class="font-semibold text-blue-600 dark:text-blue-400">{{ occurrenceStats?.count || 'Loading...' }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="font-medium">System impact:</span>
+                <span class="flex items-center">
+                  <span 
+                    [ngClass]="{
+                      'text-red-600 dark:text-red-400': (occurrenceStats?.percentage || 0) > 70,
+                      'text-yellow-600 dark:text-yellow-400': (occurrenceStats?.percentage || 0) > 40 && (occurrenceStats?.percentage || 0) <= 70,
+                      'text-green-600 dark:text-green-400': (occurrenceStats?.percentage || 0) <= 40
+                    }"
+                  >{{ occurrenceStats?.percentage || 0 }}%</span>
+                  <mat-icon 
+                    class="ml-1 text-sm"
+                    [ngClass]="{
+                      'text-red-500': (occurrenceStats?.percentage || 0) > 70,
+                      'text-yellow-500': (occurrenceStats?.percentage || 0) > 40 && (occurrenceStats?.percentage || 0) <= 70,
+                      'text-green-500': (occurrenceStats?.percentage || 0) <= 40
+                    }"
+                  >
+                    {{ (occurrenceStats?.percentage || 0) > 70 ? 'priority_high' : 
+                       (occurrenceStats?.percentage || 0) > 40 ? 'warning' : 'check_circle' }}
+                  </mat-icon>
+                </span>
+              </div>
+              <div class="pt-2 text-xs text-gray-500 dark:text-gray-400 border-t dark:border-gray-700">
+                <span *ngIf="!isIssueHandled()" class="text-red-500 dark:text-red-400">This issue is still active and may continue to occur.</span>
+                <span *ngIf="isIssueHandled()" class="text-green-500 dark:text-green-400">This issue has been handled with a solution and should no longer occur.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex flex-col">
+        <h3 class="text-sm text-gray-600 dark:text-gray-400 mb-1">First Seen</h3>
+        <div class="text-base font-medium dark:text-white">{{ log.timestamp | date:'mediumDate' }}</div>
+        <div class="text-xs text-gray-500 dark:text-gray-400">{{ log.timestamp | date:'shortTime' }}</div>
+      </div>
+      
+      <div class="flex flex-col">
+        <h3 class="text-sm text-gray-600 dark:text-gray-400 mb-1">Priority</h3>
+        <div class="flex items-center">
+          <select 
+            [ngClass]="{
+              'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300': log.severity === 'HIGH',
+              'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300': log.severity === 'MEDIUM',
+              'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300': log.severity === 'LOW'
+            }"
+            class="text-sm font-medium px-3 py-2 rounded-md border-0 cursor-pointer"
+            [(ngModel)]="log.severity"
+            (change)="changePriority($event)">
+            <option value="HIGH">HIGH</option>
+            <option value="MEDIUM">MEDIUM</option>
+            <option value="LOW">LOW</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Additional metadata -->
+    <div class="px-6 py-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+      <div>
+        <span class="block text-gray-500 dark:text-gray-400">Project ID</span>
+        <span class="font-medium dark:text-white">{{ log.projectId }}</span>
+      </div>
+      
+      <div>
+        <span class="block text-gray-500 dark:text-gray-400">Classe Name</span>
+        <span class="font-medium dark:text-white">{{ log.className }}</span>
+      </div>
+      
+      <div>
+        <span class="block text-gray-500 dark:text-gray-400">Container Name </span>
+        <span class="font-medium dark:text-white">{{ log.containerName }}</span>
+      </div>
+      
+      <div>
+        <span class="block text-gray-500 dark:text-gray-400">Thread</span>
+        <span class="font-medium dark:text-white">{{ log.thread }}</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Empty state when no log is loaded -->
+  <div *ngIf="!log && !isLoading" class="bg-white dark:bg-slate-800 rounded-lg shadow-md mb-6 p-8 text-center">
+    <div class="w-20 h-20 mx-auto bg-red-100 dark:bg-red-900/30 flex items-center justify-center rounded-full mb-4">
+      <mat-icon class="text-4xl text-red-500 dark:text-red-400">error_outline</mat-icon>
+    </div>
+    <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">No Issue Details Available</h3>
+    <p class="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">The issue details could not be loaded or the issue ID was not provided. Please check the URL or try again later.</p>
+    <button (click)="onDashboardClick()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors shadow-sm">
+      Back to Issues
+    </button>
+  </div>
+  
+  <!-- Tabs - Improved design -->
+  <div class="mb-6">
+    <div class="border-b dark:border-gray-700">
+      <ul class="flex -mb-px text-sm font-medium text-center">
+        <li class="mr-2">
+          <a (click)="activeTab = 'details'" 
+             [class.border-blue-500]="activeTab === 'details'"
+             [class.text-blue-500]="activeTab === 'details'"
+             class="inline-block p-4 border-b-2 cursor-pointer transition-colors flex items-center gap-2"
+             [class.border-transparent]="activeTab !== 'details'"
+             [class.hover:border-gray-300]="activeTab !== 'details'"
+             [class.text-gray-500]="activeTab !== 'details'"
+             [class.dark:text-gray-400]="activeTab !== 'details'">
+             <mat-icon class="text-base">info</mat-icon>
+             Details
+          </a>
+        </li>
+        <li class="mr-2">
+          <a (click)="activeTab = 'tickets'"
+             [class.border-blue-500]="activeTab === 'tickets'"
+             [class.text-blue-500]="activeTab === 'tickets'"
+             class="inline-block p-4 border-b-2 cursor-pointer transition-colors flex items-center gap-2"
+             [class.border-transparent]="activeTab !== 'tickets'"
+             [class.hover:border-gray-300]="activeTab !== 'tickets'"
+             [class.text-gray-500]="activeTab !== 'tickets'"
+             [class.dark:text-gray-400]="activeTab !== 'tickets'">
+             <mat-icon class="text-base">assignment</mat-icon>
+             Tickets
+             <span *ngIf="tickets.length > 0" 
+                   class="ml-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-full px-2 py-0.5">
+                {{ tickets.length }}
+             </span>
+          </a>
+        </li>
+        <li class="mr-2">
+          <a (click)="activeTab = 'solutions'"
+             [class.border-blue-500]="activeTab === 'solutions'"
+             [class.text-blue-500]="activeTab === 'solutions'"
+             class="inline-block p-4 border-b-2 cursor-pointer transition-colors flex items-center gap-2"
+             [class.border-transparent]="activeTab !== 'solutions'"
+             [class.hover:border-gray-300]="activeTab !== 'solutions'"
+             [class.text-gray-500]="activeTab !== 'solutions'"
+             [class.dark:text-gray-400]="activeTab !== 'solutions'">
+             <mat-icon class="text-base">lightbulb</mat-icon>
+             Solutions
+             <span *ngIf="hasSolutions()" 
+                   class="ml-1 text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded-full px-2 py-0.5">
+                {{ getSolutionsCount() }}
+             </span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  
+  <!-- Tab Content -->
+  <div [ngSwitch]="activeTab">
+    <!-- Details Tab -->
+    <div *ngSwitchCase="'details'" class="space-y-6">
+      <!-- Error Details -->
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow">
+        <div class="p-6 border-b dark:border-gray-700">
+          <h3 class="font-bold text-lg dark:text-white">Error Details</h3>
+        </div>
+        <div class="p-6">
+          <table class="w-full">
+            <tbody>
+              <tr class="border-b dark:border-gray-700">
+                <td class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium">Handled</td>
+                <td class="py-3 text-sm dark:text-gray-300">{{ log?.handled ? 'Yes' : 'No' }}</td>
+              </tr>
+              <tr class="border-b dark:border-gray-700">
+                <td class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium">Level</td>
+                <td class="py-3 text-sm dark:text-gray-300">error</td>
+              </tr>
+              <tr class="border-b dark:border-gray-700">
+                <td class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium">Source</td>
+                <td class="py-3 text-sm text-blue-500 break-all">
+                  {{ log?.source }}
+                </td>
+              </tr>
+              <tr class="border-b dark:border-gray-700">
+                <td class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium">Container Name</td>
+                <td class="py-3 text-sm dark:text-gray-300">{{ log?.containerName }}</td>
+              </tr>
+              <tr class="border-b dark:border-gray-700">
+                <td class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium">Container Id</td>
+                <td class="py-3 text-sm dark:text-gray-300">{{ log?.containerId }}</td>
+              </tr>
+              <tr>
+                <td class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium">Timestamp</td>
+                <td class="py-3 text-sm dark:text-gray-300">{{ log?.timestamp }}</td>
+              </tr>
+              <tr>
+                <td class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium">Original Timestamp</td>
+                <td class="py-3 text-sm dark:text-gray-300">{{ log?.originalTimestamp }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Stack Trace -->
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow">
+        <div class="p-6 border-b dark:border-gray-700 flex justify-between">
+          <h3 class="font-bold text-lg dark:text-white">Stack Trace</h3>
+          <div>
+            <button class="px-3 py-1 text-sm border dark:border-gray-600 rounded mr-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Full Stack Trace</button>
+            <button class="px-3 py-1 text-sm border dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Most Relevant</button>
+          </div>
+        </div>
+        <div class="p-6 overflow-x-auto">
+          <pre class="text-sm text-gray-800 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-4 rounded">{{ stackTrace }}</pre>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tickets Tab -->
+    <div *ngSwitchCase="'tickets'" class="space-y-6">
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md">
+        <div class="p-6 border-b dark:border-gray-700 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          <h3 class="font-bold text-lg dark:text-white">Tickets</h3>
+          <div class="flex items-center gap-2">
+            <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+              <button
+                (click)="ticketsViewMode = 'list'"
+                class="p-2 rounded-md transition-colors"
+                [ngClass]="{'bg-white dark:bg-gray-600 shadow text-blue-600 dark:text-blue-400': ticketsViewMode === 'list', 'text-gray-600 dark:text-gray-400': ticketsViewMode !== 'list'}"
+                matTooltip="List View"
+              >
+                <mat-icon>view_list</mat-icon>
+              </button>
+              <button
+                (click)="ticketsViewMode = 'kanban'"
+                class="p-2 rounded-md transition-colors"
+                [ngClass]="{'bg-white dark:bg-gray-600 shadow text-blue-600 dark:text-blue-400': ticketsViewMode === 'kanban', 'text-gray-600 dark:text-gray-400': ticketsViewMode !== 'kanban'}"
+                matTooltip="Kanban View"
+              >
+                <mat-icon>view_column</mat-icon>
+              </button>
+            </div>
+            <button (click)="createTicket()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors flex items-center gap-2 shadow-sm">
+            <mat-icon class="text-base">add</mat-icon>
+            <span>Create Ticket</span>
+          </button>
+          </div>
+        </div>
+        <div class="p-6">
+          <!-- Loading indicator -->
+          <div *ngIf="isLoading" class="text-center py-8">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p class="text-gray-600 dark:text-gray-400 text-lg">Loading tickets...</p>
+          </div>
+          
+          <!-- No tickets message -->
+          <div *ngIf="!isLoading && tickets.length === 0" class="text-center py-12">
+            <div class="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+              <mat-icon class="text-4xl text-blue-500 dark:text-blue-400">assignment</mat-icon>
+            </div>
+            <h3 class="text-xl font-medium mb-2 dark:text-white">No Tickets Found</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">There are no tickets associated with this issue yet. Create a ticket to start tracking the resolution process.</p>
+            <button (click)="createTicket()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors shadow-sm">
+              Create First Ticket
+            </button>
+          </div>
+          
+          <!-- Tickets List View - Modern design -->
+          <div *ngIf="!isLoading && tickets.length > 0 && ticketsViewMode === 'list'" class="space-y-4">
+            <div *ngFor="let ticket of tickets" 
+                 class="border dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-slate-800 hover:shadow-md transition-shadow">
+              <!-- Status header with colored background based on status -->
+              <div class="px-5 py-3 flex items-center justify-between" 
+                   [ngClass]="{
+                     'bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800': ticket.status === Status.PENDING,
+                     'bg-green-50 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800': ticket.status === Status.RESOLVED,
+                     'bg-teal-50 dark:bg-teal-900/20 border-b border-teal-200 dark:border-teal-800': ticket.status === Status.VERIFIED
+                   }">
+                <div class="flex items-center gap-3">
+                  <span 
+                    [ngClass]="{
+                      'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300': ticket.status === Status.PENDING,
+                      'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300': ticket.status === Status.RESOLVED,
+                      'bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300': ticket.status === Status.VERIFIED
+                    }" 
+                    class="text-xs font-medium px-3 py-1 rounded-full">
+                    {{ticket.status}}
+                  </span>
+                  <span 
+                    [ngClass]="{
+                      'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300': ticket.priority === Priority.HIGH,
+                      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300': ticket.priority === Priority.MEDIUM,
+                      'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300': ticket.priority === Priority.LOW,
+                      'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300': ticket.priority === Priority.CRITICAL
+                    }" 
+                    class="text-xs font-medium px-3 py-1 rounded-full">
+                    {{ticket.priority}}
+                  </span>
+                </div>
+                <span class="text-xs text-gray-500 dark:text-gray-400">ID: #{{ticket.id}}</span>
+              </div>
+              
+              <!-- Ticket content -->
+              <div class="p-5">
+                <h4 class="text-lg font-medium mb-3 text-gray-900 dark:text-white flex items-center gap-2">
+                  <mat-icon 
+                    [ngClass]="{
+                      'text-blue-500 dark:text-blue-400': ticket.status === Status.PENDING,
+                      'text-green-500 dark:text-green-400': ticket.status === Status.RESOLVED,
+                      'text-teal-500 dark:text-teal-400': ticket.status === Status.VERIFIED
+                    }"
+                  >
+                    {{ ticket.status === Status.PENDING ? 'pending_actions' : 
+                      (ticket.status === Status.RESOLVED ? 'task_alt' : 'verified') }}
+                  </mat-icon>
+                  {{ticket.title}}
+                </h4>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4 whitespace-pre-line">{{ticket.description}}</p>
+                
+                <!-- Metadata grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
+                  <div class="flex items-center gap-2">
+                    <mat-icon class="text-sm text-gray-400">event</mat-icon>
+                    <span class="font-medium">Created:</span> {{ticket.createdAt | date:'medium'}}
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <mat-icon class="text-sm text-gray-400">person</mat-icon>
+                    <span class="font-medium">Assigned to:</span> 
+                    <span [ngClass]="{
+                      'text-red-500': ticket.assignedToEmail === 'No access',
+                      'text-gray-500': ticket.assignedToEmail === 'Unknown'
+                    }">{{ticket.assignedToEmail || 'Unassigned'}}</span>
+                  </div>
+                  <div *ngIf="ticket.hasSolution" class="flex items-center gap-2">
+                    <mat-icon class="text-sm text-green-500">check_circle</mat-icon>
+                    <span class="font-medium">Resolved:</span> {{ticket.solution?.createdAt | date:'medium'}}
+                  </div>
+                  <div *ngIf="ticket.hasSolution" class="flex items-center gap-2">
+                    <mat-icon class="text-sm text-blue-500">schedule</mat-icon>
+                    <span class="font-medium">Time to Resolution:</span>
+                    <span class="text-blue-600 dark:text-blue-400">
+                      {{calculateTimeToResolution(ticket.createdAt, ticket.solution?.createdAt)}}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Actions footer -->
+              <div class="px-5 py-3 bg-gray-50 dark:bg-gray-700 border-t border-gray-100 dark:border-gray-600 flex justify-end gap-2">
+                <button (click)="viewTicketDetails(ticket)" 
+                        class="px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors flex items-center gap-1 shadow-sm">
+                  <mat-icon class="text-sm">visibility</mat-icon>
+                  View Details
+                </button>
+                <button (click)="editTicket(ticket)"
+                        class="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md transition-colors flex items-center gap-1 shadow-sm">
+                  <mat-icon class="text-sm">edit</mat-icon>
+                  Edit
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Kanban Board View - Enhanced design -->
+          <div *ngIf="!isLoading && tickets.length > 0 && ticketsViewMode === 'kanban'" class="mt-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <!-- Pending Column -->
+              <div class="rounded-lg border border-blue-200 dark:border-blue-800 overflow-hidden">
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 border-b border-blue-200 dark:border-blue-800">
+                  <h3 class="font-medium text-blue-800 dark:text-blue-300 flex items-center">
+                    <mat-icon class="mr-2 text-blue-600 dark:text-blue-400">pending_actions</mat-icon>
+                    Pending
+                    <span class="ml-2 bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-300 rounded-full px-2 py-0.5 text-xs">
+                      {{ getPendingTickets().length }}
+                    </span>
+                  </h3>
+                </div>
+                <div class="p-3 bg-white dark:bg-gray-800 min-h-[300px]" 
+                    cdkDropList
+                    id="pendingList"
+                    [cdkDropListData]="getPendingTickets()"
+                    [cdkDropListConnectedTo]="['resolvedList', 'verifiedList']"
+                    (cdkDropListDropped)="drop($event)">
+                  <div *ngFor="let ticket of getPendingTickets()" 
+                      class="mb-3 p-3 rounded-md shadow-sm border-l-4 border-blue-500 hover:shadow-md transition-shadow bg-white dark:bg-gray-700 cursor-move"
+                      cdkDrag>
+                    <div class="cdkDragHandle flex justify-between items-start mb-2">
+                      <span class="text-sm font-medium text-gray-900 dark:text-white line-clamp-1">#{{ticket.id}}: {{ticket.title}}</span>
+                    <span [ngClass]="{
+                      'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': ticket.priority === Priority.LOW,
+                      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': ticket.priority === Priority.MEDIUM,
+                        'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': ticket.priority === Priority.HIGH
+                      }" class="text-xs font-medium px-2 py-0.5 rounded-full">
+                      {{ticket.priority}}
+                    </span>
+                  </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-2">{{ticket.description}}</p>
+                    <div class="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+                      <span>Created: {{ticket.createdAt | date: 'short'}}</span>
+                      <div class="flex gap-2">
+                        <button (click)="$event.stopPropagation(); viewTicketDetails(ticket)" 
+                                class="text-xs px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors cdkDragDisableHandle">
+                          View
+                        </button>
+                        <button (click)="$event.stopPropagation(); updateTicketStatus(ticket.id!, Status.RESOLVED)" 
+                                class="text-xs px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors cdkDragDisableHandle">
+                          Resolve
+                        </button>
+                      </div>
+                    </div>
+                    <!-- Preview when dragging -->
+                    <div *cdkDragPreview class="p-3 rounded-md shadow-md border-l-4 border-blue-500 bg-white dark:bg-gray-700 w-64">
+                      <div class="flex justify-between items-start mb-2">
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">#{{ticket.id}}</span>
+                        <span [ngClass]="{
+                          'bg-green-100 text-green-800': ticket.priority === Priority.LOW,
+                          'bg-yellow-100 text-yellow-800': ticket.priority === Priority.MEDIUM,
+                          'bg-red-100 text-red-800': ticket.priority === Priority.HIGH
+                        }" class="text-xs font-medium px-2 py-0.5 rounded-full">
+                          {{ticket.priority}}
+                        </span>
+                      </div>
+                      <p class="text-xs text-gray-500 line-clamp-1">{{ticket.title}}</p>
+                    </div>
+                  </div>
+                  <div *ngIf="getPendingTickets().length === 0" class="flex flex-col items-center justify-center h-24 text-gray-500 dark:text-gray-400 text-sm">
+                    <mat-icon class="text-gray-400 mb-2">hourglass_empty</mat-icon>
+                    No pending tickets
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Resolved Column -->
+              <div class="rounded-lg border border-green-200 dark:border-green-800 overflow-hidden">
+                <div class="bg-green-50 dark:bg-green-900/20 p-4 border-b border-green-200 dark:border-green-800">
+                  <h3 class="font-medium text-green-800 dark:text-green-300 flex items-center">
+                    <mat-icon class="mr-2 text-green-600 dark:text-green-400">task_alt</mat-icon>
+                    Resolved
+                    <span class="ml-2 bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-300 rounded-full px-2 py-0.5 text-xs">
+                      {{ getResolvedTickets().length }}
+                    </span>
+                  </h3>
+                    </div>
+                <div class="p-3 bg-white dark:bg-gray-800 min-h-[300px]"
+                    cdkDropList
+                    id="resolvedList"
+                    [cdkDropListData]="getResolvedTickets()"
+                    [cdkDropListConnectedTo]="['pendingList', 'verifiedList']"
+                    (cdkDropListDropped)="drop($event)">
+                  <div *ngFor="let ticket of getResolvedTickets()" 
+                      class="mb-3 p-3 rounded-md shadow-sm border-l-4 border-green-500 hover:shadow-md transition-shadow bg-white dark:bg-gray-700 cursor-move"
+                      cdkDrag>
+                    <div class="cdkDragHandle flex justify-between items-start mb-2">
+                      <span class="text-sm font-medium text-gray-900 dark:text-white line-clamp-1">#{{ticket.id}}: {{ticket.title}}</span>
+                      <span [ngClass]="{
+                        'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': ticket.priority === Priority.LOW,
+                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': ticket.priority === Priority.MEDIUM,
+                        'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': ticket.priority === Priority.HIGH
+                      }" class="text-xs font-medium px-2 py-0.5 rounded-full">
+                        {{ticket.priority}}
+                      </span>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-2">{{ticket.description}}</p>
+                    <div class="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+                      <span>Resolved: {{ticket.solution?.createdAt | date: 'short'}}</span>
+                      <div class="flex gap-2">
+                        <button (click)="$event.stopPropagation(); viewTicketDetails(ticket)" 
+                                class="text-xs px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors cdkDragDisableHandle">
+                          View
+                        </button>
+                        <button (click)="$event.stopPropagation(); updateTicketStatus(ticket.id!, Status.VERIFIED)" 
+                                class="text-xs px-2 py-1 bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300 rounded hover:bg-teal-200 dark:hover:bg-teal-900/50 transition-colors cdkDragDisableHandle">
+                          Verify
+                        </button>
+                      </div>
+                    </div>
+                    <!-- Preview when dragging -->
+                    <div *cdkDragPreview class="p-3 rounded-md shadow-md border-l-4 border-green-500 bg-white dark:bg-gray-700 w-64">
+                      <div class="flex justify-between items-start mb-2">
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">#{{ticket.id}}</span>
+                        <span [ngClass]="{
+                          'bg-green-100 text-green-800': ticket.priority === Priority.LOW,
+                          'bg-yellow-100 text-yellow-800': ticket.priority === Priority.MEDIUM,
+                          'bg-red-100 text-red-800': ticket.priority === Priority.HIGH
+                        }" class="text-xs font-medium px-2 py-0.5 rounded-full">
+                          {{ticket.priority}}
+                        </span>
+                      </div>
+                      <p class="text-xs text-gray-500 line-clamp-1">{{ticket.title}}</p>
+                    </div>
+                  </div>
+                  <div *ngIf="getResolvedTickets().length === 0" class="flex flex-col items-center justify-center h-24 text-gray-500 dark:text-gray-400 text-sm">
+                    <mat-icon class="text-gray-400 mb-2">check_circle_outline</mat-icon>
+                    No resolved tickets
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Verified Column -->
+              <div class="rounded-lg border border-teal-200 dark:border-teal-800 overflow-hidden">
+                <div class="bg-teal-50 dark:bg-teal-900/20 p-4 border-b border-teal-200 dark:border-teal-800">
+                  <h3 class="font-medium text-teal-800 dark:text-teal-300 flex items-center">
+                    <mat-icon class="mr-2 text-teal-600 dark:text-teal-400">verified</mat-icon>
+                    Verified
+                    <span class="ml-2 bg-teal-200 dark:bg-teal-800 text-teal-800 dark:text-teal-300 rounded-full px-2 py-0.5 text-xs">
+                      {{ getVerifiedTickets().length }}
+                    </span>
+                  </h3>
+                </div>
+                <div class="p-3 bg-white dark:bg-gray-800 min-h-[300px]"
+                    cdkDropList
+                    id="verifiedList"
+                    [cdkDropListData]="getVerifiedTickets()"
+                    [cdkDropListConnectedTo]="['pendingList', 'resolvedList']"
+                    (cdkDropListDropped)="drop($event)">
+                  <div *ngFor="let ticket of getVerifiedTickets()" 
+                      class="mb-3 p-3 rounded-md shadow-sm border-l-4 border-teal-500 hover:shadow-md transition-shadow bg-white dark:bg-gray-700 cursor-move"
+                      cdkDrag>
+                    <div class="cdkDragHandle flex justify-between items-start mb-2">
+                      <span class="text-sm font-medium text-gray-900 dark:text-white line-clamp-1">#{{ticket.id}}: {{ticket.title}}</span>
+                      <span [ngClass]="{
+                        'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': ticket.priority === Priority.LOW,
+                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': ticket.priority === Priority.MEDIUM,
+                        'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': ticket.priority === Priority.HIGH
+                      }" class="text-xs font-medium px-2 py-0.5 rounded-full">
+                        {{ticket.priority}}
+                      </span>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-2">{{ticket.description}}</p>
+                    <div class="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+                      <span>Verified: {{ticket.updatedAt | date: 'short'}}</span>
+                      <div class="flex items-center">
+                        <button (click)="$event.stopPropagation(); viewTicketDetails(ticket)" 
+                                class="text-xs px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors cdkDragDisableHandle">
+                          Details
+                  </button>
+                      </div>
+                    </div>
+                    <!-- Preview when dragging -->
+                    <div *cdkDragPreview class="p-3 rounded-md shadow-md border-l-4 border-teal-500 bg-white dark:bg-gray-700 w-64">
+                      <div class="flex justify-between items-start mb-2">
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">#{{ticket.id}}</span>
+                        <span [ngClass]="{
+                          'bg-green-100 text-green-800': ticket.priority === Priority.LOW,
+                          'bg-yellow-100 text-yellow-800': ticket.priority === Priority.MEDIUM,
+                          'bg-red-100 text-red-800': ticket.priority === Priority.HIGH
+                        }" class="text-xs font-medium px-2 py-0.5 rounded-full">
+                          {{ticket.priority}}
+                        </span>
+                      </div>
+                      <p class="text-xs text-gray-500 line-clamp-1">{{ticket.title}}</p>
+                    </div>
+                  </div>
+                  <div *ngIf="getVerifiedTickets().length === 0" class="flex flex-col items-center justify-center h-24 text-gray-500 dark:text-gray-400 text-sm">
+                    <mat-icon class="text-gray-400 mb-2">verified</mat-icon>
+                    No verified tickets
+                  </div>
+                </div>
+              </div>
+
+               <!-- Merging Column -->
+               <div class="rounded-lg border" [ngClass]="isManager() ? 'border-orange-200 dark:border-orange-800' : 'border-gray-200 dark:border-gray-700 opacity-75'">
+                <div class="p-4 border-b" [ngClass]="isManager() ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800' : 'bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-700'">
+                  <h3 class="font-medium flex items-center" [ngClass]="isManager() ? 'text-orange-800 dark:text-orange-300' : 'text-gray-500 dark:text-gray-400'">
+                      <mat-icon class="mr-2" [ngClass]="isManager() ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'">merged</mat-icon>
+                    Merging
+                    <span class="ml-2 rounded-full px-2 py-0.5 text-xs" [ngClass]="isManager() ? 'bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-300' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'">
+                    {{ isManager() ? getMergedTickets().length : '0' }}
+                    </span>
+                    <span *ngIf="!isManager()" class="ml-2 text-xs text-gray-500 dark:text-gray-400 italic">
+                      (Manager only)
+                    </span>
+                  </h3>
+                </div>
+                <div class="p-3 bg-white dark:bg-gray-800 min-h-[300px]"
+                    cdkDropList
+                    id="mergedList"
+                    [cdkDropListData]="getMergedTickets()"
+                    [cdkDropListConnectedTo]="isManager() ? ['pendingList', 'resolvedList'] : []"
+                    [cdkDropListDisabled]="!isManager()"
+                    (cdkDropListDropped)="drop($event)">
+                  <div *ngFor="let ticket of isManager() ? getMergedTickets() : []" 
+                      class="mb-3 p-3 rounded-md shadow-sm border-l-4 border-orange-500 hover:shadow-md transition-shadow bg-white dark:bg-gray-700 cursor-move"
+                      cdkDrag>
+                    <div class="cdkDragHandle flex justify-between items-start mb-2">
+                      <span class="text-sm font-medium text-gray-900 dark:text-white line-clamp-1">#{{ticket.id}}: {{ticket.title}}</span>
+                      <span [ngClass]="{
+                        'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': ticket.priority === Priority.LOW,
+                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': ticket.priority === Priority.MEDIUM,
+                        'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': ticket.priority === Priority.HIGH
+                      }" class="text-xs font-medium px-2 py-0.5 rounded-full">
+                        {{ticket.priority}}
+                      </span>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-2">{{ticket.description}}</p>
+                    <div class="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+                      <span>Verified: {{ticket.updatedAt | date: 'short'}}</span>
+                      <div class="flex items-center">
+                        <button (click)="viewTicketDetails(ticket)" 
+                                class="text-xs px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors cdkDragDisableHandle">
+                          Details
+                        </button>
+                      </div>
+                    </div>
+                    <!-- Preview when dragging -->
+                    <div *cdkDragPreview class="p-3 rounded-md shadow-md border-l-4 border-teal-500 bg-white dark:bg-gray-700 w-64">
+                      <div class="flex justify-between items-start mb-2">
+                        <span class="text-sm font-medium text-gray-900 dark:text-white">#{{ticket.id}}</span>
+                        <span [ngClass]="{
+                          'bg-green-100 text-green-800': ticket.priority === Priority.LOW,
+                          'bg-yellow-100 text-yellow-800': ticket.priority === Priority.MEDIUM,
+                          'bg-red-100 text-red-800': ticket.priority === Priority.HIGH
+                        }" class="text-xs font-medium px-2 py-0.5 rounded-full">
+                          {{ticket.priority}}
+                        </span>
+                      </div>
+                      <p class="text-xs text-gray-500 line-clamp-1">{{ticket.title}}</p>
+                    </div>
+                  </div>
+                  <!-- Empty state message - now shows different messages based on role -->
+                  <div *ngIf="isManager() ? getMergedTickets().length === 0 : true" class="flex flex-col items-center justify-center h-24 text-gray-500 dark:text-gray-400 text-sm">
+                    <mat-icon class="text-gray-400 mb-2">{{ isManager() ? 'merged' : 'lock' }}</mat-icon>
+                    <span>{{ isManager() ? 'No merged tickets' : 'Manager access only' }}</span>
+                    <span *ngIf="!isManager()" class="text-xs text-gray-500 dark:text-gray-400 text-center px-4 mt-1">
+                      This column is only accessible to users with manager role
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Solutions Tab -->
+    <div *ngSwitchCase="'solutions'" class="space-y-6">
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md">
+        <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center">
+          <h3 class="font-bold text-lg dark:text-white">Solutions</h3>
+          <button *ngIf="tickets.length > 0" 
+                  [disabled]="isManager()"
+                  (click)="addSolution()" 
+                  class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors shadow-sm flex items-center gap-2"
+                  [ngClass]="{'opacity-50 cursor-not-allowed': isManager()}">
+            <mat-icon class="text-base">add</mat-icon>
+            <span>Add Solution</span>
+          </button>
+        </div>
+        <div class="p-6">
+          <!-- Loading state -->
+          <div *ngIf="isLoading" class="text-center py-8">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p class="text-gray-600 dark:text-gray-400 text-lg">Loading solutions...</p>
+          </div>
+          
+          <!-- First-time user guidance -->
+          <div *ngIf="!isLoading" class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-6 flex items-start gap-3">
+            <div class="mt-1 text-yellow-500 dark:text-yellow-400">
+              <mat-icon>lightbulb</mat-icon>
+            </div>
+            <div>
+              <h4 class="font-medium text-gray-800 dark:text-white mb-1">How Solutions Work</h4>
+              <p class="text-sm text-gray-600 dark:text-gray-300">
+                Solutions provide step-by-step guidance to fix issues. They include technical details and are written in markdown format for better readability. 
+                Each solution has complexity and time estimations to help you understand the effort required.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Solutions list -->
+          <div *ngIf="!isLoading && hasSolutions()" class="space-y-6">
+            <div *ngFor="let ticket of tickets" class="border dark:border-gray-700 rounded-lg overflow-hidden">
+              <div *ngIf="ticket.hasSolution && ticket.solution" class="space-y-4">
+                <!-- Solution header -->
+                <div class="bg-green-50 dark:bg-green-900/20 p-4 border-b border-green-200 dark:border-green-700 flex justify-between items-start">
+                  <div>
+                    <h4 class="text-lg font-medium dark:text-white flex items-center gap-2">
+                      <mat-icon class="text-green-600 dark:text-green-400">check_circle</mat-icon>
+                      Solution for Ticket #{{ticket.id}}
+                      <!-- Status badge -->
+                      <span class="ml-2 px-2 py-0.5 inline-flex items-center text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300">
+                        <mat-icon class="text-sm relative top-[1px]">verified</mat-icon>
+                        <span class="leading-none">Implemented</span>
+                      </span>
+                      
+                    </h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ticket.title}}</p>
+                  </div>
+                  <div class="flex gap-2">
+                    <span class="text-xs inline-flex items-center text-white bg-pink-600 px-3 py-1 rounded-full shadow-sm">
+                      Resolved {{ getSolutionProperty(ticket, 'createdAt') | date:'mediumDate' }}
+                    </span>
+                    <button (click)="addSolution(ticket)" 
+                            [disabled]="isManager()"
+                            class="text-xs px-3 py-1 inline-flex items-center bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-full hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">
+                      <mat-icon class="text-sm align-middle">edit</mat-icon>
+                      Edit
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Solution content -->
+                <div class="p-4">
+                  <!-- Solution title if available -->
+                  <div *ngIf="getSolutionProperty(ticket, 'title')" class="mb-4">
+                    <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Title</h5>
+                    <p class="text-gray-800 dark:text-gray-200 text-lg font-medium">{{getSolutionProperty(ticket, 'title')}}</p>
+                  </div>
+                  
+                  <!-- Solution content -->
+                  <div class="mb-4">
+                    <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                      Content
+                      <span class="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-0.5 rounded-full">
+                        Markdown
+                      </span>
+                    </h5>
+                    <div class="text-gray-100 dark:text-gray-200 bg-slate-950 dark:bg-gray-700 p-4 rounded-md">
+                      <markdown 
+                        [data]="getSolutionContent(ticket)" 
+                        class="prose prose-sm sm:prose-base dark:prose-invert max-w-none prose-headings:font-semibold prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-pre:bg-gray-100 dark:prose-pre:bg-gray-800 prose-img:rounded-md">
+                      </markdown>
+                    </div>
+                  </div>
+                  
+                  <!-- Solution metadata -->
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4">
+                    <!-- Complexity -->
+                    <div class="flex flex-col">
+                      <span class="text-xs text-gray-500 dark:text-gray-400">Complexity</span>
+                      <span class="font-medium" 
+                        [ngClass]="getComplexityClass(ticket)">
+                        {{getSolutionProperty(ticket, 'complexity') || 'Not specified'}}
+                      </span>
+                    </div>
+                    
+                    <!-- Estimated time -->
+                    <div class="flex flex-col">
+                      <span class="text-xs text-gray-500 dark:text-gray-400">Estimated Time</span>
+                      <span class="font-medium text-blue-600 dark:text-blue-400">
+                        {{getSolutionProperty(ticket, 'estimatedTime') || 0}} hours
+                      </span>
+                    </div>
+                    
+                    <!-- Cost estimation -->
+                    <div class="flex flex-col">
+                      <span class="text-xs text-gray-500 dark:text-gray-400">Cost Estimation</span>
+                      <span class="font-medium text-blue-600 dark:text-blue-400">
+                        ${{getSolutionProperty(ticket, 'costEstimation') || 0}}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <!-- Category -->
+                  <div *ngIf="getSolutionProperty(ticket, 'category')" class="mb-4">
+                    <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</h5>
+                    <span class="px-3 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 rounded-full text-sm">
+                      {{getSolutionProperty(ticket, 'category')}}
+                    </span>
+                  </div>
+                  
+                  <!-- Time to resolution -->
+                  <div class="flex items-center text-sm text-gray-600 dark:text-gray-400 mt-4 bg-green-50 dark:bg-green-900/20 p-3 rounded-md">
+                    <mat-icon class="text-green-500 mr-2">schedule</mat-icon>
+                    <span class="font-medium mr-1">Time to Resolution:</span>
+                    <span class="text-green-600 dark:text-green-400">
+                      {{calculateTimeToResolution(ticket.createdAt, getSolutionProperty(ticket, 'createdAt'))}}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- No solutions message -->
+          <div *ngIf="!isLoading && !hasSolutions()" class="text-center py-12">
+            <div class="w-20 h-20 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+              <mat-icon class="text-4xl text-yellow-500 dark:text-yellow-400">engineering</mat-icon>
+            </div>
+            <h3 class="text-xl font-medium mb-2 dark:text-white">No Solutions Yet</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">There are no solutions available for this issue yet. Create a ticket with a solution to start resolving the issue.</p>
+            <button (click)="createTicket()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors shadow-sm">
+              Create Ticket with Solution
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

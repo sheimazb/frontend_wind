@@ -1,0 +1,285 @@
+.ticket-details-container {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ticket-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.navigation-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ticket-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 500;
+  flex: 1;
+}
+
+.loading-container, .error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+  text-align: center;
+}
+
+.error-container {
+  color: #f44336;
+  gap: 16px;
+}
+
+.error-container mat-icon {
+  font-size: 48px;
+  height: 48px;
+  width: 48px;
+}
+
+.ticket-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.ticket-info-card {
+  margin-bottom: 24px;
+}
+
+mat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+}
+
+.ticket-status {
+  display: flex;
+  gap: 8px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.info-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.full-width {
+  grid-column: span 2;
+}
+
+.info-label {
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.info-value {
+  font-size: 16px;
+}
+
+.description {
+  white-space: pre-wrap;
+}
+
+.tab-content {
+  padding: 24px 0;
+}
+
+.add-comment-section, .add-solution-section {
+  margin-bottom: 24px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.button-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+mat-divider {
+  margin: 24px 0;
+}
+
+.comments-section {
+  margin-top: 24px;
+}
+
+.comment-item {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.comment-author {
+  font-weight: 500;
+}
+
+.comment-date {
+  font-size: 12px;
+  color: #666;
+}
+
+.comment-content {
+  margin-top: 8px;
+  white-space: pre-wrap;
+}
+
+.current-solution {
+  margin-bottom: 24px;
+}
+
+pre {
+  background-color: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+}
+
+.solution-description, .solution-code, .solution-links {
+  margin-bottom: 16px;
+}
+
+.solution-links ul {
+  margin: 0;
+  padding-left: 24px;
+}
+
+.solution-links li {
+  margin-bottom: 8px;
+}
+
+.no-items-message {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 24px 0;
+}
+
+.current-user-tag {
+  margin-left: 4px;
+  font-size: 12px;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+/* Priority and Status styles */
+.priority-chip, .status-chip {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  min-width: 80px;
+}
+
+.priority-low {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.priority-medium {
+  background-color: #fff8e1;
+  color: #f57f17;
+}
+
+.priority-high {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.priority-critical {
+  background-color: #7f0000;
+  color: white;
+}
+
+.status-pending {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.status-resolved {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-verified {
+  background-color: #e1f5fe;
+  color: #006064;
+}
+
+/* Icons for menus */
+.status-pending-icon {
+  color: #1565c0;
+}
+
+.status-resolved-icon {
+  color: #2e7d32;
+}
+
+.status-verified-icon {
+  color: #006064;
+}
+
+.priority-low-icon {
+  color: #2e7d32;
+}
+
+.priority-high-icon {
+  color: #c62828;
+}
+
+.priority-critical-icon {
+  color: #7f0000;
+}
+
+@media (max-width: 768px) {
+  .ticket-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .navigation-buttons {
+    margin-bottom: 12px;
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .full-width {
+    grid-column: span 1;
+  }
+}

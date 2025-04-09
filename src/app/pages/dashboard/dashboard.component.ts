@@ -54,8 +54,8 @@ import { Role } from '../../models/role.enum';
           <a routerLink="/dashboard/issues" class="text-blue-600 dark:text-blue-400 hover:underline">View Issues →</a>
         </div>
         
-        <!-- Chef cards -->
-        <div *ngIf="isChef" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <!-- Manager cards -->
+        <div *ngIf="isManager" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
           <h3 class="text-lg font-semibold mb-3 dark:text-white">Project Management</h3>
           <p class="text-gray-600 dark:text-gray-300 mb-4">Oversee project development and team coordination.</p>
           <a routerLink="/dashboard/project-management" class="text-blue-600 dark:text-blue-400 hover:underline">Manage Projects →</a>
@@ -109,8 +109,8 @@ export class DashboardComponent implements OnInit {
     return this.userRole === Role.TESTER;
   }
   
-  get isChef(): boolean {
-    return this.userRole === Role.CHEF;
+  get isManager(): boolean {
+    return this.userRole === Role.MANAGER;
   }
   
   get isDeveloper(): boolean {
@@ -120,6 +120,6 @@ export class DashboardComponent implements OnInit {
   get isTechnicalTeam(): boolean {
     return this.userRole === Role.DEVELOPER || 
            this.userRole === Role.TESTER || 
-           this.userRole === Role.CHEF;
+           this.userRole === Role.MANAGER;
   }
 } 

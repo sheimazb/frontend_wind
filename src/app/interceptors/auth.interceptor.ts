@@ -52,8 +52,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const modifiedReq = req.clone({
     setHeaders: {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
+      ...(!(req.body instanceof FormData) && {'Content-Type': 'application/json'})
     }
+  });
+
+  // Additional logging specifically for Authorization header
+  console.log('Authorization header:', {
+    url: req.url,
+    hasToken: !!token,
+    tokenLength: token ? token.length : 0,
+    isBearer: token && token.startsWith('Bearer ') ? 'Yes' : 'No (adding Bearer prefix)'
   });
 
   // Log headers for debugging project creation requests
@@ -63,13 +71,27 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       'Content-Type': 'application/json'
     });
   }
-    // Log headers for debugging staff creation requests
-    if (req.url.includes('/employees/create-staff')) {
-      console.log('Staff creation request headers:', {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      });
-    }
+  
+  // Log headers for debugging staff creation requests
+  if (req.url.includes('/employees/create-staff')) {
+    console.log('Staff creation request headers:', {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+  }
+  
+  // Log detailed information for ticket API requests
+  if (req.url.includes('/tickets')) {
+    console.log('Ticket API request details:', {
+      method: req.method,
+      url: req.url,
+      headers: {
+        Authorization: `Bearer ${token?.substring(0, 10)}...`, // Truncate for security
+        ContentType: modifiedReq.headers.get('Content-Type')
+      },
+      body: req.method === 'POST' ? req.body : '(not logged for non-POST)'
+    });
+  }
 
   console.log('Adding auth header:', {
     url: req.url,
