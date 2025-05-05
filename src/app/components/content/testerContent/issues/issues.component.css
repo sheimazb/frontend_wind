@@ -9,7 +9,6 @@
   display: flex;
   gap: 0.5rem;
   padding: 0.25rem;
-  background-color: #f3f4f6;
   border-radius: 0.5rem;
 }
 
@@ -26,8 +25,9 @@
 }
 
 .view-toggle button.active {
-  background-color: white;
+  background-color: rgb(136, 29, 223);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  color: white;
 }
 
 .projects-grid {
@@ -49,10 +49,21 @@
   height: 100%;
 }
 
+.dark .project-card {
+  background-color: #1e293b;
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
 .project-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-color: rgba(0, 0, 0, 0.1);
+}
+
+.dark .project-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .project-header {
@@ -68,11 +79,19 @@
   color: #1f2937;
 }
 
+.dark .project-name {
+  color: #f3f4f6;
+}
+
 .project-description {
   color: #4b5563;
   margin-bottom: 1.5rem;
   flex-grow: 1;
   font-size: 0.875rem;
+}
+
+.dark .project-description {
+  color: #9ca3af;
 }
 
 .project-stats {

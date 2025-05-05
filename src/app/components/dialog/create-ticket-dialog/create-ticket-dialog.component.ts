@@ -59,7 +59,7 @@ export class CreateTicketDialogComponent implements OnInit, OnDestroy {
     assignedToUserId: undefined,
     logId: 0,
     tenant: undefined,
-    status: Status.PENDING
+    status: Status.TO_DO
   };
 
   // Make enums available to template
@@ -98,7 +98,7 @@ export class CreateTicketDialogComponent implements OnInit, OnDestroy {
         logId: Number(this.data.log.id),
         tenant: this.currentUserData?.tenant,
         assignedToUserId: undefined, // Will be set when user selects an assignee
-        status: Status.PENDING
+        status: Status.TO_DO
       };
     }
 
@@ -273,7 +273,7 @@ export class CreateTicketDialogComponent implements OnInit, OnDestroy {
       assignedToUserId: this.ticketData.assignedToUserId,
       logId: Number(this.ticketData.logId),
       tenant: this.currentUserData?.tenant,
-      status: Status.PENDING,
+      status: Status.TO_DO,
       creatorUserId: this.currentUserId ? Number(this.currentUserId) : undefined,
       userEmail: this.currentUserData?.email
     };

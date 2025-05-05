@@ -12,6 +12,8 @@ export const routes: Routes = [
     path:'home',
     loadComponent: () => import('./pages/HomePage/homePage.component').then(m => m.HomePageComponent)
   },
+  
+  // Authentication routes
   { 
     path: 'login', 
     loadComponent: () => import('./authentification/login/login.component').then(m => m.LoginComponent) 
@@ -23,6 +25,18 @@ export const routes: Routes = [
   { 
     path: 'forgot-password', 
     loadComponent: () => import('./authentification/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) 
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./authentification/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
+  },
+  {
+    path: 'activate-account',
+    loadComponent: () => import('./authentification/activate-account/activate-account.component').then(m => m.ActivateAccountComponent)
+  },
+  {
+    path: 'validation-account',
+    loadComponent: () => import('./authentification/validation-account/validation-account.component').then(m => m.ValidationAccountComponent)
   },
   
   // Unauthorized page
@@ -165,10 +179,9 @@ export const routes: Routes = [
         ]
       },
       
-      // Kanban board route (available to technical team)
+      // Kanban board route (available to all authenticated users)
       {
         path: 'kanban',
-        canActivate: [technicalTeamGuard],
         loadComponent: () => import('./components/tickets/kanban-board/kanban-board.component')
           .then(m => m.KanbanBoardComponent)
       },

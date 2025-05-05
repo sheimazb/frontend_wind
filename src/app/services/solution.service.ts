@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, catchError, tap } from 'rxjs';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { Observable, catchError, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ErrorService } from './error.service';
 
@@ -19,6 +19,59 @@ export interface Solution {
   files?: Array<{name: string, url: string}>;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface DevelopersSolutions {
+  id?: number;
+  source?: string;
+  author?: number;
+  title?: string;
+  content?: string;
+  code?: string;
+  votes?: number;
+  commentCount?: number;
+  url?: string;
+  postedDate?: Date;
+  sourceIcon?: string;
+  // Additional fields from API response
+  similarity?: string;
+  errorType?: string;
+  detectedTypes?: string[];
+  exceptionTypes?: string[];
+}
+
+export interface LogAnalysisRequest {
+  logMessage: string;
+  k?: number;
+}
+
+export interface SimilarLog {
+  logId?: number;
+  logMessage?: string;
+  ticketId?: number;
+  errorType?: string;
+  detectedTypes?: string[];
+  exceptionTypes?: string[];
+  solutionTitle?: string;
+  solutionContent?: string;
+  severity?: string;
+  similarity?: string;
+  termMatch?: string;
+  matchDetails?: string;
+  authorUserId?: number;
+}
+export interface QueryAnalysis {
+  detectedTypes?: string[];
+  severity?: string;
+  errorCode?: string;
+  exceptionTypes?: string[];
+  termCount?: number;
+  normalizedQuery?: string;
+}
+export interface LogRecommendationResponse {
+  message?: string;
+  similar_logs?: SimilarLog[];  // Notez le snake_case qui correspond probablement à votre JSON
+  query_analysis?: QueryAnalysis;
 }
 
 export enum ComplexityLevel {
@@ -47,11 +100,6 @@ export class SolutionService {
     private errorService: ErrorService
   ) {}
 
-  /**
-   * Create a new solution
-   * @param solution The solution data
-   * @returns Observable of the created solution
-   */
   createSolution(solution: Solution): Observable<Solution> {
     // Prepare request body with ticketId field
     const requestBody = this.prepareRequestBody(solution);
@@ -64,11 +112,6 @@ export class SolutionService {
       );
   }
 
-  /**
-   * Get a solution by ID
-   * @param id The solution ID
-   * @returns Observable of the solution
-   */
   getSolutionById(id: number): Observable<Solution> {
     return this.http.get<Solution>(`${this.apiUrl}/${id}`)
       .pipe(
@@ -76,11 +119,6 @@ export class SolutionService {
       );
   }
 
-  /**
-   * Get a solution by ticket ID
-   * @param ticketId The ticket ID
-   * @returns Observable of the solution
-   */
   getSolutionByTicketId(ticketId: number): Observable<Solution> {
     return this.http.get<Solution>(`${this.apiUrl}/ticket/${ticketId}`)
       .pipe(
@@ -88,12 +126,6 @@ export class SolutionService {
       );
   }
 
-  /**
-   * Update a solution
-   * @param id The solution ID
-   * @param solution The updated solution data
-   * @returns Observable of the updated solution
-   */
   updateSolution(id: number, solution: Solution): Observable<Solution> {
     // Prepare request body with ticketId field
     const requestBody = this.prepareRequestBody(solution);
@@ -106,10 +138,6 @@ export class SolutionService {
       );
   }
 
-  /**
-   * Get solutions by the authenticated user
-   * @returns Observable of the user's solutions
-   */
   getMySolutions(): Observable<Solution[]> {
     return this.http.get<Solution[]>(`${this.apiUrl}/my-solutions`)
       .pipe(
@@ -117,11 +145,37 @@ export class SolutionService {
       );
   }
 
-  /**
-   * Create or update a solution based on whether it has an ID
-   * @param solution The solution data
-   * @returns Observable of the created or updated solution
-   */
+  getRecommendations(request: LogAnalysisRequest): Observable<LogRecommendationResponse> {
+    // Validation des données d'entrée
+    if (!request.logMessage || request.logMessage.trim() === '') {
+      console.error('Empty log message provided');
+      return throwError(() => new Error('Log message cannot be empty'));
+    }
+  
+    console.log('Getting recommendations for log message:', 
+      request.logMessage.substring(0, Math.min(100, request.logMessage.length)) + '...');
+    
+    return this.http.post<LogRecommendationResponse>(
+      `${this.apiUrl}/recommendations`, 
+      request,
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json'
+        })
+      }
+    ).pipe(
+      tap(response => {
+        const logCount = response.similar_logs?.length || 0;
+        console.log(`Receiveddfd sfqf ${logCount} recommendations`);
+      }),
+      catchError(error => {
+        console.error('Error getting recommendations:', error);
+        this.errorService.handleError(error, 'Getting recommendations');
+        return throwError(() => error);
+      })
+    );
+  }
+
   saveOrUpdateSolution(solution: Solution): Observable<Solution> {
     // If the solution has an ID, update it
     if (solution.id) {
@@ -131,9 +185,6 @@ export class SolutionService {
     return this.createSolution(solution);
   }
 
-  /**
-   * Prepares request body for API calls by properly handling the ticket object
-   */
   private prepareRequestBody(solution: Solution): any {
     const requestBody = { ...solution };
     
@@ -147,9 +198,6 @@ export class SolutionService {
     return requestBody;
   }
 
-  /**
-   * Handles API errors with special handling for 409 Conflict errors
-   */
   private handleApiError(error: HttpErrorResponse, operation: string): Observable<never> {
     // Special handling for 409 Conflict errors
     if (error.status === 409) {

@@ -5,11 +5,19 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { HttpClientModule } from '@angular/common/http';
 import { AuthService, LoginResponse } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ForgotPasswordComponent } from '../forgot-password/forgot-password.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports:[RouterModule,CommonModule,ReactiveFormsModule,HttpClientModule],
+  imports:[
+    RouterModule,
+    CommonModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    MatDialogModule
+  ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -24,7 +32,8 @@ export class LoginComponent {
     private router: Router,
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private dialog: MatDialog
   ) {
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
@@ -73,7 +82,25 @@ export class LoginComponent {
   onSignUpClick(){
     this.router.navigate(['/signup']);
   }
-   // 1. User submits login form
+
+  openForgotPasswordDialog() {
+    const dialogRef = this.dialog.open(ForgotPasswordComponent, {
+      width: '400px',
+      panelClass: 'custom-dialog-container',
+      disableClose: true,
+      hasBackdrop: true,
+      backdropClass: 'dialog-backdrop',
+      position: { top: '100px' }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Handle successful password reset request if needed
+      }
+    });
+  }
+
+  // 1. User submits login form
   onSubmit() {
     if (this.loginForm.valid) {
       this.isLoading = true;

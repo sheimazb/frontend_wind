@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 export interface ProfileResponse {
   id: number;
@@ -36,12 +37,37 @@ export interface ProfileRequest {
 })
 export class UserService {
   private apiUrl = 'http://localhost:8222/api/v1/users';
+  
+  // Add a BehaviorSubject to store and broadcast profile changes
+  private profileSubject = new BehaviorSubject<ProfileResponse | null>(null);
+  public profileChanges = this.profileSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
   // Get user profile
   getUserProfile(email: string): Observable<ProfileResponse> {
-    return this.http.get<ProfileResponse>(`${this.apiUrl}/${email}`);
+    return this.http.get<ProfileResponse>(`${this.apiUrl}/${email}`)
+      .pipe(
+        tap(profileData => {
+          // Update the shared profile state
+          this.profileSubject.next(profileData);
+        })
+      );
+  }
+
+  getUserById(id: number): Observable<ProfileResponse> {
+    return this.http.get<ProfileResponse>(`${this.apiUrl}/id/${id}`)
+      .pipe(
+        tap(profileData => {
+          // Update the shared profile state
+          this.profileSubject.next(profileData);
+        })
+      );
+  }
+
+  // Method to get the current profile value without making an API call
+  getCurrentProfileValue(): ProfileResponse | null {
+    return this.profileSubject.getValue();
   }
 
   // Update user profile
@@ -101,6 +127,11 @@ export class UserService {
       {
         headers: {} // Let the browser set the correct Content-Type for FormData
       }
+    ).pipe(
+      tap(profileData => {
+        // Update the shared profile state when profile is updated
+        this.profileSubject.next(profileData);
+      })
     );
   }
   
@@ -128,6 +159,11 @@ export class UserService {
       {
         headers: { 'Content-Type': 'application/json' }
       }
+    ).pipe(
+      tap(profileData => {
+        // Update the shared profile state when profile is updated
+        this.profileSubject.next(profileData);
+      })
     );
   }
 }

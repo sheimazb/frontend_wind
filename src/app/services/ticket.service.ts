@@ -87,10 +87,11 @@ export enum Priority {
 }
 
 export enum Status {
-  PENDING = 'PENDING',
+  TO_DO = 'TO_DO',
+  IN_PROGRESS = 'IN_PROGRESS',
   RESOLVED = 'RESOLVED',
-  VERIFIED = 'VERIFIED',
-  MERGED = 'MERGED'
+  MERGED_TO_TEST = 'MERGED_TO_TEST',
+  DONE = 'DONE'
 }
 
 @Injectable({
@@ -104,11 +105,7 @@ export class TicketService {
     private errorService: ErrorService
   ) {}
 
-  /**
-   * Creates a new ticket
-   * @param ticketData The ticket data to create
-   * @returns Observable of the created ticket
-   */
+
   createTicket(ticketData: TicketData): Observable<Ticket> {
     return this.http.post<Ticket>(this.apiUrl, ticketData).pipe(
       tap(response => console.log('Created ticket:', response)),
@@ -116,11 +113,6 @@ export class TicketService {
     );
   }
 
-  /**
-   * Gets tickets for the current user's tenant
-   * Authorization header is automatically added by the HTTP interceptor
-   * @returns Observable of all tickets for the user's tenant
-   */
   getAllTickets(): Observable<Ticket[]> {
     return this.http.get<Ticket[]>(this.apiUrl).pipe(
       tap(tickets => console.log('Fetched all tickets:', tickets)),
@@ -128,11 +120,6 @@ export class TicketService {
     );
   }
 
-  /**
-   * Gets tickets for a specific project
-   * @param projectId The project ID to get tickets for
-   * @returns Observable of tickets for the project
-   */
   getTicketsByProjectId(projectId: string | number): Observable<Ticket[]> {
     // Ensure projectId is properly formatted
     const id = typeof projectId === 'string' ? parseInt(projectId, 10) : projectId;
@@ -149,11 +136,6 @@ export class TicketService {
       );
   }
 
-  /**
-   * Gets a ticket by ID with solution information
-   * @param id The ticket ID to get
-   * @returns Observable of the ticket with solution info
-   */
   getTicketById(id: number | string): Observable<Ticket> {
     // Normalize the ID
     const numericId = normalizeId(id);
@@ -172,31 +154,27 @@ export class TicketService {
     );
   }
 
-  /**
-   * Gets tickets by log ID
-   * @param logId The log ID to get tickets for
-   * @returns Observable of tickets related to the log
-   */
   getTicketsByLogId(logId: string | number): Observable<Ticket[]> {
-    // The backend controller doesn't have a dedicated endpoint for filtering by logId
-    // We'll fetch all tickets and filter client-side
-    // This is a workaround until a proper backend endpoint is implemented
+    console.log('Getting tickets for logId:', logId);
+    console.log('API URL:', `${this.apiUrl}`);
     
     return this.http
       .get<Ticket[]>(`${this.apiUrl}`)
       .pipe(
+        tap(allTickets => {
+          console.log('All tickets received:', allTickets);
+          const filteredTickets = allTickets.filter(ticket => ticket.logId?.toString() === logId.toString());
+          console.log('Filtered tickets:', filteredTickets);
+          return filteredTickets;
+        }),
         map(tickets => tickets.filter(ticket => ticket.logId?.toString() === logId.toString())),
-        catchError((error) =>
-          this.errorService.handleError(error, 'Getting tickets by log ID')
-        )
+        catchError((error) => {
+          console.error('Error in getTicketsByLogId:', error);
+          return this.errorService.handleError(error, 'Getting tickets by log ID');
+        })
       );
   }
 
-  /**
-   * Gets tickets assigned to a specific user
-   * @param userId The user ID to get tickets for
-   * @returns Observable of tickets assigned to the user
-   */
   getTicketsByAssignee(userId: string | number): Observable<Ticket[]> {
     return this.http
       .get<Ticket[]>(`${this.apiUrl}/assigned/${userId}`)
@@ -207,11 +185,6 @@ export class TicketService {
       );
   }
 
-  /**
-   * Gets tickets created by a specific user
-   * @param userId The user ID to get tickets for
-   * @returns Observable of tickets created by the user
-   */
   getTicketsByCreator(userId: string | number): Observable<Ticket[]> {
     return this.http
       .get<Ticket[]>(`${this.apiUrl}/created/${userId}`)
@@ -222,12 +195,6 @@ export class TicketService {
       );
   }
 
-  /**
-   * Updates a ticket
-   * @param id The ticket ID to update
-   * @param updates The ticket data to update
-   * @returns Observable of the updated ticket
-   */
   updateTicket(id: number | string, updates: Partial<Ticket>): Observable<Ticket> {
     // Normalize the ID to ensure it's a valid number
     const numericId = normalizeId(id);
@@ -266,12 +233,6 @@ export class TicketService {
     );
   }
 
-  /**
-   * Updates a ticket
-   * @param id The ticket ID to update
-   * @param updates The ticket data to update
-   * @returns Observable of the updated ticket
-   */
   updateTicketStatus(
     ticketId: string | number,
     status: Status
@@ -286,24 +247,23 @@ export class TicketService {
     }
 
     // Log the request for debugging
-    console.log(`Updating ticket ${numericId} with data:`, status);
+    console.log(`Updating ticket ${numericId} with status:`, status);
 
-    // Check for tenant property which is required
-    if (!status) {
-      console.warn('Status property is missing from update data. This may cause a server error.');
-    }
+    // Create params with the status - this matches the @RequestParam in the backend
+    const params = new HttpParams().set('newStatus', status);
     
-    return this.http.put<Ticket>(`${this.apiUrl}/${numericId}/status`, { status }).pipe(
+    // Send the request with status as a URL parameter (not in body)
+    return this.http.put<Ticket>(`${this.apiUrl}/${numericId}/status`, {}, { params }).pipe(
       tap(ticket => console.log('Updated ticket success response:', ticket)),
       catchError(error => {
         console.error(`Error updating ticket ${numericId}:`, error);
         
         // Add more context to the error for better debugging
-        if (error.status === 500) {
-          console.error('Server error details:', {
-            endpoint: `${this.apiUrl}/${numericId}`,
+        if (error.status === 400) {
+          console.error('Bad Request details:', {
+            endpoint: `${this.apiUrl}/${numericId}/status`,
             method: 'PUT',
-            requestBody: status,
+            params: { newStatus: status },
             error: error.error
           });
         }
@@ -324,8 +284,12 @@ export class TicketService {
       return throwError(() => new Error('Valid ticket ID is required'));
     }
     
+    // Create params with the status - this matches the @RequestParam in the backend
+    const params = new HttpParams().set('newStatus', status);
+    
+    // Use the same approach as updateTicketStatus
     return this.http
-      .put<Ticket>(`${this.apiUrl}/${numericId}/status`, { status })
+      .put<Ticket>(`${this.apiUrl}/${numericId}/status`, {}, { params })
       .pipe(
         tap(ticket => console.log('Updated ticket status:', ticket)),
         catchError((error) => {
@@ -335,12 +299,6 @@ export class TicketService {
       );
   }
 
-  /**
-   * Assigns a ticket to a user
-   * @param ticketId The ticket ID to assign
-   * @param userId The user ID to assign the ticket to
-   * @returns Observable of the updated ticket
-   */
   assignTicket(ticketId: number | string, assignedToUserId: number): Observable<Ticket> {
     // Normalize the ticket ID
     const numericId = normalizeId(ticketId);
@@ -358,11 +316,6 @@ export class TicketService {
     );
   }
 
-  /**
-   * Deletes a ticket
-   * @param ticketId The ticket ID to delete
-   * @returns Observable of the delete operation result
-   */
   deleteTicket(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
       tap(() => console.log('Deleted ticket:', id)),
@@ -370,11 +323,6 @@ export class TicketService {
     );
   }
 
-  /**
-   * Gets the solution for a ticket
-   * @param ticketId The ticket ID to get the solution for
-   * @returns Observable of the ticket solution
-   */
   getTicketSolution(ticketId: number): Observable<Solution> {
     return this.http.get<Solution>(`${this.apiUrl}/${ticketId}/solution`).pipe(
       tap(solution => console.log('Fetched solution:', solution)),
@@ -382,14 +330,6 @@ export class TicketService {
     );
   }
 
- 
-
-
-  /**
-   * Gets comments for a ticket
-   * @param ticketId The ticket ID to get comments for
-   * @returns Observable of comments for the ticket
-   */
   getTicketComments(ticketId: number | string): Observable<Comment[]> {
     // Normalize the ID
     const numericId = normalizeId(ticketId);
@@ -408,12 +348,6 @@ export class TicketService {
     );
   }
 
-  /**
-   * Adds a comment to a ticket
-   * @param ticketId The ticket ID to add a comment to
-   * @param content The comment content
-   * @returns Observable of the created comment
-   */
   addComment(ticketId: number | string, content: string): Observable<Comment> {
     // Validate input parameters
     if (!content || content.trim() === '') {
@@ -437,11 +371,6 @@ export class TicketService {
     );
   }
 
-  /**
-   * Deletes a comment
-   * @param commentId The comment ID to delete
-   * @returns Observable of the delete operation result
-   */
   deleteComment(commentId: number | string): Observable<void> {
     return this.http
       .delete<void>(`${this.apiUrl}/comment/${commentId}`)
@@ -452,12 +381,6 @@ export class TicketService {
       );
   }
 
-  /**
-   * Uploads attachment(s) for a ticket
-   * @param ticketId The ticket ID to upload attachments for
-   * @param files The files to upload
-   * @returns Observable of the updated ticket with attachments
-   */
   uploadAttachments(ticketId: number | string, files: File[]): Observable<Ticket> {
     const formData = new FormData();
     
@@ -474,12 +397,6 @@ export class TicketService {
       );
   }
 
-  /**
-   * Deletes an attachment
-   * @param ticketId The ticket ID the attachment belongs to
-   * @param attachmentUrl The URL of the attachment to delete
-   * @returns Observable of the updated ticket
-   */
   deleteAttachment(ticketId: number | string, attachmentUrl: string): Observable<Ticket> {
     // URL encode the attachment URL to handle special characters
     const encodedUrl = encodeURIComponent(attachmentUrl);
@@ -510,6 +427,24 @@ export class TicketService {
     return this.http.get<Ticket[]>(`${this.apiUrl}/search`, { params: httpParams }).pipe(
       tap(tickets => console.log('Search results:', tickets)),
       catchError(error => this.errorService.handleError(error, 'Searching tickets'))
+    );
+  }
+
+  addSolution(solution: SolutionRequest): Observable<Solution> {
+    // Normalize the ID
+    const numericId = normalizeId(solution.ticketId);
+    
+    if (numericId === null) {
+      console.error('Invalid ticket ID provided to addSolution');
+      return throwError(() => new Error('Valid ticket ID is required'));
+    }
+    
+    return this.http.post<Solution>(`${this.apiUrl}/${numericId}/solution`, solution).pipe(
+      tap(result => console.log('Solution added successfully:', result)),
+      catchError(error => {
+        console.error(`Error adding solution for ticket ${numericId}:`, error);
+        return this.errorService.handleError(error, 'Adding solution');
+      })
     );
   }
 }

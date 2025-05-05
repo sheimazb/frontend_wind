@@ -1,3 +1,6 @@
+// Import polyfills first
+import './polyfills';
+
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
@@ -6,6 +9,9 @@ import { importProvidersFrom } from '@angular/core';
 import { ToastrModule } from 'ngx-toastr';
 import { MarkdownModule, MARKED_OPTIONS } from 'ngx-markdown';
 import { marked } from 'marked';
+import { WebsocketService } from './app/services/websocket.service';
+import { NotificationService } from './app/services/notification.service';
+import { PushNotificationsService } from 'ng-push-ivy';
 
 const updatedConfig = {
   ...appConfig,
@@ -37,7 +43,10 @@ const updatedConfig = {
           }
         }
       })
-    )
+    ),
+    WebsocketService,
+    NotificationService,
+    PushNotificationsService
   ]
 };
 

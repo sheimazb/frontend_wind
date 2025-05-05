@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, map, catchError, of } from 'rxjs';
 import { User } from '../models/user.model';
 import { Project } from '../models/project.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,92 +14,185 @@ export class ProjectService {
   constructor(private http: HttpClient) {
   }
 
- /**
-   * Creates a new project
-   * @param project The project data to create
-   * @returns Observable of the created project
-   */
-  createProject(project: Project): Observable<Project> {
-    // Transform the data to match backend expectations
-    const backendProject = {
-      name: project.name,
-      description: project.description,
-      technologies: Array.isArray(project.technologies) ? project.technologies.join(',') : project.technologies,
-      repositoryLink: project.repositoryLink,
-      deadlineDate: project.deadlineDate,
-      tags: project.tags || [],
-      progressPercentage: project.progress || project.progressPercentage || 0,
-      status: project.status,
-      priority: project.priority,
-      manager: project.manager
-    };
+ 
+  createProject(projectData: FormData | Project): Observable<Project> {
+    if (projectData instanceof FormData) {
+      // If FormData is provided, send it directly
+      console.log('Sending FormData directly to API');
+      
+      // Log FormData entries for debugging (in development only)
+      if (console.debug) {
+        console.debug('FormData entries:');
+        // Use type assertion to any to access entries method
+        const formDataAny = projectData as any;
+        if (formDataAny.entries) {
+          for (const pair of formDataAny.entries()) {
+            console.debug(`${pair[0]}: ${pair[1]}`);
+          }
+        }
+      }
+      
+      return this.http.post<any>(`${this.apiUrl}`, projectData).pipe(
+        map(response => new Project(response)),
+        catchError((error: HttpErrorResponse) => {
+          console.error('Error creating project:', error);
+          throw error;
+        })
+      );
+    } else {
+      // Convert Project object to FormData
+      const formData = new FormData();
+      
+      // Add basic fields
+      formData.append('name', projectData.name.trim());
+      formData.append('description', projectData.description.trim());
+      formData.append('repositoryLink', projectData.repositoryLink.trim());
+      formData.append('primaryTag', projectData.projectTag.trim());
+      formData.append('deadlineDate', projectData.deadlineDate);
+      formData.append('progressPercentage', (projectData.progressPercentage || 0).toString());
+      formData.append('status', projectData.status || 'Active');
+      formData.append('priority', projectData.priority || 'Medium');
+      
+      // Add creator information if available
+      if (projectData.creator && projectData.creator.id) {
+        formData.append('creatorId', projectData.creator.id.toString());
+      }
+      
+      // Handle technologies as an array
+      if (projectData.technologies && projectData.technologies.length > 0) {
+        // Option 1: As a comma-separated string
+        formData.append('technologies', projectData.technologies.join(', '));
+        
+        // Option 2: As an array with indexed naming
+        projectData.technologies.forEach((tech, index) => {
+          formData.append(`technologiesArray[${index}]`, tech);
+        });
+      }
+      
+      // Handle tags
+      if (projectData.tags && projectData.tags.length > 0) {
+        projectData.tags.forEach((tag, index) => {
+          formData.append(`tags[${index}]`, tag);
+        });
+      }
+      
+      // Handle allowed roles
+      if (projectData.allowedRoles && projectData.allowedRoles.length > 0) {
+        projectData.allowedRoles.forEach((role, index) => {
+          formData.append(`allowedRoles[${index}]`, role.name);
+        });
+      }
+      
+      // Add logo if it exists
+      if (projectData.logo instanceof File) {
+        formData.append('logo', projectData.logo, projectData.logo.name);
+      }
 
-    return this.http.post<any>(`${this.apiUrl}/create`, backendProject, {
-      headers: { 'Content-Type': 'application/json' }
-    }).pipe(
-      map(response => new Project(response)),
-      catchError((error: HttpErrorResponse) => {
-        console.error('Error creating project:', error);
-        return of(new Project());
-      })
-    );
+      // Log the data being sent
+      console.log('Converted Project to FormData');
+
+      return this.http.post<any>(`${this.apiUrl}`, formData).pipe(
+        map(response => new Project(response)),
+        catchError((error: HttpErrorResponse) => {
+          console.error('Error creating project:', error);
+          throw error;
+        })
+      );
+    }
   }
 
-  /**
-   * Get project by ID
-   * @param id The ID of the project to get
-   * @returns Observable of the project
-   */
   getProjectById(id: number): Observable<Project> {
     return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
       map(response => new Project(response))
     );
   }
 
-    /**
-   * Get all projects by tenant 
-   * @returns Observable of the projects
-   */
   getAllProjects(): Observable<Project[]> {
     return this.http.get<any[]>(this.apiUrl).pipe(
       map(projects => projects.map(p => new Project(p)))
     );
   }
 
-  /**
-   * Update project
-   * @param id The ID of the project to update
-   * @param project The project data to update
-   * @returns Observable of the updated project
-   */
-  updateProject(id: number, project: Project): Observable<Project> {
-    const backendProject = {
-      name: project.name,
-      description: project.description,
-      technologies: Array.isArray(project.technologies) ? project.technologies.join(',') : project.technologies,
-      repositoryLink: project.repositoryLink,
-      deadlineDate: project.deadlineDate,
-      tags: project.tags || [],
-      progressPercentage: project.progress || project.progressPercentage || 0,
-      status: project.status,
-      priority: project.priority,
-      manager: project.manager
-    };
+  updateProject(id: number, projectData: FormData | Project): Observable<Project> {
+    if (projectData instanceof FormData) {
+      // If FormData is provided, send it directly
+      console.log('Sending FormData directly to API for update');
+      
+      // Log FormData entries for debugging (in development only)
+      if (console.debug) {
+        console.debug('FormData entries for update:');
+        // Use type assertion to any to access entries method
+        const formDataAny = projectData as any;
+        if (formDataAny.entries) {
+          for (const pair of formDataAny.entries()) {
+            console.debug(`${pair[0]}: ${pair[1]}`);
+          }
+        }
+      }
+      
+      return this.http.put<any>(`${this.apiUrl}/${id}`, projectData).pipe(
+        map(response => new Project(response)),
+        catchError((error: HttpErrorResponse) => {
+          console.error(`Error updating project with ID ${id}:`, error);
+          throw error;
+        })
+      );
+    } else {
+      // Convert Project object to FormData
+      const formData = new FormData();
+      
+      // Add basic fields
+      formData.append('name', projectData.name.trim());
+      formData.append('description', projectData.description.trim());
+      formData.append('repositoryLink', projectData.repositoryLink.trim());
+      formData.append('primaryTag', projectData.projectTag.trim());
+      formData.append('deadlineDate', projectData.deadlineDate);
+      formData.append('progressPercentage', (projectData.progressPercentage || 0).toString());
+      formData.append('status', projectData.status || 'Active');
+      formData.append('priority', projectData.priority || 'Medium');
+      
+      // Handle technologies as an array
+      if (projectData.technologies && projectData.technologies.length > 0) {
+        // Option 1: As a comma-separated string
+        formData.append('technologies', projectData.technologies.join(', '));
+        
+        // Option 2: As an array with indexed naming
+        projectData.technologies.forEach((tech, index) => {
+          formData.append(`technologiesArray[${index}]`, tech);
+        });
+      }
+      
+      // Handle tags
+      if (projectData.tags && projectData.tags.length > 0) {
+        projectData.tags.forEach((tag, index) => {
+          formData.append(`tags[${index}]`, tag);
+        });
+      }
+      
+      // Handle allowed roles
+      if (projectData.allowedRoles && projectData.allowedRoles.length > 0) {
+        projectData.allowedRoles.forEach((role, index) => {
+          formData.append(`allowedRoles[${index}]`, role.name);
+        });
+      }
+      
+      // Add logo if it exists
+      if (projectData.logo instanceof File) {
+        formData.append('logo', projectData.logo, projectData.logo.name);
+      }
 
-    return this.http.put<any>(`${this.apiUrl}/${id}`, backendProject).pipe(
-      map(response => new Project(response)),
-      catchError((error: HttpErrorResponse) => {
-        console.error(`Error updating project with ID ${id}:`, error);
-        return of(new Project(project));
-      })
-    );
+      console.log('Converted Project to FormData for update');
+
+      return this.http.put<any>(`${this.apiUrl}/${id}`, formData).pipe(
+        map(response => new Project(response)),
+        catchError((error: HttpErrorResponse) => {
+          console.error(`Error updating project with ID ${id}:`, error);
+          throw error;
+        })
+      );
+    }
   }
 
-  /**
-   * Delete project
-   * @param id The ID of the project to delete
-   * @returns Observable of the deleted project
-   */
   deleteProject(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -108,22 +202,12 @@ export class ProjectService {
     );
   }
 
-  /**
-   * Search projects by tag
-   * @param tag The tag to search for
-   * @returns Observable of the projects
-   */
   searchProjectsByTag(tag: string): Observable<Project[]> {
     return this.http.get<any[]>(`${this.apiUrl}/search?tag=${tag}`).pipe(
       map(projects => projects.map(p => new Project(p)))
     );
   }
 
-  /**
-   * Get project members
-   * @param projectId The ID of the project to get members for
-   * @returns Observable of the project members
-   */
   getProjectMembers(projectId: number): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/${projectId}/users`).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -132,13 +216,7 @@ export class ProjectService {
       })
     );
   }
-
-  /**
-   * Add user to project
-   * @param projectId The ID of the project to add the user to
-   * @param userId The ID of the user to add to the project
-   * @returns Observable of the added user
-   */
+  
   addUserToProject(projectId: number, userId: number): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/${projectId}/users/${userId}`, {}).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -147,13 +225,7 @@ export class ProjectService {
       })
     );
   }
-
-  /**
-   * Remove user from project
-   * @param projectId The ID of the project to remove the user from
-   * @param userId The ID of the user to remove from the project
-   * @returns Observable of the removed user
-   */
+ 
   removeUserFromProject(projectId: number, userId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${projectId}/users/${userId}`).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -162,15 +234,18 @@ export class ProjectService {
       })
     );
   }
-
-  /**
-   * Get user projects
-   * @param userId The ID of the user to get projects for
-   * @returns Observable of the user's projects
-   */
+  
   getUserProjects(userId: number): Observable<Project[]> {
+    // Check if the current user is a tester
+    
+    
+    // For other roles, return only the projects they're assigned to
     return this.http.get<any[]>(`${this.apiUrl}/user/${userId}`).pipe(
       map(projects => projects.map(p => new Project(p)))
     );
+  }
+
+  checkPrimaryTagExists(primaryTag: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/check-primary-tag?tag=${primaryTag}`);
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -22,7 +22,57 @@ import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from 
 import { AuthService } from '../../../services/auth.service';
 import { SolutionDialogComponent } from '../../../components/solutions/solution-dialog/solution-dialog.component';
 import { SolutionDialogModule } from '../../../components/solutions/solution-dialog/solution-dialog.module';
-import { SolutionService, ComplexityLevel, SolutionStatus } from '../../../services/solution.service';
+import { SolutionService, ComplexityLevel, SolutionStatus, Solution as ServiceSolution, LogAnalysisRequest, DevelopersSolutions } from '../../../services/solution.service';
+import { Subscription } from 'rxjs';
+import { UserService } from '../../../services/user.service';
+
+// Define SimilarLog interface to match backend response format
+interface SimilarLog {
+  // Using 'any' interface to avoid property naming conflicts
+  [key: string]: any;
+}
+
+// Extend the DevelopersSolutions interface to include authorName
+interface ExtendedDeveloperSolution extends DevelopersSolutions {
+  authorName?: string;
+  severity?: string;
+}
+
+// Interface for AI-recommended solutions
+interface AIRecommendedSolution {
+  rootException: string;
+  cause: string;
+  location: string;
+  exceptionChain: string[];
+  recommendation: string;
+  confidence: number;
+  code?: string;
+}
+
+// Interface for developer community solutions
+interface DeveloperSolution {
+  id: number;
+  source: string; // 'StackOverflow', 'GitHub', 'MSDN', etc.
+  author: string;
+  title: string;
+  content: string;
+  code: string;
+  votes: number;
+  commentCount: number;
+  url: string;
+  postedDate: Date;
+  sourceIcon: string; // 'SO', 'GH', 'MS', etc.
+}
+
+// Define interface for Kanban columns in this component
+interface IssuePageKanbanColumn {
+  id: string;
+  name: string;
+  status: Status;
+  color: string;
+  icon: string;
+  tickets: Ticket[];
+}
 
 const LOW = ComplexityLevel.LOW;
 const MEDIUM = ComplexityLevel.MEDIUM;
@@ -47,7 +97,7 @@ const VERY_HIGH = ComplexityLevel.VERY_HIGH;
   templateUrl: './issue-page.component.html',
   styleUrl: './issue-page.component.css',
 })
-export class IssuePageComponent implements OnInit {
+export class IssuePageComponent implements OnInit, OnDestroy {
   Status = Status;
   Priority = Priority;
   ComplexityLevel = ComplexityLevel;
@@ -64,35 +114,110 @@ export class IssuePageComponent implements OnInit {
   activeTab: 'details' | 'tickets' | 'solutions' = 'details'; 
   ticket: Ticket | null = null;
   ticketsViewMode: 'list' | 'kanban' = 'kanban'; 
+  activeSolutionsTab: 'my-solutions' | 'developer-solutions' | 'ai-solutions' = 'my-solutions';
   
   occurrenceStats: {
     count: number;
     percentage: number;
     firstSeen: Date;
     lastSeen: Date;
-  } | null = null;
+  } | null = null;  
 
-  stackTrace: string = `TypeError: Cannot read property 'data' of undefined
-    at Object.getUsers (app.js:42)
-    at async fetchData (app.js:78)
-    at async Component.fetchUsers (UserList.js:23)
-    at async Component.componentDidMount (UserList.js:12)`;
+  stackTrace: string = this.log?.stackTrace || '';
 
-  solutions: any[] = [];  
+  solutions: any[] = [];
+  aiRecommendedSolution: AIRecommendedSolution | null = null;
+  developerSolutions: ExtendedDeveloperSolution[] = [];
+
+  showFullStackTrace: boolean = false;
+  readonly stackTraceLimit: number = 7;
+
+  // Store the current user role
+  userRole: string = '';
+  errorMessage: string | null = null;
+  // Define columns for the Kanban view in issue-page
+  kanbanColumns: IssuePageKanbanColumn[] = [
+    {
+      id: 'todoList',
+      name: 'To Do',
+      status: Status.TO_DO,
+      color: 'gray',
+      icon: 'assignment',
+      tickets: []
+    },
+    {
+      id: 'inProgressList',
+      name: 'In Progress',
+      status: Status.IN_PROGRESS,
+      color: 'blue',
+      icon: 'hourglass_empty',
+      tickets: []
+    },
+    {
+      id: 'resolvedList',
+      name: 'Resolved',
+      status: Status.RESOLVED,
+      color: 'green',
+      icon: 'task_alt',
+      tickets: []
+    },
+    {
+      id: 'mergedToTestList',
+      name: 'Merged To Test',
+      status: Status.MERGED_TO_TEST,
+      color: 'purple',
+      icon: 'merge_type',
+      tickets: []
+    },
+    {
+      id: 'doneList',
+      name: 'Done',
+      status: Status.DONE,
+      color: 'teal',
+      icon: 'done_all',
+      tickets: []
+    }
+  ];
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private logService: LogService,
     private ticketService: TicketService,
+    private userService: UserService,
     private staffService: StaffService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private errorService: ErrorService,
     private authService: AuthService,
     private solutionService: SolutionService
-  ) {}
+  ) {
+    // Initialize dark mode detection
+    this.checkDarkMode();
+    
+    // Get the current user role
+    const user = this.authService.getCurrentUser();
+    this.userRole = user?.role?.toUpperCase() || '';
+  }
 
+  private darkMode = false;
+
+  private checkDarkMode(): void {
+    // Check if the user prefers dark mode
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      this.darkMode = true;
+    }
+
+    // Listen for changes in color scheme preference
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      this.darkMode = e.matches;
+    });
+  }
+
+  isDarkMode(): boolean {
+    return this.darkMode;
+  }
+  private subscriptions = new Subscription();
   ngOnInit() {
     this.route.params.subscribe((params) => {
       if (params['id']) {
@@ -172,26 +297,30 @@ export class IssuePageComponent implements OnInit {
   }
 
   loadTicketsForIssue(logId: string) {
+    console.log('Starting to load tickets for logId:', logId);
     this.isLoading = true;
     this.ticketLoadError = false;
-
+  
     this.ticketService.getTicketsByLogId(logId).subscribe({
       next: (tickets) => {
-        this.tickets = tickets;
+        console.log('Received tickets from server:', tickets);
+        this.tickets = tickets; // Keep the main list
+        this.distributeTicketsToKanbanColumns(); // Distribute to Kanban columns
+        
         this.tickets.forEach((ticket) => {
           if (ticket.assignedToUserId) {
             this.loadUserDetails(ticket);
           }
-          
           this.loadSolutionForTicket(ticket);
         });
-        
+  
         this.isLoading = false;
+        console.log('Final tickets array:', this.tickets);
         console.log(`Found ${tickets.length} tickets for log ID: ${logId}`);
-        
         this.checkDeveloperPermission();
       },
       error: (error) => {
+        console.error('Error loading tickets:', error);
         this.tickets = [];
         this.ticketLoadError = true;
         this.isLoading = false;
@@ -203,6 +332,7 @@ export class IssuePageComponent implements OnInit {
           );
           this.loadAllTicketsAndFilterByLogId(logId);
         }
+        this.kanbanColumns.forEach(col => col.tickets = []); // Clear columns on error
       },
     });
   }
@@ -382,10 +512,6 @@ export class IssuePageComponent implements OnInit {
     this.router.navigate(['dashboard', 'tickets', ticket.id], { queryParams: { edit: true } });
   }
 
-  /**
-   * Opens the solution dialog to add or edit a solution
-   * @param ticket Optional ticket to edit solution for
-   */
   addSolution(ticket?: Ticket) {
     const ticketId = ticket?.id || (this.tickets.length > 0 ? this.tickets[0].id : undefined);
     
@@ -480,13 +606,9 @@ export class IssuePageComponent implements OnInit {
   }
 
   hasSolutions(): boolean {
-    // Ensure we check for valid solution objects
     return this.tickets.some(ticket => ticket.hasSolution && ticket.solution);
   }
-  
-  /**
-   * Returns the count of tickets that have solutions
-   */
+
   getSolutionsCount(): number {
     return this.tickets.filter(ticket => ticket.hasSolution && ticket.solution).length;
   }
@@ -495,82 +617,149 @@ export class IssuePageComponent implements OnInit {
     return this.tickets.length;
   }
 
-  getPendingTickets(): Ticket[] {
-    return this.tickets.filter(ticket => ticket.status === Status.PENDING);
+  getTodoTickets(): Ticket[] {
+    return this.kanbanColumns.find(col => col.id === 'todoList')?.tickets || [];
+  }
+
+  getInProgressTickets(): Ticket[] {
+    return this.kanbanColumns.find(col => col.id === 'inProgressList')?.tickets || [];
   }
 
   getResolvedTickets(): Ticket[] {
-    return this.tickets.filter(ticket => ticket.status === Status.RESOLVED);
+    return this.kanbanColumns.find(col => col.id === 'resolvedList')?.tickets || [];
   }
 
-  getVerifiedTickets(): Ticket[] {
-    return this.tickets.filter(ticket => ticket.status === Status.VERIFIED);
+  getDoneTickets(): Ticket[] {
+    return this.kanbanColumns.find(col => col.id === 'doneList')?.tickets || [];
   }
 
-  getPendingTicketsCount(): number {
-    return this.getPendingTickets().length;
+  getMergedTickets(): Ticket[] {
+    return this.kanbanColumns.find(col => col.id === 'mergedToTestList')?.tickets || [];
+  }
+
+  getTodoTicketsCount(): number {
+    return this.getTodoTickets().length;
+  }
+
+  getInProgressTicketsCount(): number {
+    return this.getInProgressTickets().length;
   }
 
   getResolvedTicketsCount(): number {
     return this.getResolvedTickets().length;
   }
 
-  getVerifiedTicketsCount(): number {
-    return this.getVerifiedTickets().length;
+  getDoneTicketsCount(): number {
+    return this.getDoneTickets().length;
   }
 
-  getMergedTickets(): Ticket[] {
-    return this.tickets.filter(ticket => ticket.status === Status.MERGED);
+  getMergedTicketsCount(): number {
+    return this.getMergedTickets().length;
   }
 
   /**
-   * Handles the drop event when a ticket is dragged and dropped between columns
-   * @param event The drag drop event
+   * Checks if a user is allowed to move a ticket to a specific status
+   * @param currentStatus The current status of the ticket
+   * @param newStatus The target status
+   * @returns boolean indicating if the transition is allowed
    */
+  isStatusTransitionAllowed(currentStatus: Status, newStatus: Status): boolean {
+    // Don't allow moving to the same status
+    if (currentStatus === newStatus) return false;
+
+    switch (this.userRole) {
+      case 'MANAGER':
+        // Managers can change to TO_DO or MERGED_TO_TEST
+        return newStatus === Status.TO_DO || newStatus === Status.MERGED_TO_TEST;
+
+      case 'DEVELOPER':
+        // Developers can change to IN_PROGRESS or RESOLVED
+        return newStatus === Status.IN_PROGRESS || newStatus === Status.RESOLVED;
+
+      case 'TESTER':
+        // Testers can change to DONE
+        return newStatus === Status.DONE;
+               
+      case 'ADMIN': 
+        // Admins can move tickets to any status
+        return true;
+
+      default:
+        // Default deny for unknown roles
+        return false;
+    }
+  }
+  
+  // Get all connected drop list IDs for drag-and-drop
+  getConnectedDropLists(): string[] {
+    return this.kanbanColumns.map(col => col.id);
+  }
+  
+  // Updated drop logic to use kanbanColumns and handle 5 columns
   drop(event: CdkDragDrop<Ticket[]>) {
-    if (event.previousContainer === event.container) {
-      // If dropped in the same container, just reorder
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    const previousListId = event.previousContainer.id;
+    const currentListId = event.container.id;
+    
+    // Find the source and target columns
+    const previousColumn = this.kanbanColumns.find(col => col.id === previousListId);
+    const currentColumn = this.kanbanColumns.find(col => col.id === currentListId);
+
+    if (!previousColumn || !currentColumn) {
+      console.error('Could not find source or target column during drop.');
+      return;
+    }
+
+    const movedTicket = previousColumn.tickets[event.previousIndex];
+    const newStatus = currentColumn.status;
+
+    // Check permissions if moving to a different column
+    if (previousColumn.id !== currentColumn.id) {
+       if (!this.isStatusTransitionAllowed(movedTicket.status, newStatus)) {
+          this.snackBar.open(`Your role (${this.userRole}) cannot move tickets from ${movedTicket.status} to ${newStatus}`, 'Close', {
+              duration: 4000,
+              panelClass: ['error-snackbar']
+          });
+          return; // Prevent the move
+       }
+    }
+
+    // Perform the move
+    if (previousColumn.id === currentColumn.id) {
+      // Reordering within the same column
+      moveItemInArray(currentColumn.tickets, event.previousIndex, event.currentIndex);
+      // Optionally: call backend to save order if needed
     } else {
-      // If dropped in a different container, move the item and update its status
+      // Moving to a different column
       transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
+        previousColumn.tickets,
+        currentColumn.tickets,
         event.previousIndex,
         event.currentIndex
       );
       
-      // Get the moved ticket
-      const movedTicket = event.container.data[event.currentIndex];
-      
-      // Update ticket status based on the destination container
-      let newStatus: Status | undefined;
-      
-      if (event.container.id === 'pendingList') {
-        newStatus = Status.PENDING;
-      } else if (event.container.id === 'resolvedList') {
-        newStatus = Status.RESOLVED;
-      } else if (event.container.id === 'verifiedList') {
-        newStatus = Status.VERIFIED;
-      }
-      
-      if (newStatus && movedTicket && movedTicket.id) {
-        this.updateTicketStatus(movedTicket.id, newStatus);
+      // Update the ticket status in the backend
+      if (movedTicket && movedTicket.id) {
+         movedTicket.status = newStatus; // Update status locally immediately for UI consistency
+         this.updateTicketStatus(movedTicket.id, newStatus);
       }
     }
+    console.log(`Moved ticket ${movedTicket.id} from ${previousListId} to ${currentListId}`);
   }
 
   updateTicketStatus(ticketId: number, status: Status): void {
     this.isLoading = true;
-    
+
     this.ticketService.updateTicketStatus(ticketId, status).subscribe({
       next: (updatedTicket) => {
-        // Find and update the ticket in our local array
+        // Find and update the ticket in the main 'tickets' array
         const index = this.tickets.findIndex(t => t.id === ticketId);
         if (index !== -1) {
           this.tickets[index] = updatedTicket;
         }
         
+        // Re-distribute tickets to ensure columns are up-to-date after backend confirmation
+        this.distributeTicketsToKanbanColumns();
+
         this.snackBar.open(`Ticket #${ticketId} status updated to ${status}`, 'Close', {
           duration: 3000,
           panelClass: ['success-snackbar']
@@ -578,7 +767,14 @@ export class IssuePageComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        this.errorService.handleError(error, 'Updating ticket status', true);
+       // ... (existing error handling)
+       
+        // Revert local changes and refresh from server on error
+        this.snackBar.open(`Failed to update ticket #${ticketId} status. Reverting change.`, 'Close', {
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        });
+        this.loadTicketsForIssue(this.issueId); // Reload to get original state
         this.isLoading = false;
       }
     });
@@ -606,9 +802,6 @@ export class IssuePageComponent implements OnInit {
     }
   }
 
-  /**
-   * Load occurrence statistics for the current log
-   */
   loadOccurrenceStats(logId: string) {
     this.logService.getLogOccurrenceStats(logId).subscribe({
       next: (stats) => {
@@ -622,10 +815,6 @@ export class IssuePageComponent implements OnInit {
     });
   }
 
-  /**
-   * Get the occurrence count for this issue
-   * Returns the API data if available, otherwise falls back to heuristic calculation
-   */
   getOccurrenceCount(): string {
     // Use API data if available
     if (this.occurrenceStats?.count) {
@@ -653,10 +842,6 @@ export class IssuePageComponent implements OnInit {
     return count >= 1000 ? `${(count/1000).toFixed(1)}k` : count.toString();
   }
   
-  /**
-   * Get the percentage for the progress bar
-   * Uses API data if available, otherwise falls back to heuristic calculation
-   */
   getOccurrencePercentage(): number {
     if (this.occurrenceStats?.percentage) {
       return this.occurrenceStats.percentage;
@@ -672,10 +857,6 @@ export class IssuePageComponent implements OnInit {
     return Math.min(95, Math.max(10, severityFactor + handledAdjustment));
   }
   
-  /**
-   * Get a human-readable time description since the first occurrence
-   * Uses API data if available, otherwise falls back to log timestamp
-   */
   getTimeAgo(): string {
     // Use API data if available
     if (this.occurrenceStats?.firstSeen) {
@@ -726,10 +907,6 @@ export class IssuePageComponent implements OnInit {
     }
   }
 
-  /**
-   * Loads the solution for a specific ticket
-   * @param ticket The ticket to load the solution for
-   */
   loadSolutionForTicket(ticket: Ticket): void {
     if (!ticket.id) return;
     
@@ -756,57 +933,351 @@ export class IssuePageComponent implements OnInit {
     });
   }
 
-  // Helper methods for template
-  
-  /**
-   * Safely gets a property from the solution object
-   */
-  getSolutionProperty(ticket: Ticket, property: string): any {
-    if (!ticket || !ticket.solution) return null;
-    
-    // Access the property with safety checks
-    return (ticket.solution as any)[property];
-  }
-  
-  /**
-   * Gets the solution content, falling back to description if needed
-   */
   getSolutionContent(ticket: Ticket): string {
     if (!ticket || !ticket.solution) return 'No description available';
     
+    const solution = ticket.solution as unknown as ServiceSolution;
     // Try content first, then fall back to description
-    return (ticket.solution as any).content || 
-           (ticket.solution as any).description || 
-           'No description available';
+    return solution.content || solution.title || 'No description available';
   }
   
-  /**
-   * Gets complexity-based CSS classes for styling
-   */
+  getSolutionProperty(ticket: Ticket, property: keyof ServiceSolution): any {
+    if (!ticket || !ticket.solution) return null;
+    
+    const solution = ticket.solution as unknown as ServiceSolution;
+    return solution[property];
+  }
+
   getComplexityClass(ticket: Ticket): any {
     if (!ticket || !ticket.solution) return {};
     
-    const complexity = (ticket.solution as any).complexity;
+    const solution = ticket.solution as unknown as ServiceSolution;
+    const complexity = solution.complexity;
     
     return {
-      'text-green-600 dark:text-green-400': complexity === LOW,
-      'text-yellow-600 dark:text-yellow-400': complexity === MEDIUM,
-      'text-orange-600 dark:text-orange-400': complexity === HIGH,
-      'text-red-600 dark:text-red-400': complexity === VERY_HIGH
+      'text-green-600 dark:text-green-400': complexity === ComplexityLevel.LOW,
+      'text-yellow-600 dark:text-yellow-400': complexity === ComplexityLevel.MEDIUM,
+      'text-orange-600 dark:text-orange-400': complexity === ComplexityLevel.HIGH,
+      'text-red-600 dark:text-red-400': complexity === ComplexityLevel.VERY_HIGH
     };
   }
 
-  /**
-   * Check if the issue is handled based on whether any of its tickets have solutions
-   * @returns boolean indicating if the issue is handled
-   */
   isIssueHandled(): boolean {
-    // If there are no tickets yet, use the original handled property from the log
     if (!this.tickets || this.tickets.length === 0) {
       return this.log?.handled || false;
     }
-    
-    // Consider the issue handled if any ticket has a solution
     return this.hasSolutions();
   }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+  
+  // Add this new method to handle tab changes
+  onSolutionsTabChange(newTab: 'my-solutions' | 'developer-solutions' | 'ai-solutions'): void {
+    console.log('Solutions tab changed to:', newTab);
+    this.activeSolutionsTab = newTab;
+    
+    if (newTab === 'developer-solutions') {
+      console.log('Loading developer solutions...');
+      // Get stack trace from the log
+      const stackTrace = this.log?.stackTrace || '';
+     
+      console.log('Using stack trace:', stackTrace);
+      
+      if (stackTrace) {
+      
+        this.getSolutionRecommendations(stackTrace);
+      } else {
+        console.warn('No stack trace available');
+        this.errorMessage = 'No stack trace available to analyze';
+      }
+    }
+  }
+
+  /**
+   * Get solution recommendations based on log message
+   * @param logMessage The log message to analyze
+   */
+  getSolutionRecommendations(logMessage: string): void {
+    console.log('Starting getSolutionRecommendations with log message:', logMessage);
+    this.isLoading = true;
+    this.errorMessage = null;
+    
+    // Make sure we have a log message
+    if (!logMessage) {
+      console.warn('No log message provided');
+      this.errorMessage = 'No log message available to analyze';
+      this.isLoading = false;
+      return;
+    }
+    const request: LogAnalysisRequest = {
+      logMessage: logMessage
+    };
+    
+    console.log('Sending request to solution service:', request);
+    
+    const subscription = this.solutionService.getRecommendations(request)
+      .subscribe({
+        next: (response) => {
+          console.log('Received raw response from API:', response);
+          this.isLoading = false;
+          
+          if (response.similar_logs && response.similar_logs.length > 0) {
+            console.log('Found similar logs:', response.similar_logs);
+            
+            // Filter out solutions that belong to the current issue
+            const currentTicketIds = this.tickets.map(t => t.id);
+            const filteredLogs = response.similar_logs.filter((log: any) => {
+              const logTicketId = log.ticket_id;
+              console.log(`Checking log with ticket_id ${logTicketId} against current tickets:`, currentTicketIds);
+              return !currentTicketIds.includes(logTicketId);
+            });
+            
+            if (filteredLogs.length === 0) {
+              this.developerSolutions = [];
+              this.errorMessage = 'No external solutions found for this issue';
+              return;
+            }
+            
+            // Process and map the logs to developer solutions
+            this.developerSolutions = [];
+            
+            filteredLogs.forEach((log: any) => {
+              const solution: ExtendedDeveloperSolution = {
+                id: log.log_id || log.ticket_id || 0,
+                source: 'Log Database',
+                author: log.solution_author_user_id,
+                title: log.solution_title || 'Similar Error',
+                content: log.solution_content || 'No solution content available',
+                code: this.extractCodeFromSolution(log.solution_content) || '',
+                votes: 0,
+                commentCount: 0,
+                url: '',
+                postedDate: new Date(),
+                sourceIcon: this.getSourceIconFromTypes(log.detected_types || []),
+                similarity: log.similarity || log.term_match || '0',
+                errorType: log.error_type || '',
+                detectedTypes: Array.isArray(log.detected_types) ? log.detected_types : [],
+                exceptionTypes: Array.isArray(log.exception_types) ? log.exception_types : [],
+                severity: log.severity || 'MEDIUM'
+              };
+              
+              this.developerSolutions.push(solution);
+              
+              // Fetch author name if ID is available
+              if (log.solution_author_user_id && typeof log.solution_author_user_id === 'number') {
+                  this.userService.getUserById(log.solution_author_user_id.toString()).subscribe({
+                  next: (user) => {
+                    // Update the solution with author name
+                    const index = this.developerSolutions.findIndex(s => s.id === solution.id);
+                    if (index !== -1) {
+                      (this.developerSolutions[index] as ExtendedDeveloperSolution).authorName = 
+                          user.email|| `User ${log.solution_author_user_id}`;
+                    }
+                  },
+                  error: () => {
+                    // Handle error - set a default author name
+                    const index = this.developerSolutions.findIndex(s => s.id === solution.id);
+                    if (index !== -1) {
+                      (this.developerSolutions[index] as ExtendedDeveloperSolution).authorName = 
+                        `Unknown (ID: ${log.solution_author_user_id})`;
+                    }
+                  }
+                });
+              }
+            });
+          } else {
+            this.developerSolutions = [];
+            this.errorMessage = 'No similar solutions found';
+          }
+          
+          console.log(`Final developerSolutions array (${this.developerSolutions.length} items):`, this.developerSolutions);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.errorMessage = 'Failed to load recommendations';
+          console.error('Error getting recommendations:', error);
+          if (error.error && error.error.message) {
+            this.errorMessage = `Failed to load recommendations: ${error.error.message}`;
+          }
+        }
+      });
+    
+    this.subscriptions.add(subscription);
+ 
+  }
+
+  /**
+   * Extract code snippets from solution content if present
+   */
+  private extractCodeFromSolution(solutionContent: string | undefined): string {
+    if (!solutionContent) return '';
+    
+    // Simple implementation: extract content between backticks or code blocks
+    const codeMatch = solutionContent.match(/```[\s\S]*?```/);
+    if (codeMatch) {
+      return codeMatch[0].replace(/```/g, '').trim();
+    }
+    
+    // If no code block found, look for inline code
+    const inlineCodeMatches = solutionContent.match(/`[\s\S]*?`/g);
+    if (inlineCodeMatches && inlineCodeMatches.length > 0) {
+      return inlineCodeMatches
+        .map(match => match.replace(/`/g, ''))
+        .join('\n\n');
+    }
+    
+    return '';
+  }
+
+  /**
+   * Open the source URL in a new tab
+   */
+  openSourceUrl(url: string): void {
+    if (url) {
+      window.open(url, '_blank');
+    }
+  }
+
+  applyAIFix(): void {
+    this.snackBar.open('Fix applied successfully! The issue has been patched.', 'Close', {
+      duration: 5000,
+      panelClass: ['success-snackbar']
+    });
+  }
+
+  exportAISolution(): void {
+    this.snackBar.open('Solution exported to clipboard', 'Close', {
+      duration: 3000
+    });
+  }
+
+  markAsSolutionHelpful(): void {
+    this.snackBar.open('Thank you for your feedback!', 'Close', {
+      duration: 3000
+    });
+  }
+
+  copySolutionCode(solution: DeveloperSolution | ExtendedDeveloperSolution): void {
+    // In a real app, this would copy to clipboard
+    this.snackBar.open('Code copied to clipboard!', 'Close', {
+      duration: 3000
+    });
+  }
+
+  viewMoreDeveloperSolutions(): void {
+    this.snackBar.open('Loading more community solutions...', 'Close', {
+      duration: 3000
+    });
+  }
+
+  editSolution(ticket: Ticket): void {
+    if (!ticket.solution) return;
+    
+    const dialogRef = this.dialog.open(SolutionDialogComponent, {
+      width: '800px',
+      data: {
+        ticketId: ticket.id,
+        existingSolution: ticket.solution
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadSolutionForTicket(ticket);
+      }
+    });
+  }
+
+  getStackTrace(): string {
+    if (!this.log?.stackTrace) return '';
+    const lines = this.log.stackTrace.split('\n');
+    if (!this.showFullStackTrace && lines.length > this.stackTraceLimit) {
+      return lines.slice(0, this.stackTraceLimit).join('\n') + '\n...';
+    }
+    return this.log.stackTrace;
+  }
+
+  toggleStackTrace(): void {
+    this.showFullStackTrace = !this.showFullStackTrace;
+    console.log(this.log);
+  }
+
+  /** Distribute tickets to the appropriate Kanban columns */
+  distributeTicketsToKanbanColumns(): void {
+    // Clear existing tickets in columns
+    this.kanbanColumns.forEach(column => column.tickets = []);
+    
+    // Get current user ID for developer filtering
+    const userStr = localStorage.getItem('user');
+    const userData = userStr ? JSON.parse(userStr) : null;
+    const currentUserId = userData?.id;
+    
+    // Assign tickets to columns based on status
+    this.tickets.forEach(ticket => {
+      const targetColumn = this.kanbanColumns.find(col => col.status === ticket.status);
+      if (targetColumn) {
+        // Special filtering for TO_DO column based on user role
+        if (targetColumn.id === 'todoList') {
+          // For managers: only show unassigned tickets (tickets to be assigned)
+          if (this.userRole === 'MANAGER') {
+            if (!ticket.assignedToUserId) {
+              targetColumn.tickets.push(ticket);
+            }
+          }
+          // For developers: only show tickets assigned to them
+          else if (this.userRole === 'DEVELOPER') {
+            if (ticket.assignedToUserId && currentUserId && 
+                ticket.assignedToUserId.toString() === currentUserId.toString()) {
+              targetColumn.tickets.push(ticket);
+            }
+          }
+          // For other roles (testers, admins), show all tickets
+          else {
+            targetColumn.tickets.push(ticket);
+          }
+        }
+        // For all other columns, add tickets normally
+        else {
+          targetColumn.tickets.push(ticket);
+        }
+      } else {
+        // Fallback to 'To Do' if status doesn't match any column
+        const todoColumn = this.kanbanColumns.find(col => col.id === 'todoList');
+        if (todoColumn) {
+          // Apply same role-based filtering for fallback
+          if (this.userRole === 'MANAGER') {
+            if (!ticket.assignedToUserId) {
+              todoColumn.tickets.push(ticket);
+            }
+          } else if (this.userRole === 'DEVELOPER') {
+            if (ticket.assignedToUserId && currentUserId && 
+                ticket.assignedToUserId.toString() === currentUserId.toString()) {
+              todoColumn.tickets.push(ticket);
+            }
+          } else {
+            todoColumn.tickets.push(ticket);
+          }
+        } else {
+           console.warn(`Ticket ${ticket.id} has unknown status ${ticket.status} and no 'To Do' column found.`);
+        }
+      }
+    });
+    console.log('Distributed tickets to Kanban columns:', this.kanbanColumns);
+  }
+
+  private getSourceIconFromTypes(types: string[]): string {
+    if (!types || types.length === 0) return 'DB';
+    
+    // Map error types to appropriate icons
+    if (types.some(t => t.toLowerCase().includes('database'))) return 'DB';
+    if (types.some(t => t.toLowerCase().includes('api'))) return 'API';
+    if (types.some(t => t.toLowerCase().includes('web'))) return 'WEB';
+    if (types.some(t => t.toLowerCase().includes('security'))) return 'SEC';
+    
+    return 'DB'; // Default icon
+  }
 }
+
+

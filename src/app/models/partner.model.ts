@@ -10,6 +10,7 @@ export interface PartnerResponse{
   company: string;
   lien: string;
   accountLocked:boolean;
+  createdAt: Date;
 }
 export interface PartnerRequest {
     firstname: string;
@@ -22,6 +23,7 @@ export interface PartnerRequest {
     company: string;
     lien: string;
     accountLocked:boolean;
+    createdAt: Date;
   }
 export interface PartnerAccountStatusRequest{
   accountLocked:boolean;

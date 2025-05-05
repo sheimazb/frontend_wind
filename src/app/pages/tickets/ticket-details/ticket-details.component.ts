@@ -17,7 +17,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 
-import { TicketService, Ticket, TicketStatus, TicketPriority, Comment, SolutionRequest, Solution } from '../../../services/ticket.service';
+import { TicketService, Ticket, Status, Priority, Comment, SolutionRequest, Solution } from '../../../services/ticket.service';
 import { ErrorService } from '../../../services/error.service';
 
 @Component({
@@ -47,6 +47,10 @@ import { ErrorService } from '../../../services/error.service';
   styleUrl: './ticket-details.component.css'
 })
 export class TicketDetailsComponent implements OnInit {
+  // Make enum types accessible to the template
+  Status = Status;
+  Priority = Priority;
+  
   ticketId: string | null = null;
   ticket: Ticket | null = null;
   comments: Comment[] = [];
@@ -125,8 +129,8 @@ export class TicketDetailsComponent implements OnInit {
         this.isLoading = false;
         
         // If ticket has solution, load it
-        if (this.ticket.hasSolution && this.ticket.solutionId) {
-          this.loadSolution(this.ticket.solutionId);
+        if (this.ticket.hasSolution && this.ticket.solution?.id) {
+          this.loadSolution(this.ticket.solution.id);
         }
       },
       error: (error) => {
@@ -139,7 +143,7 @@ export class TicketDetailsComponent implements OnInit {
   /**
    * Loads the solution for the ticket
    */
-  loadSolution(solutionId: string | number): void {
+  loadSolution(solutionId: number): void {
     this.isLoadingSolution = true;
     
     this.ticketService.getTicketSolution(solutionId).subscribe({
@@ -183,7 +187,7 @@ export class TicketDetailsComponent implements OnInit {
       content: this.newCommentContent
     };
     
-    this.ticketService.addComment(commentRequest).subscribe({
+    this.ticketService.addComment(this.ticketId, this.newCommentContent).subscribe({
       next: () => {
         this.snackBar.open('Comment added successfully', 'Close', { duration: 3000 });
         this.newCommentContent = '';
@@ -256,10 +260,10 @@ export class TicketDetailsComponent implements OnInit {
   /**
    * Update ticket status
    */
-  updateStatus(status: TicketStatus): void {
+  updateStatus(status: Status): void {
     if (!this.ticketId || !this.ticket) return;
     
-    this.ticketService.updateTicket(this.ticketId, { status }).subscribe({
+    this.ticketService.updateTicket(this.ticketId, { status, tenant: this.ticket.tenant }).subscribe({
       next: () => {
         this.snackBar.open(`Ticket status updated to ${status}`, 'Close', { duration: 3000 });
         this.loadTicket();
@@ -273,10 +277,10 @@ export class TicketDetailsComponent implements OnInit {
   /**
    * Update ticket priority
    */
-  updatePriority(priority: TicketPriority): void {
+  updatePriority(priority: Priority): void {
     if (!this.ticketId || !this.ticket) return;
     
-    this.ticketService.updateTicket(this.ticketId, { priority }).subscribe({
+    this.ticketService.updateTicket(this.ticketId, { priority, tenant: this.ticket.tenant }).subscribe({
       next: () => {
         this.snackBar.open(`Ticket priority updated to ${priority}`, 'Close', { duration: 3000 });
         this.loadTicket();
@@ -291,7 +295,7 @@ export class TicketDetailsComponent implements OnInit {
    * Check if the current user created this ticket
    */
   isCreatedByCurrentUser(): boolean {
-    return this.ticket?.userId?.toString() === this.currentUserId;
+    return this.ticket?.creatorUserId?.toString() === this.currentUserId;
   }
   
   /**
@@ -314,12 +318,12 @@ export class TicketDetailsComponent implements OnInit {
   /**
    * Get CSS class for priority
    */
-  getPriorityClass(priority: TicketPriority): string {
+  getPriorityClass(priority: Priority): string {
     switch (priority) {
-      case 'LOW': return 'priority-low';
-      case 'MEDIUM': return 'priority-medium';
-      case 'HIGH': return 'priority-high';
-      case 'CRITICAL': return 'priority-critical';
+      case Priority.LOW: return 'priority-low';
+      case Priority.MEDIUM: return 'priority-medium';
+      case Priority.HIGH: return 'priority-high';
+      case Priority.CRITICAL: return 'priority-critical';
       default: return '';
     }
   }
@@ -327,11 +331,13 @@ export class TicketDetailsComponent implements OnInit {
   /**
    * Get CSS class for status
    */
-  getStatusClass(status: TicketStatus): string {
+  getStatusClass(status: Status): string {
     switch (status) {
-      case 'PENDING': return 'status-pending';
-      case 'RESOLVED': return 'status-resolved';
-      case 'VERIFIED': return 'status-verified';
+      case Status.TO_DO: return 'status-pending';
+      case Status.IN_PROGRESS: return 'status-in-progress';
+      case Status.RESOLVED: return 'status-resolved';
+      case Status.MERGED_TO_TEST: return 'status-verified';
+      case Status.DONE: return 'status-done';
       default: return '';
     }
   }

@@ -92,7 +92,7 @@
             <span class="info-label">Related to log:</span>
             <span class="info-value">
               <a [routerLink]="['/dashboard/issues-details', ticket.logId]">
-                {{ticket.logId}} ({{ticket.logType || 'Unknown type'}})
+                {{ticket.logId}} ({{ticket.title}})
               </a>
             </span>
           </div>
@@ -102,21 +102,31 @@
       <mat-card-actions>
         <button mat-button color="primary" 
                 [matMenuTriggerFor]="statusMenu" 
-                [disabled]="ticket.status === 'VERIFIED'">
+                [disabled]="ticket.status === Status.DONE">
           Change Status
         </button>
         <mat-menu #statusMenu="matMenu">
-          <button mat-menu-item (click)="updateStatus('PENDING')" *ngIf="ticket.status !== 'PENDING'">
+          <button mat-menu-item (click)="updateStatus(Status.TO_DO)" *ngIf="ticket.status !== Status.TO_DO">
             <mat-icon class="status-pending-icon">pending</mat-icon>
-            <span>Mark as Pending</span>
+            <span>Mark as To Do</span>
           </button>
-          <button mat-menu-item (click)="updateStatus('RESOLVED')" *ngIf="ticket.status !== 'RESOLVED'">
+          <button mat-menu-item (click)="updateStatus(Status.IN_PROGRESS)" *ngIf="ticket.status !== Status.IN_PROGRESS">
+            <mat-icon class="status-in-progress-icon">hourglass_empty</mat-icon>
+            <span>Mark as In Progress</span>
+          </button>
+          <button mat-menu-item (click)="updateStatus(Status.RESOLVED)" *ngIf="ticket.status !== Status.RESOLVED">
             <mat-icon class="status-resolved-icon">check_circle</mat-icon>
             <span>Mark as Resolved</span>
           </button>
-          <button mat-menu-item (click)="updateStatus('VERIFIED')" *ngIf="ticket.status !== 'VERIFIED'">
-            <mat-icon class="status-verified-icon">verified</mat-icon>
-            <span>Mark as Verified</span>
+          <button mat-menu-item (click)="updateStatus(Status.MERGED_TO_TEST)" *ngIf="ticket.status !== Status.MERGED_TO_TEST">
+            <mat-icon class="status-verified-icon">merge_type</mat-icon>
+            <span>Mark as Merged to Test</span>
+          </button>
+          <button mat-menu-item (click)="updateStatus(Status.DONE)" 
+                  [disabled]="userRole === 'DEVELOPER'" 
+                  *ngIf="ticket.status !== Status.DONE">
+            <mat-icon class="status-done-icon">done_all</mat-icon>
+            <span>Mark as Done</span>
           </button>
         </mat-menu>
 
@@ -124,19 +134,19 @@
           Change Priority
         </button>
         <mat-menu #priorityMenu="matMenu">
-          <button mat-menu-item (click)="updatePriority('LOW')" *ngIf="ticket.priority !== 'LOW'">
+          <button mat-menu-item (click)="updatePriority(Priority.LOW)" *ngIf="ticket.priority !== 'LOW'">
             <mat-icon class="priority-low-icon">arrow_downward</mat-icon>
             <span>Low</span>
           </button>
-          <button mat-menu-item (click)="updatePriority('MEDIUM')" *ngIf="ticket.priority !== 'MEDIUM'">
+          <button mat-menu-item (click)="updatePriority(Priority.MEDIUM)" *ngIf="ticket.priority !== 'MEDIUM'">
             <mat-icon>remove</mat-icon>
             <span>Medium</span>
           </button>
-          <button mat-menu-item (click)="updatePriority('HIGH')" *ngIf="ticket.priority !== 'HIGH'">
+          <button mat-menu-item (click)="updatePriority(Priority.HIGH)" *ngIf="ticket.priority !== 'HIGH'">
             <mat-icon class="priority-high-icon">arrow_upward</mat-icon>
             <span>High</span>
           </button>
-          <button mat-menu-item (click)="updatePriority('CRITICAL')" *ngIf="ticket.priority !== 'CRITICAL'">
+          <button mat-menu-item (click)="updatePriority(Priority.CRITICAL)" *ngIf="ticket.priority !== 'CRITICAL'">
             <mat-icon class="priority-critical-icon">priority_high</mat-icon>
             <span>Critical</span>
           </button>
@@ -241,7 +251,7 @@
           <p *ngIf="!ticket.hasSolution" class="no-items-message">No solution has been provided yet.</p>
 
           <!-- Add solution form -->
-          <div class="add-solution-section" *ngIf="!ticket.hasSolution || ticket.status !== 'VERIFIED'">
+          <div class="add-solution-section" *ngIf="true">
             <h3>{{ticket.hasSolution ? 'Update Solution' : 'Add Solution'}}</h3>
             
             <mat-form-field appearance="outline" class="full-width">

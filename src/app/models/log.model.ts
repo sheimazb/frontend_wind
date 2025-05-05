@@ -19,7 +19,10 @@ export interface Log {
     thread?: string;
     tag?: string;
     handled?: boolean;
-    originalTimestamp?:string;
+    originalTimestamp?:string;  
+    stackTrace?: string;
+    exceptionType?: string;
+    analysis?: Record<string, any>;
 }
 
 export enum LogType {

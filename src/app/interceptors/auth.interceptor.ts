@@ -17,7 +17,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     'auth/reset-password',
     'auth/reset_password',
     'auth/verify-and-change-password',
-    'auth/request-password-change'
+    'auth/request-password-change',
+    'auth/activate-account',
+    'auth/validation-account'
   ];
 
   // Special routes that need token but should not redirect on failure
@@ -48,55 +50,35 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     }));
   }
 
-  // Clone the request with auth header
-  const modifiedReq = req.clone({
-    setHeaders: {
-      Authorization: `Bearer ${token}`,
-      ...(!(req.body instanceof FormData) && {'Content-Type': 'application/json'})
+  // Clone request with new headers
+  let modifiedReq = req.clone();
+
+  if (token) {
+    // Format token properly - remove any existing Bearer prefix first
+    const cleanToken = token.replace(/^Bearer\s+/i, '');
+    const tokenValue = `Bearer ${cleanToken}`;
+
+    // Create headers object
+    let headers = req.headers.set('Authorization', tokenValue);
+
+    // Only set Content-Type if not FormData
+    if (!(req.body instanceof FormData)) {
+      headers = headers.set('Content-Type', 'application/json');
     }
-  });
 
-  // Additional logging specifically for Authorization header
-  console.log('Authorization header:', {
+    // Clone the request with headers
+    modifiedReq = req.clone({ headers });
+  }
+
+  // Debug logging for all requests
+  console.log('Request details:', {
     url: req.url,
+    method: req.method,
     hasToken: !!token,
-    tokenLength: token ? token.length : 0,
-    isBearer: token && token.startsWith('Bearer ') ? 'Yes' : 'No (adding Bearer prefix)'
-  });
-
-  // Log headers for debugging project creation requests
-  if (req.url.includes('/projects/create')) {
-    console.log('Project creation request headers:', {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    });
-  }
-  
-  // Log headers for debugging staff creation requests
-  if (req.url.includes('/employees/create-staff')) {
-    console.log('Staff creation request headers:', {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    });
-  }
-  
-  // Log detailed information for ticket API requests
-  if (req.url.includes('/tickets')) {
-    console.log('Ticket API request details:', {
-      method: req.method,
-      url: req.url,
-      headers: {
-        Authorization: `Bearer ${token?.substring(0, 10)}...`, // Truncate for security
-        ContentType: modifiedReq.headers.get('Content-Type')
-      },
-      body: req.method === 'POST' ? req.body : '(not logged for non-POST)'
-    });
-  }
-
-  console.log('Adding auth header:', {
-    url: req.url,
-    token: token ? 'Present' : 'Missing',
-    headers: modifiedReq.headers.keys()
+    headers: modifiedReq.headers.keys(),
+    authHeader: modifiedReq.headers.get('Authorization'),
+    contentType: modifiedReq.headers.get('Content-Type'),
+    isFormData: req.body instanceof FormData
   });
 
   return next(modifiedReq).pipe(
@@ -113,6 +95,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       if (error.status === 403) {
+        // Log additional information for debugging
+        console.error('Permission denied:', {
+          url: req.url,
+          method: req.method,
+          userToken: token ? 'Present' : 'Missing',
+          headers: modifiedReq.headers.keys(),
+          authHeader: modifiedReq.headers.get('Authorization'),
+          contentType: modifiedReq.headers.get('Content-Type')
+        });
+
         return throwError(() => ({
           status: 403,
           message: 'You do not have permission to perform this action'

@@ -101,3 +101,34 @@ html.dark .mat-mdc-dialog-container {
   --mdc-dialog-container-color: #1e293b;
   color: white;
 }
+
+/* Custom dialog container styles */
+.custom-dialog-container {
+  max-width: 100vw !important;
+}
+
+.custom-dialog-container .mat-mdc-dialog-container {
+  padding: 0 !important;
+  border-radius: 1rem !important;
+  background: transparent !important;
+  color: white !important;
+  overflow: visible !important;
+}
+
+.custom-dialog-container .mdc-dialog__surface {
+  overflow: visible !important;
+  border-radius: 1rem !important;
+  background-color: transparent !important;
+}
+
+/* Dialog backdrop styles */
+.dialog-backdrop {
+  background: rgba(17, 16, 54, 0.7) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* Dialog animation */
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-elevation: none !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}

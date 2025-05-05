@@ -1,3 +1,211 @@
 h1{
     margin-bottom: 0px;
 }
+
+/* Add styles for the small icons used in ticket cards */
+.icon-xs {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  line-height: 16px !important;
+}
+
+/* Style for disabled drag items */
+.cursor-not-allowed {
+  opacity: 0.8;
+}
+
+/* Indicate locked items with a subtle style */
+[cdkDragDisabled] {
+  position: relative;
+}
+
+/* Error snackbar style */
+::ng-deep .error-snackbar {
+  background-color: #f44336;
+  color: white;
+}
+
+/* Success snackbar style */
+::ng-deep .success-snackbar {
+  background-color: #4caf50;
+  color: white;
+}
+
+/* Kanban Board Styling - Copied from kanban-board.component.css */
+.kanban-board {
+  display: grid;
+  /* Adjusted to 5 columns */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+  gap: 0.75rem;
+  margin: 0 0.25rem;
+  width: 100%; /* Allow it to fill container */
+  padding-bottom: 1rem; /* Add some padding at the bottom */
+}
+
+/* Ensure grid has 5 columns on medium screens and up */
+@media (min-width: 1280px) { /* Adjust breakpoint as needed */
+  .kanban-board {
+    grid-template-columns: repeat(5, minmax(280px, 1fr));
+  }
+}
+
+/* Column Styles */
+.kanban-column {
+  background-color: white;
+  border-radius: 0.375rem; /* Slightly larger radius */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* Adjust height dynamically */
+  min-height: 300px; 
+  max-height: calc(100vh - 300px); /* Example max height */
+  width: auto; /* Let grid handle width */
+  border: 1px solid #e5e7eb; /* Add subtle border */
+}
+
+.dark .kanban-column {
+  background-color: #1f2937;
+  border-color: #374151;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.column-header {
+  padding: 0.75rem 1rem; /* More padding */
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #ffffff; /* Light background for header */
+}
+
+.dark .column-header {
+  background-color: #374151; /* Darker header */
+  border-bottom-color: #4b5563;
+}
+
+.column-header h3 {
+  font-size: 0.875rem; /* Slightly larger font */
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dark .column-header h3 {
+  color: #d1d5db;
+}
+
+.column-content {
+  padding: 0.75rem;
+  flex: 1;
+  overflow-y: auto;
+  background-color: rgba(204, 203, 206, 0.534); /* Slightly off-white background */
+}
+
+.dark .column-content {
+   background-color: #111827; /* Match dark background */
+}
+
+/* Card Styles - Similar to kanban-board */
+.ticket-card {
+  background: white;
+  border-radius: 0.375rem;
+  margin-bottom: 0.75rem; /* More space */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  cursor: grab; /* Indicate draggable */
+  transition: all 0.2s ease-in-out;
+  border-left-width: 4px;
+  overflow: hidden;
+  position: relative; /* Needed for absolute positioning inside */
+}
+
+.dark .ticket-card {
+  background-color: #2d3748;
+  color: #e5e7eb;
+  border-color: transparent; /* Adjust if needed */
+}
+
+.ticket-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.07);
+}
+
+.dark .ticket-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Style for the drag handle area if needed */
+.cdkDragHandle { 
+  /* Add styles if you want a specific handle */
+}
+
+/* Styles for ticket content inside card */
+.ticket-card .p-3 { /* Assuming content is wrapped in p-3 */
+  padding: 0.75rem;
+}
+
+.ticket-card .line-clamp-1 {
+  /* Ensure title doesn't wrap excessively */
+}
+
+.ticket-card .line-clamp-2 {
+ /* Ensure description doesn't wrap excessively */
+}
+
+/* Priority pills */
+.priority-pill {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  line-height: 1.2;
+}
+
+/* Drop zone highlight */
+.drop-zone-highlight .column-content { /* Highlight the content area */
+  background-color: rgba(59, 130, 246, 0.1);
+  outline: 2px dashed #3b82f6;
+  outline-offset: -4px;
+  transition: background-color 0.2s ease, outline 0.2s ease;
+}
+
+.dark .drop-zone-highlight .column-content {
+  background-color: rgba(59, 130, 246, 0.15);
+  outline-color: #60a5fa;
+}
+
+/* Drag placeholder style */
+.cdk-drag-placeholder {
+  opacity: 0.3;
+  background: #e0e7ff;
+  border: 1px dashed #a5b4fc;
+  min-height: 60px;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  border-radius: 0.375rem;
+  margin-bottom: 0.75rem;
+}
+
+.dark .cdk-drag-placeholder {
+  background: #312e81;
+  border-color: #4f46e5;
+}
+
+/* Drag preview style */
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 0.375rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  /* Styles copied from .ticket-card */
+  background: white;
+  margin-bottom: 0.75rem;
+  cursor: grabbing;
+  border-left-width: 4px;
+  overflow: hidden;
+  position: relative; 
+}
+.dark .cdk-drag-preview {
+   background-color: #2d3748;
+   color: #e5e7eb;
+}

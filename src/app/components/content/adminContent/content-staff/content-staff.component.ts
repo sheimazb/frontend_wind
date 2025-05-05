@@ -1,86 +1,129 @@
-import { Component, inject, OnInit} from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import {MatTooltipModule} from '@angular/material/tooltip';
-import { FormsModule } from '@angular/forms';
-import {MatDialog} from '@angular/material/dialog';
-import { DialogStaffComponent ,DialogData } from '../../../dialog/dialog-staff/dialog-staff.component';
+import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogStaffComponent } from '../../../dialog/dialog-staff/dialog-staff.component';
 import { StaffService } from '../../../../services/staff.service';
 import { User } from '../../../../models/user.model';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-content-staff',
   standalone: true,
-  imports: [CommonModule,MatIconModule,FormsModule,MatDividerModule,MatMenuModule,MatFormFieldModule,RouterModule,MatTooltipModule],
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatDividerModule,
+    MatTooltipModule,
+    FormsModule
+  ],
   templateUrl: './content-staff.component.html',
-  styleUrl: './content-staff.component.css'
+  styleUrls: ['./content-staff.component.css']
 })
-
-
-
 export class ContentStaffComponent implements OnInit {
-  constructor(private router: Router, private staffService: StaffService, private route: ActivatedRoute) {}
-
   staff: User[] = [];
   filteredStaff: User[] = [];
-  isLoading = false;
+  isLoading = true;
   errorMessage = '';
   searchQuery = '';
+  selectedRole: string = 'ALL';
+  viewMode: 'grid' | 'list' = 'grid';
 
-  readonly dialog = inject(MatDialog);
+  constructor(
+    private dialog: MatDialog,
+    private staffService: StaffService,
+    private router: Router
+  ) {
+    // Load saved view mode preference
+    const savedViewMode = localStorage.getItem('staffViewMode');
+    if (savedViewMode === 'grid' || savedViewMode === 'list') {
+      this.viewMode = savedViewMode;
+    }
+  }
 
   ngOnInit(): void {
     this.loadStaff();
-   
   }
-
 
   loadStaff(): void {
     this.isLoading = true;
-    this.staffService.getStaffByPartnerTenant().subscribe((staff) => {
-      this.staff = staff;
-      this.filteredStaff = staff;
-      this.isLoading = false;
-    }, (error) => {
-      this.errorMessage = 'Failed to load staff. Please try again later.',error;
-      this.isLoading = false;
-    });
-  }
-
-  onSearchStaff(event: Event): void {
-    const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
-    this.searchQuery = searchTerm;
-
-    if (!searchTerm) {
-      this.filteredStaff = this.staff;
-    } else {
-      this.filteredStaff = this.staff.filter(staff => 
-        staff.firstname.toLowerCase().includes(searchTerm) ||
-        staff.lastname.toLowerCase().includes(searchTerm) ||
-        staff.email.toLowerCase().includes(searchTerm)
-      );
-    }
-  }
- 
-  openDialog(): void {
-    const dialogRef = this.dialog.open(DialogStaffComponent, {
-      width: '400px', // Optional: Adjust dialog size
-      data: { name: '', animal: '' } as DialogData,
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log('Dialog result:', result);
-      if (result) {
-        console.log(`Saved Data: Name = ${result.name}, Animal = ${result.animal}`);
+    this.staffService.getStaffByPartnerTenant().subscribe({
+      next: (staffList) => {
+        // Sort staff by ID in descending order (newest first)
+        this.staff = staffList.sort((a, b) => {
+          // Assuming id is a number. If it's a string, use localeCompare
+          return (b.id ?? 0) - (a.id ?? 0);
+        });
+        this.applyFilters();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading staff:', error);
+        this.errorMessage = 'Failed to load staff members. Please try again later.';
+        this.isLoading = false;
       }
     });
-  } 
+  }
 
-  onStaffDetailsClick(id: number) {
+  openDialog(): void {
+    const dialogRef = this.dialog.open(DialogStaffComponent, {
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.success) {
+        this.loadStaff();
+      }
+    });
+  }
+
+  onSearchStaff(event: any): void {
+    this.searchQuery = event.target.value;
+    this.applyFilters();
+  }
+
+  onRoleFilter(): void {
+    this.applyFilters();
+  }
+
+  private applyFilters(): void {
+    let filtered = [...this.staff];
+
+    // Apply search filter
+    if (this.searchQuery.trim()) {
+      filtered = this.staffService.searchStaff(filtered, this.searchQuery);
+    }
+
+    // Apply role filter
+    if (this.selectedRole !== 'ALL') {
+      filtered = this.staffService.filterStaffByRole(filtered, this.selectedRole);
+    }
+
+    this.filteredStaff = filtered;
+  }
+
+  toggleViewMode(): void {
+    this.viewMode = this.viewMode === 'grid' ? 'list' : 'grid';
+    localStorage.setItem('staffViewMode', this.viewMode);
+  }
+
+  getRoleClass(role: string): string {
+    switch (role) {
+      case 'DEVELOPER':
+        return 'bg-blue-100/80 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
+      case 'TESTER':
+        return 'bg-green-100/80 text-green-700 dark:bg-green-900/30 dark:text-green-300';
+      case 'MANAGER':
+        return 'bg-purple-100/80 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300';
+      default:
+        return 'bg-gray-100/80 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';
+    }
+  }
+
+  onStaffDetailsClick(id: number): void {
     this.router.navigate(['/dashboard/staff-details', id]);
   }
 }

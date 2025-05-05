@@ -106,7 +106,7 @@
         </ng-container>
 
         <!-- Issues button - Manager and Developer -->
-        <ng-container *ngIf="isManager || isDeveloper">
+        <ng-container *ngIf="isManager || isDeveloper || isTester">
           <button
             class="sidebar-btn"
             [class.active-sidebar-btn]="activeMenu === 'issues'"
@@ -169,23 +169,21 @@
           </button>
         </ng-container>
 -->
-        <!-- Kanban Board - Technical Team 
-        <ng-container *ngIf="isTechnicalTeam">
-          <button
-            class="sidebar-btn"
-            [class.active-sidebar-btn]="activeMenu === 'kanban'"
-            (click)="onKanbanClick()"
-            routerLink="/dashboard/kanban"
-          >
-            <ng-icon
-              class="text-gray-500 hover:text-gray-300"
-              size="25"
-              name="letsBoxes"
-            ></ng-icon>
-            <span class="sr-only">Kanban Board</span>
-          </button>
-        </ng-container>
--->
+        <!-- Kanban Board - For all users -->
+        <button
+          class="sidebar-btn"
+          [class.active-sidebar-btn]="activeMenu === 'kanban'"
+          (click)="onKanbanClick()"
+          title="Kanban Board"
+        >
+          <ng-icon
+            class="text-gray-500 hover:text-gray-300"
+            size="25"
+            name="letsBoxes"
+          ></ng-icon>
+          <span class="sr-only">Kanban Board</span>
+        </button>
+
         <!-- Agencies button - Admin Only
         <ng-container *ngIf="isAdmin">
           <button 

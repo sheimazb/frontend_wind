@@ -12,8 +12,8 @@
             class="dark:bg-gray-700 bg-white dark:text-white text-black p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             placeholder="Enter your firstname"
           />
-          <small class="text-red-500" *ngIf="contactForm.get('firstname')?.invalid && contactForm.get('firstname')?.touched">
-            First name is required.
+          <small class="text-red-500" *ngIf="firstnameErrors">
+            {{ firstnameErrors }}
           </small>
         </div>
 
@@ -27,8 +27,8 @@
             class="dark:bg-gray-700 bg-white dark:text-white text-black p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             placeholder="Enter your lastname"
           />
-          <small class="text-red-500" *ngIf="contactForm.get('lastname')?.invalid && contactForm.get('lastname')?.touched">
-            Last name is required.
+          <small class="text-red-500" *ngIf="lastnameErrors">
+            {{ lastnameErrors }}
           </small>
         </div>
 
@@ -42,8 +42,8 @@
             class="dark:bg-gray-700 bg-white dark:text-white text-black  p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             placeholder="Enter your email"
           />
-          <small class="text-red-500" *ngIf="contactForm.get('email')?.invalid && contactForm.get('email')?.touched">
-            Valid email is required.
+          <small class="text-red-500" *ngIf="emailErrors">
+            {{ emailErrors }}
           </small>
         </div>
 
@@ -61,27 +61,12 @@
               <span class="dark:text-white text-black">Manager</span>
             </mat-radio-button>
           </mat-radio-group>
-          <small class="text-red-500" *ngIf="contactForm.get('role')?.invalid && contactForm.get('role')?.touched">
-            Role selection is required.
+          <small class="text-red-500" *ngIf="roleErrors">
+            {{ roleErrors }}
           </small>
         </div>
 
       
-          <!-- Message Field
-          <div class="flex flex-col">
-            <label for="message" class="dark:text-white font-medium mb-2">Project</label>
-            <select
-            id="subject"
-            name="subject"
-            class="mt-1 block w-full px-4 py-2 bg-white dark:bg-gray-700 text-black dark:text-white border border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option disabled selected>Select project</option>
-            <option>Project 1</option>
-            <option>Project 2</option>
-            <option>Project 3</option>
-          </select>
-          
-          </div> -->
       </div>
 
       <!-- Submit Button -->
@@ -98,7 +83,7 @@
           type="submit"
           [disabled]="!contactForm.valid"
           class="dark:text-blue-200 p-3 rounded-sm h-fit"
-          [ngClass]="{'opacity-50 cursor-not-allowed': !contactForm.valid}"
+          [ngClass]="{'opacity-50 cursor-not-allowed': !contactForm.valid, 'bg-blue-500 hover:bg-blue-600': contactForm.valid}"
         >
           <b>Submit</b>
         </button>

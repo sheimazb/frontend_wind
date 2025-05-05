@@ -38,6 +38,9 @@ export class ProfileComponent implements OnInit {
   showSuccess = false;
   errorMessage = '';
   profileImage = '';
+  currentMonth = 'Jan';
+  currentYear = new Date().getFullYear();
+  totalContributions = 0;
 
   profileData: ProfileData = {
     firstname: '',
@@ -59,6 +62,7 @@ export class ProfileComponent implements OnInit {
 
   constructor(private dialog: MatDialog, private userService: UserService) {
     this.generateContributionData();
+    this.calculateTotalContributions();
   }
 
   ngOnInit(): void {
@@ -251,12 +255,19 @@ export class ProfileComponent implements OnInit {
       image: response.image || '',
     };
     this.profileImage = response.image || '';
+    
+    // Note: The userService.profileChanges observable now handles 
+    // propagating this update to the navbar automatically!
+    
     this.isEditing = false;
     this.selectedImageFile = null;
     this.showSuccess = true;
     setTimeout(() => (this.showSuccess = false), 3000);
     this.originalData = { ...this.profileData };
     this.isLoading = false;
+    
+    // Log the successful update for debugging
+    console.log('Profile successfully updated and shared via UserService');
   }
 
   onImageChange(event: Event): void {
@@ -309,10 +320,21 @@ export class ProfileComponent implements OnInit {
 
   getContributionColor(count: number): string {
     if (count === 0) return 'bg-gray-200 dark:bg-gray-700';
-    if (count <= 2) return 'bg-purple-200 dark:bg-purple-900';
-    if (count <= 5) return 'bg-purple-300 dark:bg-purple-700';
-    if (count <= 8) return 'bg-purple-400 dark:bg-purple-500';
-    return 'bg-purple-500 dark:bg-purple-300';
+    if (count <= 2) return 'bg-blue-200 dark:bg-blue-900';
+    if (count <= 5) return 'bg-blue-300 dark:bg-blue-700';
+    if (count <= 8) return 'bg-blue-400 dark:bg-blue-500';
+    return 'bg-blue-500 dark:bg-blue-300';
+  }
+
+  selectMonth(month: string): void {
+    this.currentMonth = month;
+    // Here you can add logic to filter contributions by month
+  }
+
+  private calculateTotalContributions(): void {
+    this.totalContributions = this.weeks.reduce((total, week) => {
+      return total + week.reduce((weekTotal, day) => weekTotal + day.count, 0);
+    }, 0);
   }
 
   private generateContributionData(): void {

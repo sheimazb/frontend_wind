@@ -259,62 +259,50 @@ interface StaffMember {
             <div class="ticket-header flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
               <h2 class="ticket-title text-2xl font-medium text-gray-900">{{ticket.title}}</h2>
               <div class="ticket-meta flex gap-1 items-center">
-              <ng-container *ngIf="ticket.status; else unknownStatus">
-  <div [ngClass]="{
-    'bg-orange-100 text-orange-900': ticket.status === 'PENDING',
-    'bg-green-100 text-green-900': ticket.status === 'RESOLVED',
-    'bg-purple-100 text-purple-900': ticket.status === 'VERIFIED'
-  }" class="inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-medium rounded-full shadow-sm">
-    <mat-icon [ngClass]="{
-      'text-orange-700': ticket.status === 'PENDING',
-      'text-green-700': ticket.status === 'RESOLVED',
-      'text-purple-700': ticket.status === 'VERIFIED'
-    }" class="text-base">{{ getStatusIcon(ticket.status) }}</mat-icon>
-    <span>{{ticket.status}}</span>
-  </div>
-</ng-container>
+                <ng-container *ngIf="ticket.status; else unknownStatus">
+                  <div [ngClass]="{
+                    'bg-orange-100 text-orange-900': ticket.status === Status.TO_DO,
+                    'bg-green-100 text-green-900': ticket.status === Status.RESOLVED,
+                    'bg-purple-100 text-purple-900': ticket.status === Status.DONE
+                  }" class="inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-medium rounded-full shadow-sm">
+                    <mat-icon [ngClass]="{
+                      'text-orange-700': ticket.status === Status.TO_DO,
+                      'text-green-700': ticket.status === Status.RESOLVED,
+                      'text-purple-700': ticket.status === Status.DONE
+                    }" class="text-base">{{ getStatusIcon(ticket.status) }}</mat-icon>
+                    <span>{{ticket.status}}</span>
+                  </div>
+                </ng-container>
 
-<ng-template #unknownStatus>
-  <div class="inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-medium rounded-full shadow-sm bg-gray-200 text-gray-600">
-    <mat-icon class="text-base text-gray-500">help_outline</mat-icon>
-    <span>Unknown</span>
-  </div>
-</ng-template>
                 <ng-template #unknownStatus>
-                  <mat-chip class="inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-medium rounded-full shadow-sm bg-gray-200 text-gray-600">
-                    <mat-icon class="text-base">help_outline</mat-icon>
+                  <div class="inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-medium rounded-full shadow-sm bg-gray-200 text-gray-600">
+                    <mat-icon class="text-base text-gray-500">help_outline</mat-icon>
                     <span>Unknown</span>
-                  </mat-chip>
+                  </div>
                 </ng-template>
 
                 <ng-container *ngIf="ticket.priority; else unknownPriority">
-  <div [ngClass]="{
-    'bg-green-100 text-green-900': ticket.priority === 'LOW',
-    'bg-orange-100 text-orange-900': ticket.priority === 'MEDIUM',
-    'bg-red-100 text-red-900': ticket.priority === 'HIGH',
-    'bg-red-800 text-white': ticket.priority === 'CRITICAL'
-  }" class="inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-medium rounded-full shadow-sm">
-    <mat-icon [ngClass]="{
-      'text-green-700': ticket.priority === 'LOW',
-      'text-orange-700': ticket.priority === 'MEDIUM',
-      'text-red-700': ticket.priority === 'HIGH',
-      'text-white': ticket.priority === 'CRITICAL'
-    }" class="text-base">{{ getPriorityIcon(ticket.priority) }}</mat-icon>
-    <span>{{ticket.priority}}</span>
-  </div>
-</ng-container>
+                  <div [ngClass]="{
+                    'bg-green-100 text-green-900': ticket.priority === Priority.LOW,
+                    'bg-orange-100 text-orange-900': ticket.priority === Priority.MEDIUM,
+                    'bg-red-100 text-red-900': ticket.priority === Priority.HIGH,
+                    'bg-red-800 text-white': ticket.priority === Priority.CRITICAL
+                  }" class="inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-medium rounded-full shadow-sm">
+                    <mat-icon [ngClass]="{
+                      'text-green-700': ticket.priority === Priority.LOW,
+                      'text-orange-700': ticket.priority === Priority.MEDIUM,
+                      'text-red-700': ticket.priority === Priority.HIGH,
+                      'text-white': ticket.priority === Priority.CRITICAL
+                    }" class="text-base">{{ getPriorityIcon(ticket.priority) }}</mat-icon>
+                    <span>{{ticket.priority}}</span>
+                  </div>
+                </ng-container>
 
-<ng-template #unknownPriority>
-  <div class="inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-medium rounded-full shadow-sm bg-gray-200 text-gray-600">
-    <mat-icon class="text-base text-gray-500">help_outline</mat-icon>
-    <span>Unknown</span>
-  </div>
-</ng-template>
                 <ng-template #unknownPriority>
-                  <mat-chip class="inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-medium rounded-full shadow-sm bg-gray-200 text-gray-600">
-                    <mat-icon class="text-base">help_outline</mat-icon>
+                  <div class="inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-medium rounded-full shadow-sm bg-gray-200 text-gray-600">
+                    <mat-icon class="text-base text-gray-500">help_outline</mat-icon>
                     <span>Unknown</span>
-                  </mat-chip>
+                  </div>
                 </ng-template>
               </div>
             </div>
@@ -386,7 +374,7 @@ interface StaffMember {
                   <button 
                     type="button"
                     (click)="addComment()"
-                    [disabled]="!newComment?.trim()"
+                    [disabled]="!newComment.trim()"
                     class="px-4 py-2 border border-transparent rounded-r-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
                     <mat-icon>send</mat-icon>
@@ -414,7 +402,7 @@ interface StaffMember {
             </div>
 
             <!-- Solution Section -->
-            <div class="solution-section mt-8 pt-6 border-t border-gray-200" *ngIf="ticket?.status === 'RESOLVED' || ticket?.status === 'VERIFIED'">
+            <div class="solution-section mt-8 pt-6 border-t border-gray-200" *ngIf="ticket?.status === Status.RESOLVED || ticket?.status === Status.DONE">
               <h3 class="flex items-center gap-2 text-lg font-medium text-gray-700 mb-4">
                 <mat-icon>lightbulb</mat-icon> 
                 Solution
@@ -479,6 +467,8 @@ export class TicketDetailsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   currentUserId: string | null = null;
   newComment = '';
+  Status = Status;
+  Priority = Priority;
 
   constructor(
     private route: ActivatedRoute,
@@ -494,8 +484,8 @@ export class TicketDetailsComponent implements OnInit, OnDestroy {
     this.ticketForm = this.fb.group({
       title: ['', Validators.required],
       description: ['', Validators.required],
-      status: ['PENDING', Validators.required],
-      priority: ['MEDIUM', Validators.required],
+      status: [Status.TO_DO, Validators.required],
+      priority: [Priority.MEDIUM, Validators.required],
       assignedToUserId: [null]
     });
 
@@ -701,7 +691,7 @@ export class TicketDetailsComponent implements OnInit, OnDestroy {
   }
 
   addComment() {
-    if (!this.ticket?.id || !this.newComment?.trim()) return;
+    if (!this.ticket?.id || !this.newComment.trim()) return;
     this.isLoading = true;
     this.ticketService.addComment(this.ticket.id, this.newComment).subscribe({
       next: (comment) => {
@@ -788,11 +778,11 @@ export class TicketDetailsComponent implements OnInit, OnDestroy {
   getStatusIcon(status: string | null | undefined): string {
     if (!status) return 'help_outline';
     switch (status) {
-      case 'PENDING': return 'hourglass_empty';
-      case 'IN_PROGRESS': return 'pending';
-      case 'RESOLVED': return 'check_circle';
-      case 'VERIFIED': return 'verified';
-      case 'CLOSED': return 'task_alt';
+      case Status.TO_DO: return 'hourglass_empty';
+      case Status.IN_PROGRESS: return 'pending';
+      case Status.RESOLVED: return 'check_circle';
+      case Status.MERGED_TO_TEST: return 'verified';
+      case Status.DONE: return 'task_alt';
       default: return 'help_outline';
     }
   }
@@ -800,10 +790,10 @@ export class TicketDetailsComponent implements OnInit, OnDestroy {
   getPriorityIcon(priority: string | null | undefined): string {
     if (!priority) return 'help_outline';
     switch (priority) {
-      case 'LOW': return 'arrow_downward';
-      case 'MEDIUM': return 'remove';
-      case 'HIGH': return 'arrow_upward';
-      case 'CRITICAL': return 'priority_high';
+      case Priority.LOW: return 'arrow_downward';
+      case Priority.MEDIUM: return 'remove';
+      case Priority.HIGH: return 'arrow_upward';
+      case Priority.CRITICAL: return 'priority_high';
       default: return 'help_outline';
     }
   }

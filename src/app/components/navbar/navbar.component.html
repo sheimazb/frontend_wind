@@ -216,11 +216,36 @@
               />
             </svg>
           </a>
-          <!--Notification-->
+         <!-- Notification -->
           <a
-            class="relative flex h-10 w-10 items-center justify-center rounded-full border-[0.5px] border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-[#202045] text-gray-700 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
+            class="relative flex h-10 w-10 items-center justify-center rounded-full border-[0.5px] border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-[#202045] text-gray-700 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300 notification-icon"
             href="#"
+            (click)="toggleNotificationsMenu(); $event.preventDefault()"
           >
+            <!-- WebSocket connection status indicator -->
+            <div 
+              *ngIf="currentUser"
+              class="absolute -left-1 -top-1 z-1 h-2 w-2 rounded-full"
+              [ngClass]="websocketConnected ? 'bg-green-500' : 'bg-red-500'"
+              [title]="websocketConnected ? 'Connected to notifications' : 'Notification connection offline'"
+            >
+              <div
+                *ngIf="websocketConnected"
+                class="absolute -z-1 inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75"
+              ></div>
+            </div>
+
+            <!-- Notification badge indicator -->
+            <span
+              *ngIf="unreadNotificationsCount > 0"
+              class="absolute -right-0.5 -top-0.5 z-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-medium"
+            >
+              {{ unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount }}
+              <span
+                class="absolute -z-1 inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75"
+              ></span>
+            </span>
+
             <svg
               class="fill-current duration-300 ease-in-out"
               width="18"
@@ -235,6 +260,144 @@
               />
             </svg>
           </a>
+
+          <!-- Notifications dropdown -->
+          <div
+            class="absolute right-0 top-full mt-4 w-80 z-50 rounded-md shadow-lg transform origin-top-right transition-all duration-200 ease-out notification-dropdown"
+            [class.hidden]="!showNotifications"
+            [class.opacity-0]="!showNotifications"
+            [class.scale-95]="!showNotifications"
+            [class.opacity-100]="showNotifications"
+            [class.scale-100]="showNotifications"
+            style="max-height: 400px; overflow-y: auto; right: 100px;"
+          >
+            <div class="bg-white dark:bg-[#161639] rounded-md shadow-lg border border-gray-200 dark:border-gray-700">
+              <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-sm font-semibold text-gray-800 dark:text-white">Notifications</h3>
+                  <div class="flex items-center gap-2">
+                    <span *ngIf="unreadNotificationsCount > 0" class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      {{ unreadNotificationsCount }} New
+                    </span>
+                    <button 
+                      (click)="refreshNotifications(); $event.stopPropagation();"
+                      class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                      title="Refresh notifications"
+                      [disabled]="isLoadingNotifications"
+                    >
+                      <svg *ngIf="!isLoadingNotifications" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      <svg *ngIf="isLoadingNotifications" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                <!-- Loading state -->
+                <div *ngIf="isLoadingNotifications" class="px-4 py-6 text-center">
+                  <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-400 dark:border-gray-600"></div>
+                  <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Loading notifications...</p>
+                </div>
+                
+                <!-- Empty state - only show when not loading -->
+                <div *ngIf="notifications.length === 0 && !isLoadingNotifications" class="px-4 py-6 text-center">
+                  <p class="text-sm text-gray-500 dark:text-gray-400">No notifications</p>
+                </div>
+
+                <!-- Notification items - only show when not loading -->
+                <ng-container *ngIf="!isLoadingNotifications">
+                  <ng-container *ngFor="let n of notifications; trackBy: trackById">
+                    <div class="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-150 border-l-4 relative"
+                         [class.border-l-blue-500]="!n.read"
+                         [class.border-l-transparent]="n.read"
+                         [class.bg-blue-50]="!n.read" 
+                         [class.dark:bg-blue-900]="!n.read"
+                         >
+                      <!-- Unread indicator -->
+                      <span *ngIf="!n.read" class="absolute right-2 top-2 h-2 w-2 rounded-full bg-blue-500"></span>
+                      
+                      <div class="flex items-start">
+                        <div class="flex-shrink-0 mt-0.5">
+                          <div class="h-8 w-8 rounded-full flex items-center justify-center"
+                               [class.bg-red-100]="n.type === 'error'"
+                               [class.bg-yellow-100]="n.type === 'warning'"
+                               [class.bg-blue-100]="n.type === 'info'"
+                               [class.bg-green-100]="n.type === 'success'">
+                            
+                            <svg *ngIf="n.type === 'error'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 dark:text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                            
+                            <svg *ngIf="n.type === 'warning'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500 dark:text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            
+                            <svg *ngIf="n.type === 'info'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 dark:text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                            
+                            <svg *ngIf="n.type === 'success'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 dark:text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                          </div>
+                        </div>
+                        
+                        <div class="ml-3 flex-1">
+                          <div class="flex items-center">
+                            <p class="text-sm font-medium text-gray-800 dark:text-white">{{ n.title }}</p>
+                            <span *ngIf="!n.read" class="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">New</span>
+                          </div>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">{{ n.message }}</p>
+                          <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">{{ n.timeAgo }}</p>
+                        </div>
+                        
+                        <button 
+                          class="ml-2 flex flex-col items-center text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                          (click)="markAsRead(n.id)"
+                          title="Mark as read"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span class="text-[10px] mt-1">Read</span>
+                        </button>
+                      </div>
+                    </div>
+                  </ng-container>
+                </ng-container>
+              </div>
+
+              <div class="px-4 py-3 text-center border-t border-gray-200 dark:border-gray-700 flex justify-between">
+                <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                  View all notifications
+                </a>
+                <div class="flex items-center gap-2">
+                  <button 
+                    *ngIf="unreadNotificationsCount > 0"
+                    (click)="markAllAsRead()"
+                    class="text-sm font-medium text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
+                  >
+                    Mark all as read
+                  </button>
+                  
+                  <!-- Test notification button (remove in production) -->
+                  <button 
+                    *ngIf="environment?.production === false"
+                    (click)="sendTestNotification(); $event.stopPropagation();"
+                    class="text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                    title="Send test notification"
+                  >
+                    Test
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div class="relative">
             <a
@@ -259,8 +422,8 @@
               >
                 <img
                   src="https://cdn3d.iconscout.com/3d/premium/thumb/administrator-3d-icon-download-in-png-blend-fbx-gltf-file-formats--male-management-employee-supervisor-administration-avatar-pack-people-icons-4741054.png"
-                  alt="Profile Image"
-                  class="rounded-full h-12 w-12"
+                  alt="Admin Profile"
+                  class="rounded-full h-12 w-12 object-cover ring-2 ring-gray-200 dark:ring-gray-600"
                 />
               </span>
 
@@ -269,9 +432,10 @@
                 class="h-12 w-14 rounded-full flex items-center"
               >
                 <img
-                  [src]="profileImage"
+                  [src]="profileImage || defaultProfileImage"
+                  (error)="onImageError($event)"
                   alt="Profile Image"
-                  class="rounded-full h-12 w-12"
+                  class="rounded-full h-12 w-12 object-cover ring-2 ring-gray-200 dark:ring-gray-600"
                 />
               </span>
 
@@ -350,7 +514,7 @@
                   </button>
                 </li>
               </ul>
-            </div>
+            </div>  
           </div>
         </div>
       </div>

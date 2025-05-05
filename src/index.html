@@ -10,9 +10,19 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bree+Serif&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&display=swap" rel="stylesheet">
 
+  <!-- SockJS polyfills -->
+  <script>
+    window.global = window;
+    window.process = { env: { DEBUG: undefined } };
+    if (!window.Buffer) {
+      window.Buffer = {
+        isBuffer: function() { return false; }
+      };
+    }
+  </script>
 </head>
 <body class="mat-typography">
   <app-root></app-root>

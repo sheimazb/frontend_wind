@@ -13,8 +13,9 @@ export class Project {
     id: number = 0;
     name: string = '';
     description: string = '';
-    technologies: string | string[] = '';  // Can be either string or string[]
+    technologies: string[] = [];
     repositoryLink: string = '';
+    projectTag: string = '';
     progressPercentage: number = 0;
     deadlineDate: string = new Date().toISOString().split('T')[0];  // Format as YYYY-MM-DD
     membersCount: number = 0;
@@ -37,14 +38,15 @@ export class Project {
     completedTasks: number = 0;
     inProgressTasks: number = 0;
     pendingTasks: number = 0;
+    logo?: File | string | null;  // Logo can be a File (when uploading), a string URL (from server), or null
 
     constructor(init?: Partial<Project>) {
         if (init) {
             // Handle technologies specially
             if (init.technologies) {
                 this.technologies = Array.isArray(init.technologies) ? 
-                    init.technologies.join(',') : 
-                    init.technologies;
+                    init.technologies : 
+                    [init.technologies];
             }
             
             // Handle dates
@@ -64,6 +66,9 @@ export class Project {
 
             // Handle progress
             this.progress = init.progress || init.progressPercentage || 0;
+
+            // Handle logo
+            this.logo = init.logo || null;
 
             // Handle all other properties
             Object.assign(this, {

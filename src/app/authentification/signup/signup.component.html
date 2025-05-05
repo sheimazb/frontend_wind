@@ -1,4 +1,5 @@
-<body class="bg-gradient-radial from-[#1d2038] via-[#111036] to-[#111036] min-h-screen">
+<!-- Main Container -->
+<div class="relative bg-gradient-radial from-[#1d2038] via-[#111036] to-[#111036] min-h-screen">
   <!-- ===== Page Wrapper Start ===== -->
   <div class="relative flex h-screen w-full overflow-hidden">
     <div class="flex flex-1 flex-col p-6 sm:p-8">
@@ -13,7 +14,7 @@
 
       <div class="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
         <!-- Signup Box with Glossy Effect -->
-        <div class="relative bg-[#362C45]/30 backdrop-blur-md rounded-xl  p-8 shadow-2xl border border-white/10">
+        <div class="relative bg-[#362C45]/30 backdrop-blur-md rounded-xl p-8 shadow-2xl border border-white/10">
           <div class="mb-8">
             <h1 class="mb-2 text-3xl font-bold text-white">
               Sign Up
@@ -24,34 +25,7 @@
           </div>
 
           <div>
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
-              <button class="inline-flex items-center justify-center gap-3 rounded-lg bg-white/10 px-7 py-3 text-sm font-normal text-white/90 transition-all hover:bg-white/20 hover:text-white">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M18.7511 10.1944C18.7511 9.47495 18.6915 8.94995 18.5626 8.40552H10.1797V11.6527H15.1003C15.0011 12.4597 14.4654 13.675 13.2749 14.4916L13.2582 14.6003L15.9087 16.6126L16.0924 16.6305C17.7788 15.1041 18.7511 12.8583 18.7511 10.1944Z" fill="#4285F4"/>
-                  <path d="M10.1788 18.75C12.5895 18.75 14.6133 17.9722 16.0915 16.6305L13.274 14.4916C12.5201 15.0068 11.5081 15.3666 10.1788 15.3666C7.81773 15.3666 5.81379 13.8402 5.09944 11.7305L4.99473 11.7392L2.23868 13.8295L2.20264 13.9277C3.67087 16.786 6.68674 18.75 10.1788 18.75Z" fill="#34A853"/>
-                  <path d="M5.10014 11.7305C4.91165 11.186 4.80257 10.6027 4.80257 9.99992C4.80257 9.3971 4.91165 8.81379 5.09022 8.26935L5.08523 8.1534L2.29464 6.02954L2.20333 6.0721C1.5982 7.25823 1.25098 8.5902 1.25098 9.99992C1.25098 11.4096 1.5982 12.7415 2.20333 13.9277L5.10014 11.7305Z" fill="#FBBC05"/>
-                  <path d="M10.1789 4.63331C11.8554 4.63331 12.9864 5.34303 13.6312 5.93612L16.1511 3.525C14.6035 2.11528 12.5895 1.25 10.1789 1.25C6.68676 1.25 3.67088 3.21387 2.20264 6.07218L5.08953 8.26943C5.81381 6.15972 7.81776 4.63331 10.1789 4.63331Z" fill="#EB4335"/>
-                </svg>
-                Sign up with Google
-              </button>
-              <button class="inline-flex items-center justify-center gap-3 rounded-lg bg-white/10 px-7 py-3 text-sm font-normal text-white/90 transition-all hover:bg-white/20 hover:text-white">
-                <svg class="fill-current" width="20" height="20" viewBox="0 0 24 24">
-                  <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
-                </svg>
-                Sign up with Github
-              </button>
-            </div>
-
-            <div class="relative py-5">
-              <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-white/10"></div>
-              </div>
-              <div class="relative flex justify-center">
-                <span class="bg-[#362C45]/30 px-4 text-white/50">Or</span>
-              </div>
-            </div>
-
-            <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+           <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
               <div class="space-y-5">
                 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <!-- First Name -->
@@ -125,6 +99,34 @@
                   </div>
                 </div>
 
+                <!-- Confirm Password -->
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-white/90">
+                    Confirm Password<span class="text-[#E1567C]">*</span>
+                  </label>
+                  <div class="relative">
+                    <input [type]="showPassword ? 'text' : 'password'" formControlName="confirmPassword" placeholder="Confirm your password"
+                      class="h-11 w-full rounded-lg border border-white/10 bg-[#111036]/50 px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-[#E1567C] focus:outline-none focus:ring-2 focus:ring-[#E1567C]/20 transition-all"
+                      [ngClass]="{'border-[#E1567C]': (signupForm.get('confirmPassword')?.invalid && signupForm.get('confirmPassword')?.touched) || 
+                        (signupForm.hasError('passwordsNotMatching') && signupForm.get('confirmPassword')?.touched)}"
+                    />
+                    <span (click)="togglePasswordVisibility()" class="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-white/50 hover:text-white/80 transition-colors">
+                      <svg *ngIf="!showPassword" class="fill-current" width="22" height="22" viewBox="0 0 24 24">
+                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                      </svg>
+                      <svg *ngIf="showPassword" class="fill-current" width="22" height="22" viewBox="0 0 24 24">
+                        <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+                      </svg>
+                    </span>
+                  </div>
+                  <div *ngIf="(signupForm.get('confirmPassword')?.invalid && signupForm.get('confirmPassword')?.touched) || 
+                    (signupForm.hasError('passwordsNotMatching') && signupForm.get('confirmPassword')?.touched)" 
+                    class="mt-1 text-sm text-[#E1567C]">
+                    <span *ngIf="signupForm.get('confirmPassword')?.errors?.['required']">Confirm password is required</span>
+                    <span *ngIf="signupForm.hasError('passwordsNotMatching')">Passwords do not match</span>
+                  </div>
+                </div>
+
                 <button type="submit" [disabled]="signupForm.invalid || isLoading"
                   class="w-full rounded-lg bg-gradient-to-r from-[#E1567C] to-[#9F3996] px-8 py-3 text-white font-medium shadow-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#E1567C]/50 disabled:opacity-50 transition-all duration-200">
                   <span *ngIf="!isLoading">Sign Up</span>
@@ -154,7 +156,7 @@
 
     <!-- Right Side with Logo -->
     <div class="relative hidden lg:flex flex-1 items-center justify-center" style="background-image: url('https://img.freepik.com/vecteurs-libre/fond-connexion-reseau-degrade_23-2148880711.jpg'); background-size: cover; background-position: center;">
-      <div class="absolute inset-0 bg-black/20  backdrop-blur-md"></div>
+      <div class="absolute inset-0 bg-black/20 backdrop-blur-md"></div>
       <div class="flex max-w-xs flex-col items-center relative z-10">
         <a href="/" class="mb-6 block transform hover:scale-105 transition-transform">
           <img src="assets/darkLogo.png" alt="WindLogs Logo" class="h-24 w-auto"/>
@@ -165,4 +167,4 @@
       </div>
     </div>
   </div>
-</body>
+</div>

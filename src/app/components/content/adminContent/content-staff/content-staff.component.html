@@ -1,91 +1,197 @@
 <div class="flex flex-col max-w-screen-2xl gap-4 p-4 sm:p-6 md:p-10 mx-auto">
-  <!-- Section 1 -->
+  <!-- Header Section -->
   <div class="flex flex-col sm:flex-row justify-between gap-4 sm:gap-2">
     <div>
-      <p
-        class="dark:text-gray-200  text-gray-700 font-bree text-2xl sm:text-3xl md:text-4xl flex items-center gap-2"
-      >
+      <p class="dark:text-gray-200 text-gray-700 font-bree text-2xl sm:text-3xl md:text-4xl flex items-center gap-2">
         Staff
         <mat-icon
           class="text-gray-400 cursor-help"
           matTooltip="You can add a new tester or developer here and also manage their roles. Enjoy using our service in an easy way! 😊"
           [matTooltipPosition]="'right'"
-          >help</mat-icon
-        >
+        >help</mat-icon>
       </p>
     </div>
-    <button
-    (click)="openDialog()"
-    class="h-fit border px-6 py-3 font-bree rounded-full flex justify-center items-center gap-2 p-2 text-white dark:border-indigo-600 bg-indigo-600 hover:opacity-90  sm:w-auto"
-  >
-  <mat-icon
-  class="group-hover:rotate-45 transition-transform duration-200 text-base"
-  >add_circle_outline</mat-icon>
-    <span class="text-sm md:text-base">Add Staff</span>
-  </button>
+    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
+      <!-- View Toggle Button -->
+      <button
+        (click)="toggleViewMode()"
+        class="group relative h-fit px-6 py-3 rounded-full flex justify-center items-center gap-2 text-gray-700 dark:text-white bg-gray-300 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+        [matTooltip]="viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'"
+      >
+        <mat-icon class="text-base">{{ viewMode === 'grid' ? 'view_list' : 'grid_view' }}</mat-icon>
+        <span class="text-sm md:text-base font-bree">{{ viewMode === 'grid' ? 'List View' : 'Grid View' }}</span>
+      </button>
+
+      <!-- Add Staff Button -->
+      <button
+        (click)="openDialog()"
+        class="h-fit border px-6 py-3 font-bree rounded-full flex justify-center items-center gap-2 text-white dark:border-indigo-600 bg-indigo-600 hover:opacity-90 sm:w-auto"
+      >
+        <mat-icon class="group-hover:rotate-45 transition-transform duration-200 text-base">add_circle_outline</mat-icon>
+        <span class="text-sm md:text-base">Add Staff</span>
+      </button>
+    </div>
   </div>
+
   <!-- Divider -->
   <mat-divider class="dark:bg-gray-600"></mat-divider>
-  <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto items-center">
+
+  <!-- Search and Filter Section -->
+  <div class="flex flex-col sm:flex-row gap-4 items-start">
     <!-- Search Input -->
     <div class="flex-grow">
-      <input
-        type="text"
-        (input)="onSearchStaff($event)"
-        [value]="searchQuery"
-        placeholder="Search Staff Profile"
-        class="w-full dark:bg-slate-900 shadow-xl rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
+      <div class="relative">
+        <input
+          type="text"
+          (input)="onSearchStaff($event)"
+          [value]="searchQuery"
+          placeholder="Search by name or email..."
+          class="w-full dark:bg-slate-900 shadow-xl rounded-full pl-12 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <mat-icon class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</mat-icon>
+      </div>
     </div>
-  
-    <!-- Sort By Dropdown -->
-    <div>
+
+    <!-- Role Filter -->
+    <div class="w-full sm:w-64">
       <select
-        class="border dark:border-slate-900 dark:bg-slate-900 dark:text-white border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        [(ngModel)]="selectedRole"
+        (change)="onRoleFilter()"
+        class="w-full dark:bg-slate-900 shadow-xl rounded-full px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
-        <option>Sort By: Name</option>
-        <option>Sort By: Projects</option>
-        <option>Sort By: Team</option>
+        <option value="ALL">All Roles</option>
+        <option value="DEVELOPER">Developers</option>
+        <option value="TESTER">Testers</option>
+        <option value="MANAGER">Managers</option>
       </select>
     </div>
   </div>
-  
 
-  <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
-      <!-- Error Message -->
-      <div *ngIf="errorMessage" class="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-center text-red-500">
-        {{ errorMessage }}
-      </div>
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-center text-red-500">
+    {{ errorMessage }}
+  </div>
 
-    <!-- Grid view -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full"  *ngIf="!isLoading">
-      <!-- Card 1 -->
-      <div *ngFor="let staff of filteredStaff"
-        class="
-        bg-white dark:bg-slate-900 rounded-xl p-4 text-center shadow-xl
-        hover:shadow-2xl transition-shadow duration-300 font-bree
-        "
-      >
-        <img
-          src="https://img.freepik.com/premium-vector/people-profile-icon_24877-40756.jpg?semt=ais_hybrid"
-          alt="Profile"
-          class="w-16 h-16 mx-auto rounded-full border-2 border-transparent"
-        />
-        <h3 class="dark:text-white text-gray-800  mt-2 font-bold"> <b>{{staff.firstname}} {{staff.lastname}} </b></h3>
-        <p class="text-gray-400 text-sm">{{staff.role}}</p>
-        <div class="mt-4 flex justify-around text-sm text-gray-300">
-          <div class="text-gray-500" ><span class="font-bold text-blue-500">3</span> Projects</div>
-          <div class="text-gray-500"><span class="font-bold text-yellow-500">4</span> Tickets</div>
-          <div class="text-gray-500"><span class="font-bold text-green-500">3%</span> Solutions</div>
-        </div>
-        <div class="flex flex-row gap-3 justify-end">
-        <button class="mt-4 h-fit px-4 py-2 bg-transparent text-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900/30 border border-blue-500 rounded-full ">Add Task</button>
-        <button (click)="onStaffDetailsClick(staff?.id ?? 0)" class="mt-4 h-fit px-4 py-2 bg-transparent dark:hover:bg-gray-700/40 hover:bg-gray-100 text-gray-600 border border-gray-400 rounded-full hover:opacity-90"> Details</button>
-        </div>
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex justify-center items-center p-8">
+    <div class="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+  </div>
+
+  <!-- Grid View -->
+  <div *ngIf="!isLoading && filteredStaff.length > 0 && viewMode === 'grid'" 
+    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+    <div *ngFor="let staff of filteredStaff"
+      class="bg-white dark:bg-slate-900 rounded-xl p-4 text-center shadow-xl hover:shadow-2xl transition-shadow duration-300 font-bree">
+      <img
+        [src]="staff.image || 'https://img.freepik.com/premium-vector/people-profile-icon_24877-40756.jpg?semt=ais_hybrid'"
+        [alt]="staff.firstname + ' ' + staff.lastname"
+        class="w-16 h-16 mx-auto rounded-full border-2 border-transparent object-cover"
+      />
+      <h3 class="dark:text-white text-gray-800 mt-2 font-bold">
+        <b>{{staff.firstname}} {{staff.lastname}}</b>
+      </h3>
+      <p class="text-gray-500">{{staff.email}}</p>
+      <p [ngClass]="getRoleClass(staff.role)" class="px-3 py-1 rounded-full text-sm inline-block mt-0">
+        {{staff.role}}
+      </p>
+      <div class="mt-4 flex justify-around text-sm text-gray-300">
+        <div class="text-gray-500"><span class="font-bold text-blue-500">3</span> Projects</div>
+        <div class="text-gray-500"><span class="font-bold text-yellow-500">3</span> Tickets</div>
+        <div class="text-gray-500"><span class="font-bold text-green-500">3%</span> Solutions</div>
       </div>
-  
-     
+      <div class="flex flex-row gap-3 justify-end">
+        <button class="mt-4 h-fit px-4 py-2 bg-transparent text-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900/30 border border-blue-500 rounded-full">
+          Add Task
+        </button>
+        <button 
+          (click)="onStaffDetailsClick(staff?.id ?? 0)" 
+          class="mt-4 h-fit px-4 py-2 bg-transparent dark:hover:bg-gray-700/40 hover:bg-gray-100 text-gray-600 border border-gray-400 rounded-full hover:opacity-90">
+          Details
+        </button>
+      </div>
     </div>
   </div>
-  
+
+  <!-- List View -->
+  <div *ngIf="!isLoading && filteredStaff.length > 0 && viewMode === 'list'"
+    class="flex flex-col gap-4 w-full">
+    <div *ngFor="let staff of filteredStaff"
+      class="bg-white dark:bg-slate-900 rounded-xl p-4 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <img
+            [src]="staff.image || 'https://img.freepik.com/premium-vector/people-profile-icon_24877-40756.jpg?semt=ais_hybrid'"
+            [alt]="staff.firstname + ' ' + staff.lastname"
+            class="w-12 h-12 rounded-full object-cover"
+          />
+          <div>
+            <h3 class="dark:text-white text-gray-800 font-bold">  <b>{{staff.firstname}} {{staff.lastname}}</b></h3>
+            <p class="text-gray-500">{{staff.email}}</p>
+            <p [ngClass]="getRoleClass(staff.role)" class="px-3 py-1 rounded-full text-sm inline-block mt-0">
+              {{staff.role}}
+            </p>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+          <div class="hidden md:flex gap-8 mr-8">
+            <div class="text-center">
+              <p class="text-sm text-gray-500">Projects</p>
+              <p class="font-bold text-blue-500">3</p>
+            </div>
+            <div class="text-center">
+              <p class="text-sm text-gray-500">Tickets</p>
+              <p class="font-bold text-yellow-500">3</p>
+            </div>
+            <div class="text-center">
+              <p class="text-sm text-gray-500">Solutions</p>
+              <p class="font-bold text-green-500">3%</p>
+            </div>
+          </div>
+          
+          <div class="flex gap-2">
+            <button class="h-fit px-4 py-2 bg-transparent text-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900/30 border border-blue-500 rounded-full">
+              Add Task
+            </button>
+            <button 
+              (click)="onStaffDetailsClick(staff?.id ?? 0)" 
+              class="h-fit px-4 py-2 bg-transparent dark:hover:bg-gray-700/40 hover:bg-gray-100 text-gray-600 border border-gray-400 rounded-full hover:opacity-90">
+              Details
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredStaff.length === 0" class="w-full">
+    <div class="relative overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-xl border border-white/20 dark:border-white/5 before:absolute before:inset-0 before:z-0 before:bg-gradient-to-b before:from-white/5 before:to-white/0 dark:before:from-white/[0.03] dark:before:to-white/0">
+      <div class="relative z-10 p-10 flex flex-col items-center justify-center">
+        <!-- Decorative Elements -->
+        <div class="absolute opacity-10 -top-16 -left-16 w-10 h-10 rounded-full bg-indigo-500 blur-3xl"></div>
+        <div class="absolute opacity-10 -bottom-16 -right-16 w-10 h-10 rounded-full bg-purple-500 blur-3xl"></div>
+        
+        <!-- Icon Container -->
+        <div class="relative mb-8">
+          <div class="absolute inset-0 bg-indigo-500/20 blur-xl rounded-full"></div>
+          <div class="relative w-16 h-16 flex items-center justify-center rounded-full border border-indigo-500/20 shadow-lg">
+            <div class="absolute inset-0 rounded-full bg-gradient-to-b from-white/30 to-transparent"></div>
+            <mat-icon class="text-white text-4xl relative z-10">people</mat-icon>
+          </div>
+        </div>
+        
+        <!-- Content -->
+        <h3 class="text-2xl font-bree text-gray-900 dark:text-white mb-3">
+          {{ searchQuery || selectedRole !== 'ALL' ? "No matching staff members found" : "Ready to build your team?" }}
+        </h3>
+        
+        <p class="text-gray-500 dark:text-gray-400 max-w-md text-center mb-8">
+          {{ searchQuery || selectedRole !== 'ALL'
+            ? "We couldn't find any staff members matching your criteria. Try different filters or clear your search."
+            : "Add your first team member to start collaborating on projects and managing tasks together." }}
+        </p>
+      </div>
+    </div>
+  </div>
 </div>

@@ -2,33 +2,47 @@
   <!-- Header Section -->
   <div class="content-header">
     <div>
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Issue Management</h1>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+        Issue Management
+      </h1>
       <p class="text-gray-500 dark:text-gray-400 mt-1">
-        {{ isDeveloper ? 'View and resolve issues assigned to you' : 'View and manage issues across your projects' }}
+        {{
+          isDeveloper
+            ? "View and resolve issues assigned to you"
+            : "View and manage issues across your projects"
+        }}
       </p>
+      <!-- Tester access note -->
+      <div
+        *ngIf="userRole === 'TESTER'"
+        class="mt-2 text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 p-2 rounded-md flex items-center gap-2"
+      >
+        <mat-icon class="text-sm">info</mat-icon>
+        <span>As a tester, you have access to all projects in the system.</span>
+      </div>
     </div>
-    
+
     <div class="flex items-center gap-2">
-      <div class="view-toggle">
-        <button 
-          [class.active]="selectedView === 'projects'" 
+      <div class="view-toggle bg-gray-200  dark:bg-gray-700 rounded-md">
+        <button
+          [class.active]="selectedView === 'projects'"
           (click)="selectedView = 'projects'"
-          class="text-gray-700 dark:text-gray-300"
+          class="text-gray-700 dark:text-gray-200 "
         >
           <mat-icon class="text-lg">dashboard</mat-icon>
           <span>Projects</span>
         </button>
-        <button 
-          [class.active]="selectedView === 'logs'" 
+        <button
+          [class.active]="selectedView === 'logs'"
           (click)="selectedView = 'logs'"
-          class="text-gray-700 dark:text-gray-300"
+          class="text-gray-700 dark:text-gray-200 "
         >
           <mat-icon class="text-lg">bug_report</mat-icon>
           <span>Issues</span>
         </button>
       </div>
-      
-      <button 
+
+      <button
         (click)="forceSyncCounts()"
         title="Sync issue counts"
         class="px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-gray-700 dark:text-gray-300 flex items-center gap-1"
@@ -42,18 +56,24 @@
   <!-- Project Selection (only shown in issues view) -->
   <div *ngIf="selectedView === 'logs'" class="mb-6">
     <div class="flex items-center gap-3">
-      <label for="projectSelect" class="font-medium text-gray-700 dark:text-gray-300">Project:</label>
+      <label
+        for="projectSelect"
+        class="font-medium text-gray-700 dark:text-gray-300"
+        >Project:</label
+      >
       <select
-        id="projectSelect" 
+        id="projectSelect"
         (change)="onProjectChange($event)"
         class="filter-select flex-grow max-w-xs"
       >
         <option value="" disabled selected>Select a project</option>
-        <option *ngFor="let project of projects" [value]="project.id">{{ project.name }}</option>
+        <option *ngFor="let project of projects" [value]="project.id">
+          {{ project.name }}
+        </option>
       </select>
-      
-      <button 
-        class="refresh-button ml-auto" 
+
+      <button
+        class="refresh-button ml-auto"
         (click)="refreshLogs()"
         title="Refresh issues"
       >
@@ -61,22 +81,29 @@
         <span>Refresh</span>
       </button>
     </div>
-    
+
     <!-- Developer-specific note -->
-    <div *ngIf="isDeveloper" class="mt-2 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 p-2 rounded-md flex items-center gap-2">
+    <div
+      *ngIf="isDeveloper"
+      class="mt-2 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 p-2 rounded-md flex items-center gap-2"
+    >
       <mat-icon class="text-sm">info</mat-icon>
-      <span>As a developer, you'll only see issues where the tickets are specifically assigned to you.</span>
+      <span
+        >As a developer, you'll only see issues where the tickets are
+        specifically assigned to you.</span
+      >
     </div>
   </div>
 
   <!-- Loading Indicator -->
   <div *ngIf="loading" class="flex justify-center py-12">
-    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
+    <div
+      class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"
+    ></div>
+  </div>
 
   <!-- Main Content Area -->
   <ng-container *ngIf="!loading">
-    
     <!-- Projects View -->
     <div *ngIf="selectedView === 'projects'">
       <!-- No Projects Found State -->
@@ -84,73 +111,92 @@
         <mat-icon class="empty-state-icon">domain</mat-icon>
         <h3 class="empty-state-title">No Projects Found</h3>
         <p class="empty-state-desc">
-          {{ isDeveloper ? 
-            "You don't have any projects assigned to you yet. Once projects are assigned, they will appear here." : 
-            "You don't have any projects yet. Once projects are created, they will appear here." }}
+          {{
+            isDeveloper
+              ? "You don't have any projects assigned to you yet. Once projects are assigned, they will appear here."
+              : userRole === "TESTER"
+              ? "There are no projects in the system yet. As a tester, you'll be able to view all projects once they're created."
+              : "You don't have any projects yet. Once projects are created, they will appear here."
+          }}
         </p>
       </div>
 
       <!-- Projects Grid -->
       <div *ngIf="projects.length > 0" class="projects-grid">
-        <div 
+        <!-- Tester - All Projects Badge -->
+        <div
           *ngFor="let project of projects"
-          class="project-card"
+          class="project-card dark:bg-gray-700"
           (click)="selectProject(project.id)"
         >
           <div class="project-header">
             <h3 class="project-name">{{ project.name }}</h3>
-            <span class="text-gray-400 dark:text-gray-500">{{ project.id }}</span>
+            <span class="text-gray-400 dark:text-gray-500">{{
+              project.id
+            }}</span>
           </div>
-          
+
           <p class="project-description">{{ project.description }}</p>
-          
+
           <div class="project-stats">
             <div class="stat-item">
               <span class="stat-label">
-                <mat-icon class="text-gray-400 dark:text-gray-500">bug_report</mat-icon>
+                <mat-icon class="text-gray-400 dark:text-gray-500"
+                  >bug_report</mat-icon
+                >
                 Total Issues
               </span>
-              <span class="stat-value">{{ getIssueCountForProject(project.id) }}</span>
-        </div>
+              <span class="stat-value">{{
+                getIssueCountForProject(project.id)
+              }}</span>
+            </div>
 
             <div class="stat-item">
               <span class="stat-label">
                 <mat-icon class="text-red-500">priority_high</mat-icon>
                 High Priority
               </span>
-              <span class="stat-value">{{ getIssueCountByPriority(project.id, 'HIGH') }}</span>
+              <span class="stat-value">{{
+                getIssueCountByPriority(project.id, "HIGH")
+              }}</span>
             </div>
             <div class="progress-container">
-              <div 
-                class="progress-bar progress-high" 
+              <div
+                class="progress-bar progress-high"
                 [style.width.%]="getIssuePercentByPriority(project.id, 'HIGH')"
               ></div>
             </div>
-            
+
             <div class="stat-item">
               <span class="stat-label">
                 <mat-icon class="text-yellow-500">flag</mat-icon>
                 Medium Priority
               </span>
-              <span class="stat-value">{{ getIssueCountByPriority(project.id, 'MEDIUM') }}</span>
-          </div>
+              <span class="stat-value">{{
+                getIssueCountByPriority(project.id, "MEDIUM")
+              }}</span>
+            </div>
             <div class="progress-container">
-              <div 
-                class="progress-bar progress-medium" 
-                [style.width.%]="getIssuePercentByPriority(project.id, 'MEDIUM')"
+              <div
+                class="progress-bar progress-medium"
+                [style.width.%]="
+                  getIssuePercentByPriority(project.id, 'MEDIUM')
+                "
               ></div>
-        </div>
+            </div>
 
             <div class="stat-item">
               <span class="stat-label">
                 <mat-icon class="text-green-500">flag</mat-icon>
                 Low Priority
               </span>
-              <span class="stat-value">{{ getIssueCountByPriority(project.id, 'LOW') }}</span>
+              <span class="stat-value">{{
+                getIssueCountByPriority(project.id, "LOW")
+              }}</span>
             </div>
             <div class="progress-container">
-              <div 
-                class="progress-bar progress-low" 
+              <div
+                class="progress-bar progress-low"
                 [style.width.%]="getIssuePercentByPriority(project.id, 'LOW')"
               ></div>
             </div>
@@ -165,19 +211,26 @@
       <div *ngIf="!selectedProjectId" class="empty-state">
         <mat-icon class="empty-state-icon">source</mat-icon>
         <h3 class="empty-state-title">No Project Selected</h3>
-        <p class="empty-state-desc">Please select a project from the dropdown above to view its issues.</p>
-    </div>
+        <p class="empty-state-desc">
+          Please select a project from the dropdown above to view its issues.
+        </p>
+      </div>
 
       <!-- Project Selected but No Issues Found -->
-      <div *ngIf="selectedProjectId && filteredLogs.length === 0" class="empty-state">
+      <div
+        *ngIf="selectedProjectId && filteredLogs.length === 0"
+        class="empty-state"
+      >
         <mat-icon class="empty-state-icon">check_circle</mat-icon>
         <h3 class="empty-state-title">No Issues Found</h3>
         <p class="empty-state-desc">
-          {{ isDeveloper ? 
-            "There are no issues with tickets assigned to you in this project. When you're assigned to resolve a ticket, the related issue will appear here." : 
-            "This project doesn't have any reported issues yet. That's great news!" }}
+          {{
+            isDeveloper
+              ? "There are no issues with tickets assigned to you in this project. When you're assigned to resolve a ticket, the related issue will appear here."
+              : "This project doesn't have any reported issues yet. That's great news!"
+          }}
         </p>
-    </div>
+      </div>
 
       <!-- Issues List with enhanced counts -->
       <ng-container *ngIf="selectedProjectId && filteredLogs.length > 0">
@@ -186,11 +239,16 @@
           <div>
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
               {{ getProjectName() }} Issues
-              <span *ngIf="isDeveloper" class="text-sm font-normal text-gray-600 dark:text-gray-400 ml-2">
+              <span
+                *ngIf="isDeveloper"
+                class="text-sm font-normal text-gray-600 dark:text-gray-400 ml-2"
+              >
                 (Assigned to you)
               </span>
             </h2>
-            <div class="flex items-center gap-4 mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <div
+              class="flex items-center gap-4 mt-1 text-sm text-gray-500 dark:text-gray-400"
+            >
               <span class="flex items-center gap-1">
                 <span class="w-2 h-2 rounded-full bg-gray-400"></span>
                 Total: {{ filteredLogs.length }}
@@ -208,18 +266,25 @@
                 Low: {{ getLowPriorityFilteredCount() }}
               </span>
             </div>
-    </div>
-    
-          <div class="flex items-center gap-2">
-            <ng-icon name="letsAddSquare" class="text-xl text-blue-600 dark:text-blue-500 cursor-pointer"></ng-icon>
           </div>
-    </div>
+
+          <div class="flex items-center gap-2">
+            <ng-icon
+              name="letsAddSquare"
+              class="text-xl text-blue-600 dark:text-blue-500 cursor-pointer"
+            ></ng-icon>
+          </div>
+        </div>
 
         <!-- Filters -->
         <div class="filters">
           <div class="filter-group">
             <span class="filter-label">Priority:</span>
-            <select [(ngModel)]="priorityFilter" (change)="applyFilters()" class="filter-select">
+            <select
+              [(ngModel)]="priorityFilter"
+              (change)="applyFilters()"
+              class="filter-select"
+            >
               <option value="">All Priorities</option>
               <option value="HIGH">High</option>
               <option value="MEDIUM">Medium</option>
@@ -227,59 +292,62 @@
             </select>
           </div>
         </div>
-        
+
         <!-- Issues Items -->
         <div class="divide-y divide-gray-100 dark:divide-gray-800">
-          <div 
-            *ngFor="let issue of filteredLogs" 
-            class="issue-item"
-          >
-            <div class="flex items-center gap-4">
-              <div 
+          <div *ngFor="let issue of filteredLogs" class="issue-item">
+            <div class="flex flex-col items-start gap-4">
+              <span class="text-sm text-red-500 font-bold">{{
+                issue.type
+              }}</span>
+              <div
                 [ngClass]="{
-                  'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': issue.severity === 'HIGH',
-                  'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400': issue.severity === 'MEDIUM',
-                  'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': issue.severity === 'LOW'
+                  'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400':
+                    issue.severity === 'HIGH',
+                  'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400':
+                    issue.severity === 'MEDIUM',
+                  'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400':
+                    issue.severity === 'LOW'
                 }"
                 class="priority-badge"
               >
                 <mat-icon class="text-sm">flag</mat-icon>
                 {{ issue.severity }}
-                  </div>
-                </div>
-            
+              </div>
+            </div>
+
             <div class="issue-info">
               <h4 class="issue-title">{{ issue.description }}</h4>
               <p class="issue-desc">{{ issue.type }} - {{ issue.errorCode }}</p>
-              
+
               <div class="issue-meta">
                 <div class="meta-item">
                   <mat-icon class="text-sm">access_time</mat-icon>
-                  {{ issue.timestamp | date:'medium' }}
+                  {{ issue.timestamp | date : "medium" }}
                 </div>
                 <div class="meta-item">
                   <mat-icon class="text-sm">person</mat-icon>
                   {{ issue.source }}
                 </div>
               </div>
-                </div>
-            
+            </div>
+
             <div class="issue-actions">
-              <button 
-                class="action-button" 
+              <button
+                class="action-button"
                 title="Change priority"
                 (click)="updatePriority(issue)"
               >
                 <mat-icon>edit</mat-icon>
               </button>
-                <button
-                class="action-button" 
+              <button
+                class="action-button"
                 title="View details"
                 (click)="onIssueClick(issue.id)"
               >
                 <ng-icon name="letsView"></ng-icon>
               </button>
-              </div>
+            </div>
           </div>
         </div>
       </ng-container>

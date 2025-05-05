@@ -8,6 +8,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { Router, RouterModule } from '@angular/router';
 import { AdminService } from '../../../../services/admin.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { PartnerAccountStatusRequest } from '../../../../models/partner.model';
 
 @Component({
@@ -21,6 +22,7 @@ import { PartnerAccountStatusRequest } from '../../../../models/partner.model';
     MatDividerModule,
     MatCheckboxModule,
     NgIcon,
+    FormsModule,
   ],
   templateUrl: './agencies-content.component.html',
   styleUrl: './agencies-content.component.css',
@@ -34,8 +36,11 @@ export class AgenciesContentComponent implements OnInit {
   currentPage: number = 1;
   pageSize: number = 10;
   totalPages: number = 0;
+  // Search and filter properties
+  searchEmail: string = '';
+  statusFilter: string = 'all'; // 'all', 'active', or 'blocked'
   
-  constructor(private adminService: AdminService) {}
+  constructor(private adminService: AdminService, private router: Router) {}
   
   ngOnInit(): void {
     this.loadPartners();
@@ -44,8 +49,11 @@ export class AgenciesContentComponent implements OnInit {
   loadPartners(): void {
     this.adminService.getAllPartners().subscribe({
       next: (partners) => {
-        this.allPartners = partners;
-        this.totalPages = Math.ceil(this.allPartners.length / this.pageSize);
+        // Sort partners by ID in descending order (newest first)
+        this.allPartners = partners.sort((a, b) => {
+          return b.id - a.id; // Sort by ID in descending order
+        });
+        this.updateTotalPages();
         this.updateDisplayedPartners();
         console.log('Partners loaded successfully', partners);
       },
@@ -55,11 +63,63 @@ export class AgenciesContentComponent implements OnInit {
     });
   }
   
-  // Update the displayed partners based on current page
+  // Search partners by email
+  searchPartners(): void {
+    if (!this.searchEmail || this.searchEmail.trim() === '') {
+      // If search is empty, show all partners
+      this.updateTotalPages();
+      this.currentPage = 1;
+      this.updateDisplayedPartners();
+      return;
+    }
+    
+    const filteredPartners = this.allPartners.filter(partner => 
+      partner.email && partner.email.toLowerCase().includes(this.searchEmail.toLowerCase())
+    );
+    
+    this.totalPages = Math.ceil(filteredPartners.length / this.pageSize);
+    this.currentPage = 1;
+    this.partners = filteredPartners.slice(0, this.pageSize);
+  }
+  
+  // Clear search and reset to show all partners
+  clearSearch(): void {
+    this.searchEmail = '';
+    this.statusFilter = 'all';
+    this.updateTotalPages();
+    this.currentPage = 1;
+    this.updateDisplayedPartners();
+  }
+
+  // Update total pages based on all partners
+  updateTotalPages(): void {
+    this.totalPages = Math.ceil(this.allPartners.length / this.pageSize);
+  }
+  
+  // Update the displayed partners based on current page, search, and status filter
   updateDisplayedPartners(): void {
+    let partnersToDisplay = this.allPartners;
+    
+    // Apply search filter if search is active
+    if (this.searchEmail && this.searchEmail.trim() !== '') {
+      partnersToDisplay = partnersToDisplay.filter(partner => 
+        partner.email && partner.email.toLowerCase().includes(this.searchEmail.toLowerCase())
+      );
+    }
+
+    // Apply status filter
+    if (this.statusFilter !== 'all') {
+      const isActive = this.statusFilter === 'active';
+      partnersToDisplay = partnersToDisplay.filter(partner => 
+        partner.accountLocked === !isActive
+      );
+    }
+    
+    this.totalPages = Math.ceil(partnersToDisplay.length / this.pageSize);
+    
     const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = Math.min(startIndex + this.pageSize, this.allPartners.length);
-    this.partners = this.allPartners.slice(startIndex, endIndex);
+    const endIndex = Math.min(startIndex + this.pageSize, partnersToDisplay.length);
+    this.partners = partnersToDisplay.slice(startIndex, endIndex);
   }
   
   // Go to previous page
@@ -137,4 +197,14 @@ export class AgenciesContentComponent implements OnInit {
     });
   }
   
+  onRegisterPartnerClick(): void {
+    this.router.navigate(['/dashboard/register-partner']);
+  }
+
+  // Filter by status
+  filterByStatus(status: string): void {
+    this.statusFilter = status;
+    this.currentPage = 1;
+    this.updateDisplayedPartners();
+  }
 }

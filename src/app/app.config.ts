@@ -1,4 +1,4 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -9,9 +9,11 @@ import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 import { provideMarkdown } from 'ngx-markdown';
 import { MARKED_OPTIONS } from 'ngx-markdown';
+import { RxStompService  } from '@stomp/ng2-stompjs';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    RxStompService,
     provideRouter(routes),
     provideHttpClient(
       withInterceptors([authInterceptor])

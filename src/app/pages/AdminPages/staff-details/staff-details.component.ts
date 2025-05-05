@@ -1,35 +1,31 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterModule, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
-import { CommonModule } from '@angular/common';
-import { User } from '../../../models/user.model';
+import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute } from '@angular/router';
 import { StaffService } from '../../../services/staff.service';
 import { ProjectService } from '../../../services/project.service';
+import { User } from '../../../models/user.model';
 import { Project } from '../../../models/project.model';
+import { AddStaffProjectDialogComponent } from '../../../components/dialog/add-staff-project-dialog/add-staff-project-dialog.component';
 
 @Component({
   selector: 'app-staff-details',
   standalone: true,
   imports: [
+    CommonModule,
     RouterModule,
     MatIconModule,
     MatTooltipModule,
-    MatDividerModule,
-    CommonModule
+    MatDividerModule
   ],
   templateUrl: './staff-details.component.html',
   styleUrl: './staff-details.component.css'
 })
 export class StaffDetailsComponent implements OnInit {
-  constructor(
-    private router: Router, 
-    private staffService: StaffService, 
-    private projectService: ProjectService,
-    private route: ActivatedRoute
-  ) {}
-
   staff: User = {
     id: 0,
     firstname: '',
@@ -48,6 +44,14 @@ export class StaffDetailsComponent implements OnInit {
   staffProjects: Project[] = [];
   isLoading = false;
   errorMessage = '';
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private staffService: StaffService,
+    private projectService: ProjectService,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
     this.loadStaffDetails();
@@ -85,25 +89,36 @@ export class StaffDetailsComponent implements OnInit {
     });
   }
 
-  onDashboardClick() {
-    this.router.navigate(['/dashboard/staff']);
-  }
+  openAddProjectDialog() {
+    const dialogRef = this.dialog.open(AddStaffProjectDialogComponent, {
+      width: '600px',
+      data: { staffId: this.staff.id }
+    });
 
-  onStaffTicketClick() {
-    this.router.navigate(['/dashboard/staff-ticket']);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadStaffProjects(this.staff.id);
+      }
+    });
   }
 
   onProjectClick(projectId: number) {
     this.router.navigate(['/dashboard/project-details', projectId]);
   }
 
+  // Added missing methods to fix linter errors
+  onDashboardClick() {
+    this.router.navigate(['/dashboard']);
+  }
+
   onViewTickets(projectId: number) {
-    this.router.navigate(['/dashboard/staff-ticket', projectId]);
+    this.router.navigate(['/dashboard/project-details', projectId, 'tickets']);
   }
 
   getTechnologies(technologies: string | string[]): string[] {
-    if (!technologies) return [];
-    if (Array.isArray(technologies)) return technologies;
-    return technologies.split(',').map(tech => tech.trim());
+    if (typeof technologies === 'string') {
+      return technologies.split(',').map(tech => tech.trim());
+    }
+    return technologies || [];
   }
 }

@@ -25,7 +25,7 @@ import { Role } from '../../../../models/role.enum';
 import { TicketService } from '../../../../services/ticket.service';
 import { forkJoin, of } from 'rxjs';
 import { switchMap, map, catchError } from 'rxjs/operators';
-
+import { User } from '../../../../models/user.model';
 @Component({
   selector: 'app-issues',
   standalone: true,
@@ -77,10 +77,15 @@ export class IssuesComponent implements OnInit {
   isDeveloper: boolean = false;
   // Cache to store which logs have tickets assigned to the current user
   assignableLogIds = new Set<string>();
-
+    
+   
   ngOnInit(): void {
     this.loadUserData();
   }
+  getIsTester(): boolean {
+    return this.userRole === Role.TESTER;
+  }
+ 
 
   loadUserData() {
     const currentUser = this.authService.getCurrentUser();
@@ -107,7 +112,7 @@ export class IssuesComponent implements OnInit {
       this.showNotification('User information not found', 'error');
     }
   }
-
+ 
   loadUserProjects() {
     this.loading = true;
     

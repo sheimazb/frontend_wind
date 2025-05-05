@@ -63,7 +63,7 @@
                   </span>
                 </div>
                 <div class="flex justify-end mt-2">
-                  <a routerLink="/forgot-password" class="text-[#E1567C] hover:text-[#E1567C]/80 text-sm transition-colors">Forgot Password?</a>
+                  <button (click)="openForgotPasswordDialog()" type="button" class="text-[#E1567C] hover:text-[#E1567C]/80 text-sm transition-colors">Forgot Password?</button>
                 </div>
                 <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
                   class="mt-2 text-sm text-[#E1567C]">
