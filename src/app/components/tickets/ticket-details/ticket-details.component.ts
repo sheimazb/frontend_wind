@@ -17,13 +17,16 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatListModule } from '@angular/material/list';
 
-import { TicketService, Ticket, Status, Priority, Comment, Solution } from '../../../services/ticket.service';
+import { TicketService, Ticket, Status, Priority } from '../../../services/ticket.service';
+import { CommentService, CommentResponse, CommentRequest } from '../../../services/comment.service';
 import { ErrorService } from '../../../services/error.service';
 import { User } from '../../../models/user.model';
 import { FormsModule } from '@angular/forms';
 import { ProjectService } from '../../../services/project.service';
-import { finalize, map, Subject, takeUntil } from 'rxjs';
+import { finalize, map, Subject, takeUntil, catchError, of, tap } from 'rxjs';
 import { LogService } from '../../../services/log.service';
 import { normalizeId } from '../../../utils/id-helper';
 
@@ -57,401 +60,503 @@ interface StaffMember {
     MatTooltipModule,
     MatBadgeModule,
     MatAutocompleteModule,
-    FormsModule
+    FormsModule,
+    MatMenuModule,
+    MatListModule
   ],
   template: `
-    <div class="ticket-details-container px-6 py-8 max-w-6xl mx-auto font-roboto">
-      <div class="header-actions flex justify-between items-center mb-6 bg-blue-100 dark:bg-slate-800 p-4 rounded-lg shadow-sm">
-        <button mat-button (click)="goBack()" class="text-indigo-600 dark:text-indigo-400 transition-all duration-300">
-          <mat-icon>arrow_back</mat-icon>
-          Back to Tickets
-        </button>
-        <div class="flex gap-3" *ngIf="ticket">
-          <!-- Edit Ticket Button -->
-          <button 
-            (click)="editMode = !editMode" 
-            class="bg-gradient-to-r from-green-600 to-green-500 text-white px-6 py-3 border border-green-500 rounded-full flex items-center justify-center gap-2 hover:bg-green-600 transition-all duration-300 shadow-lg hover:shadow-xl w-full sm:w-auto">
-            <mat-icon>{{editMode ? 'close' : 'edit'}}</mat-icon>
-            <span class="text-sm md:text-base font-bree">{{editMode ? 'Cancel Edit' : 'Edit Ticket'}}</span>
-          </button>
-          
-          <!-- Delete Ticket Button -->
-          <button 
-            (click)="deleteTicket()" 
-            *ngIf="!editMode" 
-            class="bg-gradient-to-r from-red-600 to-orange-600 text-white px-6 py-3 border border-orange-600 rounded-full flex items-center justify-center gap-2 hover:from-red-700 hover:to-orange-700 transition-all duration-300 shadow-lg hover:shadow-xl w-full sm:w-auto">
-            <mat-icon>delete</mat-icon>
-            <span class="text-sm md:text-base font-bree">Delete Ticket</span>
-          </button>
-        </div>
-      </div>
-
-      <mat-card *ngIf="ticket" class="ticket-card rounded-lg shadow-md overflow-hidden mb-6 bg-white">
-        <mat-card-content>
-          <!-- Edit Mode -->
-          <form *ngIf="editMode" [formGroup]="ticketForm" (ngSubmit)="updateTicket()" class="px-4 py-6">
-            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-              <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Edit Ticket</h2>
-              </div>
+    <div class="ticket-details-container min-h-screen bg-transparent  py-8 px-4 sm:px-6 lg:px-8 font-sans">
+      <div class="max-w-5xl mx-auto">
+        <!-- Header with breadcrumbs and actions -->
+        <div class="mb-8">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div class="mb-4 sm:mb-0">
+              <nav class="flex" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                  <li class="inline-flex items-center">
+                    <a (click)="goBack()" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-white cursor-pointer">
+                      <mat-icon class="mr-2 text-gray-500">dashboard</mat-icon>
+                      Dashboard
+                    </a>
+                  </li>
+                  <li>
+                    <div class="flex items-center">
+                      <mat-icon class="text-gray-400 mx-1">chevron_right</mat-icon>
+                      <a (click)="goBack()" class="ml-1 text-sm font-medium text-gray-700 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-white cursor-pointer">
+                        Tickets
+                      </a>
+                    </div>
+                  </li>
+                  <li aria-current="page">
+                    <div class="flex items-center">
+                      <mat-icon class="text-gray-400 mx-1">chevron_right</mat-icon>
+                      <span class="ml-1 text-sm font-medium text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
+                        {{ ticket?.title || 'Ticket Details' }}
+                      </span>
+                    </div>
+                  </li>
+                </ol>
+              </nav>
+            </div>
+            
+            <div *ngIf="ticket" class="flex flex-wrap gap-3">
+              <!-- Edit Ticket Button -->
+              <button 
+                (click)="editMode = !editMode" 
+                class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm"
+                [class.bg-indigo-100]="editMode"
+                [class.text-indigo-700]="editMode">
+                <mat-icon [class.text-indigo-600]="editMode" class="mr-1.5 text-gray-500">{{editMode ? 'close' : 'edit'}}</mat-icon>
+                {{editMode ? 'Cancel Edit' : 'Edit Ticket'}}
+              </button>
               
-              <div class="p-6 space-y-5">
-                <!-- Title Field -->
-                <div class="form-group">
-                  <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title<span class="text-red-500">*</span></label>
-                  <input 
-                    type="text" 
-                    id="title"
-                    formControlName="title" 
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" 
-                    placeholder="Enter ticket title"
-                  >
-                  <div *ngIf="ticketForm.get('title')?.invalid && ticketForm.get('title')?.touched" class="text-red-500 text-sm mt-1">
-                    Title is required
-                  </div>
-                </div>
-                
-                <!-- Description Field -->
-                <div class="form-group">
-                  <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description<span class="text-red-500">*</span></label>
-                  <textarea 
-                    id="description"
-                    formControlName="description" 
-                    rows="5" 
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white resize-none" 
-                    placeholder="Provide details about the issue"
-                  ></textarea>
-                  <div *ngIf="ticketForm.get('description')?.invalid && ticketForm.get('description')?.touched" class="text-red-500 text-sm mt-1">
-                    Description is required
-                  </div>
-                </div>
-                
-                <!-- Status and Priority in a grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div class="form-group">
-                    <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-                    <div class="relative">
-                      <select 
-                        id="status" 
-                        formControlName="status"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white appearance-none pr-10"
-                      >
-                        <option *ngFor="let status of ticketStatuses" [value]="status">
-                          {{ status }}
-                        </option>
-                      </select>
-                      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                        <mat-icon>arrow_drop_down</mat-icon>
-                      </div>
-                    </div>
-                  </div>
+              <!-- Delete Ticket Button -->
+              <button 
+                (click)="deleteTicket()" 
+                *ngIf="!editMode"
+                class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900 hover:text-red-700 dark:hover:text-red-300 hover:border-red-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 shadow-sm">
+                <mat-icon class="mr-1.5 text-gray-500 group-hover:text-red-500">delete</mat-icon>
+                Delete Ticket
+              </button>
+            </div>
+          </div>
+        </div>
 
-                  <div class="form-group">
-                    <label for="priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
-                    <div class="relative">
-                      <select 
-                        id="priority" 
-                        formControlName="priority"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white appearance-none pr-10"
-                      >
-                        <option *ngFor="let priority of ticketPriorities" [value]="priority">
-                          {{ priority }}
-                        </option>
-                      </select>
-                      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                        <mat-icon>arrow_drop_down</mat-icon>
-                      </div>
-                    </div>
+        <!-- Main Content -->
+        <div *ngIf="isLoading" class="flex justify-center my-12">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+
+        <ng-container *ngIf="!isLoading && ticket">
+          <!-- Ticket Card with Status Banner -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden mb-8 border border-gray-200 dark:border-gray-700">
+            <div class="relative">
+              <!-- Status Banner -->
+              <div [ngClass]="{
+                'bg-orange-100 dark:bg-orange-900': ticket.status === Status.TO_DO,
+                'bg-blue-100 dark:bg-blue-900': ticket.status === Status.IN_PROGRESS,
+                'bg-green-100 dark:bg-green-900': ticket.status === Status.RESOLVED,
+                'bg-purple-100 dark:bg-purple-900': ticket.status === Status.DONE,
+                'bg-indigo-100 dark:bg-indigo-900': ticket.status === Status.MERGED_TO_TEST
+              }" class="py-2 px-4">
+                <div class="flex justify-between items-center">
+                  <div class="flex items-center space-x-2">
+                    <mat-icon [ngClass]="{
+                      'text-orange-600 dark:text-orange-300': ticket.status === Status.TO_DO,
+                      'text-blue-600 dark:text-blue-300': ticket.status === Status.IN_PROGRESS,
+                      'text-green-600 dark:text-green-300': ticket.status === Status.RESOLVED,
+                      'text-purple-600 dark:text-purple-300': ticket.status === Status.DONE,
+                      'text-indigo-600 dark:text-indigo-300': ticket.status === Status.MERGED_TO_TEST
+                    }">{{ getStatusIcon(ticket.status) }}</mat-icon>
+                    <span [ngClass]="{
+                      'text-orange-800 dark:text-orange-200': ticket.status === Status.TO_DO,
+                      'text-blue-800 dark:text-blue-200': ticket.status === Status.IN_PROGRESS,
+                      'text-green-800 dark:text-green-200': ticket.status === Status.RESOLVED,
+                      'text-purple-800 dark:text-purple-200': ticket.status === Status.DONE,
+                      'text-indigo-800 dark:text-indigo-200': ticket.status === Status.MERGED_TO_TEST
+                    }" class="font-medium">{{ ticket.status }}</span>
+                  </div>
+                  
+                  <div [ngClass]="{
+                    'bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200': ticket.priority === Priority.LOW,
+                    'bg-orange-200 text-orange-800 dark:bg-orange-800 dark:text-orange-200': ticket.priority === Priority.MEDIUM,
+                    'bg-red-200 text-red-800 dark:bg-red-800 dark:text-red-200': ticket.priority === Priority.HIGH,
+                    'bg-red-500 text-white': ticket.priority === Priority.CRITICAL
+                  }" class="px-3 py-1 rounded-full text-xs font-medium flex items-center">
+                    <mat-icon class="text-xs mr-1">{{ getPriorityIcon(ticket.priority) }}</mat-icon>
+                    {{ ticket.priority }}
                   </div>
                 </div>
-                
-                <!-- Assignee Field -->
-                <div class="form-group mb-8">
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Assign to Staff Member</label>
-                  <div class="relative z-50">
-                    <div 
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm dark:bg-gray-700 dark:text-white flex items-center justify-between cursor-pointer"
-                      (click)="toggleAssigneeDropdown($event)"
-                      tabindex="0"
-                    >
-                      <span *ngIf="!ticketForm.get('assignedToUserId')?.value" class="text-gray-500 dark:text-gray-400">Select a staff member</span>
-                      <span *ngIf="ticketForm.get('assignedToUserId')?.value" class="text-gray-900 dark:text-white">
-                        {{ getAssignedUserEmail() }}
-                      </span>
-                      <span 
-                        class="text-gray-400 flex items-center justify-center w-8 h-8 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300"
-                        (click)="toggleAssigneeDropdown($event)"
-                      >
-                        <mat-icon>{{ assigneeDropdownOpen ? 'arrow_drop_up' : 'arrow_drop_down' }}</mat-icon>
-                      </span>
+              </div>
+            </div>
+          </div>
+
+          <mat-card *ngIf="ticket" class="ticket-card rounded-lg shadow-md overflow-hidden mb-6 bg-white">
+            <mat-card-content>
+              <!-- Ticket Content -->
+              <div class="p-6">
+                <!-- View Mode -->
+                <div *ngIf="!editMode" class="space-y-8">
+                  <!-- Title and Description -->
+                  <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{{ ticket.title }}</h1>
+                    <div class="bg-gray-50 dark:bg-gray-850 p-4 rounded-lg">
+                      <h2 class="text-sm uppercase font-medium text-gray-500 dark:text-gray-400 mb-2">Description</h2>
+                      <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">{{ ticket.description }}</p>
+                    </div>
+                  </div>
+                  
+                  <!-- Meta Info Cards -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                      <div class="text-sm uppercase font-medium text-gray-500 dark:text-gray-400 mb-1">Created by</div>
+                      <div class="flex items-center space-x-2">
+                        <mat-icon class="text-indigo-500">person</mat-icon>
+                        <span class="text-gray-900 dark:text-white">{{ ticket.userEmail || 'Unknown' }}</span>
+                      </div>
                     </div>
                     
-                    <div *ngIf="assigneeDropdownOpen" class="absolute top-full left-0 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 shadow-lg rounded-md z-[9999] overflow-visible">
-                      <div class="p-3 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
-                        <input 
-                          type="text" 
-                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                          placeholder="Search staff members..."
-                          [(ngModel)]="assigneeSearchTerm"
-                          [ngModelOptions]="{standalone: true}"
-                          (input)="filterStaffMembers(); $event.stopPropagation()"
-                          (click)="$event.stopPropagation()"
-                          (keydown)="$event.stopPropagation()"
-                          (keydown.escape)="closeDropdown(); $event.stopPropagation()"
-                          (keydown.enter)="$event.stopPropagation()">
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                      <div class="text-sm uppercase font-medium text-gray-500 dark:text-gray-400 mb-1">Assigned to</div>
+                      <div class="flex items-center space-x-2">
+                        <mat-icon class="text-indigo-500">person</mat-icon>
+                        <span class="text-gray-900 dark:text-white">{{ getAssignedUserEmail() }}</span>
                       </div>
-                      
-                      <div class="max-h-60 min-h-[100px] overflow-y-auto">
-                        <div 
-                          *ngFor="let member of filteredStaffMembers" 
-                          class="py-3 px-4 cursor-pointer flex items-center justify-between border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                          [class.bg-blue-50]="ticketForm.get('assignedToUserId')?.value === member.id"
-                          [class.dark:bg-blue-900]="ticketForm.get('assignedToUserId')?.value === member.id"
-                          (click)="selectAssignee(member.id); $event.stopPropagation()"
-                          (mousedown)="$event.stopPropagation()"
-                        >
-                          <div class="flex items-center">
-                            <div class="flex-shrink-0 h-8 w-8 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center text-gray-700 dark:text-gray-200 mr-3">
-                              {{ member.firstname ? member.firstname.charAt(0) : (member.email ? member.email.charAt(0).toUpperCase() : 'U') }}
-                            </div>
-                            <div>
-                              <div class="font-medium">{{ member.email }}</div>
-                              <div *ngIf="member.role" class="text-xs text-gray-500 dark:text-gray-400">{{ member.role }}</div>
-                            </div>
-                          </div>
-                          <span class="flex items-center">
-                            <mat-icon *ngIf="ticketForm.get('assignedToUserId')?.value === member.id" class="text-blue-500">check_circle</mat-icon>
-                          </span>
-                        </div>
-                        
-                        <div 
-                          *ngIf="filteredStaffMembers.length === 0" 
-                          class="p-4 text-center text-gray-500 dark:text-gray-400 italic">
-                          No staff members found
-                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                      <div class="text-sm uppercase font-medium text-gray-500 dark:text-gray-400 mb-1">Created</div>
+                      <div class="flex items-center space-x-2">
+                        <mat-icon class="text-indigo-500">event</mat-icon>
+                        <span class="text-gray-900 dark:text-white">{{ ticket.createdAt | date:'medium' }}</span>
+                      </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                      <div class="text-sm uppercase font-medium text-gray-500 dark:text-gray-400 mb-1">Updated</div>
+                      <div class="flex items-center space-x-2">
+                        <mat-icon class="text-indigo-500">update</mat-icon>
+                        <span class="text-gray-900 dark:text-white">{{ ticket.updatedAt | date:'medium' }}</span>
                       </div>
                     </div>
                   </div>
                 </div>
+                
+                <!-- Edit Mode -->
+                <form *ngIf="editMode" [formGroup]="ticketForm" (ngSubmit)="updateTicket()" class="space-y-6">
+                  <div class="space-y-6">
+                    <!-- Title Field -->
+                    <div>
+                      <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title<span class="text-red-500">*</span></label>
+                      <input 
+                        type="text" 
+                        id="title"
+                        formControlName="title" 
+                        class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white transition-all duration-200" 
+                        placeholder="Enter ticket title"
+                      >
+                      <div *ngIf="ticketForm.get('title')?.invalid && ticketForm.get('title')?.touched" class="text-red-500 text-sm mt-1">
+                        Title is required
+                      </div>
+                    </div>
+                    
+                    <!-- Description Field -->
+                    <div>
+                      <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description<span class="text-red-500">*</span></label>
+                      <textarea 
+                        id="description"
+                        formControlName="description" 
+                        rows="5" 
+                        class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white resize-none transition-all duration-200" 
+                        placeholder="Provide details about the issue"
+                      ></textarea>
+                      <div *ngIf="ticketForm.get('description')?.invalid && ticketForm.get('description')?.touched" class="text-red-500 text-sm mt-1">
+                        Description is required
+                      </div>
+                    </div>
+                    
+                    <!-- Status and Priority in a grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div>
+                        <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                        <div class="relative rounded-md shadow-sm">
+                          <select 
+                            id="status" 
+                            formControlName="status"
+                            class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white appearance-none transition-all duration-200"
+                          >
+                            <option *ngFor="let status of ticketStatuses" [value]="status">
+                              {{ status }}
+                            </option>
+                          </select>
+                          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 dark:text-gray-400">
+                            <mat-icon>keyboard_arrow_down</mat-icon>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label for="priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
+                        <div class="relative rounded-md shadow-sm">
+                          <select 
+                            id="priority" 
+                            formControlName="priority"
+                            class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white appearance-none transition-all duration-200"
+                          >
+                            <option *ngFor="let priority of ticketPriorities" [value]="priority">
+                              {{ priority }}
+                            </option>
+                          </select>
+                          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 dark:text-gray-400">
+                            <mat-icon>keyboard_arrow_down</mat-icon>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Assignee Field -->
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <span class="flex items-center">
+                          <mat-icon class="text-indigo-500 mr-1 text-base">people</mat-icon>
+                          Assign to Staff Member
+                        </span>
+                      </label>
+                      <div class="relative" (clickOutside)="assigneeDropdownOpen = false">
+                        <div 
+                          class="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm dark:bg-gray-700 dark:text-white cursor-pointer flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-650"
+                          (click)="toggleAssigneeDropdown($event)"
+                          tabindex="0"
+                        >
+                          <div class="flex items-center">
+                            <span *ngIf="!ticketForm.get('assignedToUserId')?.value" class="text-gray-500 dark:text-gray-400 flex items-center">
+                              <mat-icon class="text-gray-400 mr-2">account_circle</mat-icon>
+                              Select a staff member
+                            </span>
+                            <span *ngIf="ticketForm.get('assignedToUserId')?.value" class="text-gray-900 dark:text-white flex items-center">
+                              <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-700 dark:text-indigo-300 mr-2">
+                                {{ getAssignedUserInitials() }}
+                              </div>
+                              {{ getAssignedUserEmail() }}
+                            </span>
+                          </div>
+                          <mat-icon class="text-gray-400 transition-transform duration-200" [class.rotate-180]="assigneeDropdownOpen">keyboard_arrow_down</mat-icon>
+                        </div>
+                        
+                        <div *ngIf="assigneeDropdownOpen" 
+                          class="absolute z-50 mb-1 w-full bg-white dark:bg-gray-800 shadow-lg rounded-md py-1 text-base overflow-visible focus:outline-none sm:text-sm border border-gray-200 dark:border-gray-700 animate-fadeIn"
+                          style="max-height: 300px; overflow-y: auto; transform: translateY(-100%); bottom: 100%; left: 0; right: 0;"
+                        >
+                          <div class="sticky top-0 z-10 bg-white dark:bg-gray-800 p-2 border-b border-gray-200 dark:border-gray-700">
+                            <div class="relative">
+                              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <mat-icon class="text-gray-400">search</mat-icon>
+                              </div>
+                              <input 
+                                type="text" 
+                                class="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white placeholder-gray-400"
+                                placeholder="Search staff members..."
+                                [(ngModel)]="assigneeSearchTerm"
+                                [ngModelOptions]="{standalone: true}"
+                                (input)="filterStaffMembers(); $event.stopPropagation()"
+                                (click)="$event.stopPropagation()"
+                                (keydown)="$event.stopPropagation()"
+                                (keydown.escape)="closeDropdown(); $event.stopPropagation()"
+                              >
+                            </div>
+                          </div>
+                          
+                          <div class="overflow-y-auto" style="max-height: 200px;">
+                            <div 
+                              *ngFor="let member of filteredStaffMembers" 
+                              class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150 flex items-center"
+                              [class.bg-indigo-50]="ticketForm.get('assignedToUserId')?.value === member.id"
+                              [class.dark:bg-indigo-900]="ticketForm.get('assignedToUserId')?.value === member.id"
+                              [class.border-l-4]="ticketForm.get('assignedToUserId')?.value === member.id"
+                              [class.border-indigo-500]="ticketForm.get('assignedToUserId')?.value === member.id" 
+                              (click)="selectAssignee(member.id); $event.stopPropagation()"
+                            >
+                              <div class="flex items-center">
+                                <div class="flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-white font-medium"
+                                    [ngClass]="member.isCurrentUser ? 'bg-green-600' : 'bg-indigo-600'">
+                                  {{ member.firstname ? member.firstname.charAt(0) : (member.email ? member.email.charAt(0).toUpperCase() : 'U') }}
+                                </div>
+                                <div class="ml-3">
+                                  <div class="font-medium text-gray-900 dark:text-white truncate max-w-xs">{{ member.email }}</div>
+                                  <div class="flex items-center text-xs">
+                                    <span class="text-gray-500 dark:text-gray-400">{{ member.role || 'Staff Member' }}</span>
+                                    <span *ngIf="member.isCurrentUser" class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                      You
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <span 
+                                *ngIf="ticketForm.get('assignedToUserId')?.value === member.id" 
+                                class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600 dark:text-indigo-400"
+                              >
+                                <mat-icon>check</mat-icon>
+                              </span>
+                            </div>
+                            
+                            <div 
+                              *ngIf="filteredStaffMembers.length === 0" 
+                              class="p-4 text-center text-gray-500 dark:text-gray-400 italic"
+                            >
+                              <mat-icon class="mx-auto mb-2">search_off</mat-icon>
+                              <p>No staff members found</p>
+                            </div>
+                          </div>
+                          
+                          <div *ngIf="staffMembers.length > 0" class="border-t border-gray-200 dark:border-gray-700 py-2 px-3">
+                            <button 
+                              *ngIf="ticketForm.get('assignedToUserId')?.value" 
+                              class="w-full text-left text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 flex items-center py-1"
+                              (click)="selectAssignee(null); $event.stopPropagation()"
+                            >
+                              <mat-icon class="mr-1 text-base">person_remove</mat-icon>
+                              Unassign ticket
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="flex justify-end pt-5 space-x-3">
+                    <button 
+                      type="button" 
+                      (click)="editMode = false"
+                      class="inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit"
+                      [disabled]="ticketForm.invalid || ticketForm.pristine || isLoading"
+                      class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                    >
+                      <mat-spinner *ngIf="isLoading" [diameter]="24" class="mr-2"></mat-spinner>
+                      Save Changes
+                    </button>
+                  </div>
+                </form>
               </div>
-              
-              <div class="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
-                <button 
-                  type="button" 
-                  (click)="editMode = false"
-                  class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  [disabled]="ticketForm.invalid || ticketForm.pristine"
-                  class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          </form>
+            </mat-card-content>
+          </mat-card>
 
-          <!-- View Mode -->
-          <div *ngIf="!editMode" class="ticket-info p-6">
-            <div class="ticket-header flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
-              <h2 class="ticket-title text-2xl font-medium text-gray-900">{{ticket.title}}</h2>
-              <div class="ticket-meta flex gap-1 items-center">
-                <ng-container *ngIf="ticket.status; else unknownStatus">
-                  <div [ngClass]="{
-                    'bg-orange-100 text-orange-900': ticket.status === Status.TO_DO,
-                    'bg-green-100 text-green-900': ticket.status === Status.RESOLVED,
-                    'bg-purple-100 text-purple-900': ticket.status === Status.DONE
-                  }" class="inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-medium rounded-full shadow-sm">
-                    <mat-icon [ngClass]="{
-                      'text-orange-700': ticket.status === Status.TO_DO,
-                      'text-green-700': ticket.status === Status.RESOLVED,
-                      'text-purple-700': ticket.status === Status.DONE
-                    }" class="text-base">{{ getStatusIcon(ticket.status) }}</mat-icon>
-                    <span>{{ticket.status}}</span>
-                  </div>
-                </ng-container>
-
-                <ng-template #unknownStatus>
-                  <div class="inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-medium rounded-full shadow-sm bg-gray-200 text-gray-600">
-                    <mat-icon class="text-base text-gray-500">help_outline</mat-icon>
-                    <span>Unknown</span>
-                  </div>
-                </ng-template>
-
-                <ng-container *ngIf="ticket.priority; else unknownPriority">
-                  <div [ngClass]="{
-                    'bg-green-100 text-green-900': ticket.priority === Priority.LOW,
-                    'bg-orange-100 text-orange-900': ticket.priority === Priority.MEDIUM,
-                    'bg-red-100 text-red-900': ticket.priority === Priority.HIGH,
-                    'bg-red-800 text-white': ticket.priority === Priority.CRITICAL
-                  }" class="inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-medium rounded-full shadow-sm">
-                    <mat-icon [ngClass]="{
-                      'text-green-700': ticket.priority === Priority.LOW,
-                      'text-orange-700': ticket.priority === Priority.MEDIUM,
-                      'text-red-700': ticket.priority === Priority.HIGH,
-                      'text-white': ticket.priority === Priority.CRITICAL
-                    }" class="text-base">{{ getPriorityIcon(ticket.priority) }}</mat-icon>
-                    <span>{{ticket.priority}}</span>
-                  </div>
-                </ng-container>
-
-                <ng-template #unknownPriority>
-                  <div class="inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-medium rounded-full shadow-sm bg-gray-200 text-gray-600">
-                    <mat-icon class="text-base text-gray-500">help_outline</mat-icon>
-                    <span>Unknown</span>
-                  </div>
-                </ng-template>
-              </div>
-            </div>
-
-            <mat-divider class="my-6"></mat-divider>
-
-            <div class="ticket-details">
-              <div class="description-container bg-gray-50 p-4 rounded-lg mb-6">
-                <h3 class="text-base font-medium text-gray-600 mb-3">Description</h3>
-                <p class="description whitespace-pre-line text-gray-700 leading-relaxed">{{ticket.description}}</p>
-              </div>
-
-              <div class="meta-info grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div class="meta-card bg-gray-100 p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
-                  <div class="meta-header flex items-center gap-2 mb-3 text-indigo-600 font-medium">
-                    <mat-icon>person</mat-icon>
-                    <span>Created by</span>
-                  </div>
-                  <div class="meta-content text-gray-700 text-sm">{{ticket.userEmail || 'Unknown'}}</div>
-                </div>
-
-                <div class="meta-card bg-gray-100 p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
-                  <div class="meta-header flex items-center gap-2 mb-3 text-indigo-600 font-medium">
-                    <mat-icon>person</mat-icon>
-                    <span>Assigned to</span>
-                  </div>
-                  <div class="meta-content text-gray-700 text-sm">{{getAssignedUserEmail()}}</div>
-                </div>
-
-                <div class="meta-card bg-gray-100 p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
-                  <div class="meta-header flex items-center gap-2 mb-3 text-indigo-600 font-medium">
-                    <mat-icon>event</mat-icon>
-                    <span>Created</span>
-                  </div>
-                  <div class="meta-content text-gray-700 text-sm">{{ticket.createdAt | date:'medium'}}</div>
-                </div>
-
-                <div class="meta-card bg-gray-100 p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
-                  <div class="meta-header flex items-center gap-2 mb-3 text-indigo-600 font-medium">
-                    <mat-icon>update</mat-icon>
-                    <span>Last updated</span>
-                  </div>
-                  <div class="meta-content text-gray-700 text-sm">{{ticket.updatedAt | date:'medium'}}</div>
-                </div>
-              </div>
-            </div>
-
-            <mat-divider class="my-6"></mat-divider>
-
-            <!-- Comments Section -->
-            <div class="comments-section mt-8 pt-6 border-t border-gray-200">
-              <h3 class="flex items-center gap-2 text-lg font-medium text-gray-700 mb-4">
-                <mat-icon>comment</mat-icon>
+          <!-- Comments Section -->
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden mb-8 border border-gray-200 dark:border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h2 class="text-lg font-medium text-gray-900 dark:text-white flex items-center gap-2">
+                <mat-icon class="text-indigo-500">chat</mat-icon>
                 Comments
-                <span *ngIf="comments.length > 0" class="text-indigo-600 text-sm">({{comments.length}})</span>
-              </h3>
-
-              <div class="form-group mt-6">
-                <label for="comment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Add Comment</label>
-                <div class="flex">
+                <span *ngIf="comments.length > 0" class="ml-2 px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 text-xs font-medium rounded-full">{{comments.length}}</span>
+              </h2>
+            </div>
+            
+            <div class="p-6">
+              <!-- Comment Form -->
+              <div class="mb-8">
+                <label for="comment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <span *ngIf="!replyingTo">Add your comment</span>
+                  <span *ngIf="replyingTo" class="flex items-center gap-2">
+                    Replying to <span class="text-indigo-600 dark:text-indigo-400 font-medium">{{getCommentAuthorDisplay(replyingTo)}}</span>
+                    <button 
+                      (click)="setReplyToComment(null)" 
+                      class="ml-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                      matTooltip="Cancel reply">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </span>
+                </label>
+                
+                <div class="mt-1 relative rounded-md shadow-sm">
                   <textarea 
                     id="comment"
                     [(ngModel)]="newComment" 
                     [ngModelOptions]="{standalone: true}"
-                    rows="2" 
-                    class="flex-grow px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-l-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white resize-none" 
-                    placeholder="Type your comment here..."
+                    rows="3" 
+                    class="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white resize-none transition-all duration-200" 
+                    placeholder="Share your thoughts or ask a question..."
                   ></textarea>
-                  <button 
-                    type="button"
-                    (click)="addComment()"
-                    [disabled]="!newComment.trim()"
-                    class="px-4 py-2 border border-transparent rounded-r-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                  >
-                    <mat-icon>send</mat-icon>
-                  </button>
+                  
+                  <div class="mt-3 flex justify-end">
+                    <button 
+                      type="button"
+                      (click)="addComment()"
+                      [disabled]="!newComment.trim() || isSubmittingComment"
+                      class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                    >
+                      <mat-spinner *ngIf="isSubmittingComment" [diameter]="20" class="mr-2"></mat-spinner>
+                      <mat-icon *ngIf="!isSubmittingComment" class="mr-1">send</mat-icon>
+                      Submit
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              <div class="comments-list mt-4 flex flex-col gap-4" *ngIf="comments.length > 0; else noCommentsTemplate">
-                <mat-card *ngFor="let comment of comments" class="bg-gray-50 border-l-4 border-indigo-600">
-                  <mat-card-content>
-                    <p class="mb-3 leading-relaxed">{{comment.content}}</p>
-                    <div class="flex items-center gap-2 text-gray-600 text-xs">
-                      <mat-icon class="text-indigo-600 text-base">account_circle</mat-icon>
-                      <small>By {{comment.createdByEmail || 'Unknown'}} on {{comment.createdAt | date:'medium'}}</small>
+              
+              <!-- Comments List -->
+              <div *ngIf="comments.length > 0; else noCommentsTemplate">
+                <div class="space-y-6">
+                  <ng-container *ngFor="let comment of comments">
+                    <!-- Primary Comments -->
+                    <div *ngIf="!comment.parentCommentId" class="comment-thread">
+                      <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-lg">
+                        <div class="flex items-start space-x-3">
+                          <div [ngClass]="getAvatarColor(comment)" class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-medium">
+                            {{getCommentAuthorInitials(comment)}}
+                          </div>
+                          
+                          <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between">
+                              <h3 class="text-sm font-medium text-gray-900 dark:text-white">
+                                {{getCommentAuthorDisplay(comment)}}
+                              </h3>
+                              <div class="flex items-center">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">
+                                  {{getCommentDate(comment) | date:'MMM d, y, h:mm a'}}
+                                </span>
+                                
+                                <button 
+                                  [matMenuTriggerFor]="commentMenu" 
+                                  class="ml-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
+                                >
+                                  <mat-icon>more_vert</mat-icon>
+                                </button>
+                                <mat-menu #commentMenu="matMenu">
+                                  <button mat-menu-item (click)="setReplyToComment(comment)">
+                                    <mat-icon>reply</mat-icon>
+                                    <span>Reply</span>
+                                  </button>
+                                </mat-menu>
+                              </div>
+                            </div>
+                            
+                            <div class="mt-2 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
+                              {{comment.content}}
+                            </div>
+                            
+                            <div class="mt-3">
+                              <button 
+                                (click)="setReplyToComment(comment)" 
+                                class="inline-flex items-center text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-200"
+                              >
+                                <mat-icon class="mr-1 text-base">reply</mat-icon>
+                                Reply
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                    
                     </div>
-                  </mat-card-content>
-                </mat-card>
+                  </ng-container>
+                </div>
               </div>
-
+              
+              <!-- No Comments Template -->
               <ng-template #noCommentsTemplate>
-                <div class="p-4 text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  <p>No comments yet. Be the first to add a comment.</p>
-                </div>
-              </ng-template>
-            </div>
-
-            <!-- Solution Section -->
-            <div class="solution-section mt-8 pt-6 border-t border-gray-200" *ngIf="ticket?.status === Status.RESOLVED || ticket?.status === Status.DONE">
-              <h3 class="flex items-center gap-2 text-lg font-medium text-gray-700 mb-4">
-                <mat-icon>lightbulb</mat-icon> 
-                Solution
-              </h3>
-
-              <div *ngIf="solution; else noSolution" class="mt-4">
-                <mat-card class="bg-green-50 border-l-4 border-green-600">
-                  <mat-card-content>
-                    <h4 class="text-base font-medium text-green-800 mb-2">Resolution Details</h4>
-                    <p class="mb-4">{{solution.description}}</p>
-
-                    <div *ngIf="solution.codeSnippet" class="mb-4">
-                      <h4 class="text-base font-medium text-green-800 mb-2">Code Solution</h4>
-                      <pre class="bg-gray-800 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono">{{solution.codeSnippet}}</pre>
-                    </div>
-
-                    <div *ngIf="solution.resourceLinks?.length">
-                      <h4 class="text-base font-medium text-green-800 mb-2">Resources</h4>
-                      <ul class="list-none p-0 m-0">
-                        <li *ngFor="let link of solution.resourceLinks" class="mb-2">
-                          <a [href]="link" target="_blank" class="flex items-center gap-2 text-blue-600 hover:text-indigo-600 transition-colors">
-                            <mat-icon>link</mat-icon>
-                            {{link}}
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                  </mat-card-content>
-                </mat-card>
-              </div>
-
-              <ng-template #noSolution>
-                <div class="flex flex-col items-center p-8 text-gray-600 text-center">
-                  <mat-icon class="text-5xl mb-4 text-gray-400">engineering</mat-icon>
-                  <p>No solution has been added yet.</p>
+                <div class="py-8 text-center">
+                  <div class="inline-block p-4 rounded-full bg-indigo-100 dark:bg-indigo-900 mb-4">
+                    <mat-icon class="text-indigo-600 dark:text-indigo-400" style="width: 32px; height: 32px; font-size: 32px;">chat_bubble_outline</mat-icon>
+                  </div>
+                  <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-1">No comments yet</h3>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Be the first to share your thoughts on this ticket.</p>
                 </div>
               </ng-template>
             </div>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </ng-container>
+      </div>
     </div>
   `
 })
 export class TicketDetailsComponent implements OnInit, OnDestroy {
   
   ticket: Ticket | null = null;
-  comments: Comment[] = [];
-  solution: Solution | null = null;
+  comments: CommentResponse[] = [];
   isLoading = true;
   editMode = false;
   ticketForm: FormGroup;
@@ -467,13 +572,16 @@ export class TicketDetailsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   currentUserId: string | null = null;
   newComment = '';
+  replyingTo: CommentResponse | null = null;
   Status = Status;
   Priority = Priority;
+  isSubmittingComment = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private ticketService: TicketService,
+    private commentService: CommentService,
     private errorService: ErrorService,
     private snackBar: MatSnackBar,
     private fb: FormBuilder,
@@ -615,17 +723,19 @@ export class TicketDetailsComponent implements OnInit, OnDestroy {
   loadComments(ticketId: number | string) {
     const numericId = normalizeId(ticketId);
     if (numericId === null) return;
-    this.ticketService.getTicketComments(numericId).subscribe({
-      next: (comments) => this.comments = comments,
-      error: (error) => this.errorService.handleError(error, 'Loading comments', true)
-    });
-  }
-
-  loadSolution(ticketId: number) {
-    this.ticketService.getTicketSolution(ticketId).subscribe({
-      next: (solution) => this.solution = solution,
-      error: (error) => this.errorService.handleError(error, 'Loading solution', true)
-    });
+    this.isLoading = true;
+    this.commentService.getCommentsByTicketId(numericId)
+      .pipe(
+        finalize(() => this.isLoading = false),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (comments) => {
+          this.comments = comments;
+          this.cdRef.detectChanges();
+        },
+        error: (error) => this.errorService.handleError(error, 'Loading comments', true)
+      });
   }
 
   updateTicket() {
@@ -670,16 +780,23 @@ export class TicketDetailsComponent implements OnInit, OnDestroy {
       });
   }
 
-  private addAssignmentChangeComment(oldAssigneeId: number | null | undefined, newAssigneeId: number | null | undefined) {
+  private addAssignmentChangeComment(oldAssigneeId: number | null | undefined, newAssigneeId: number | null | undefined): void {
     if (!this.ticket?.id) return;
     const changeMessage = this.getAssignmentChangeMessage(oldAssigneeId, newAssigneeId);
     if (changeMessage) {
-      this.ticketService.addComment(this.ticket.id, changeMessage).subscribe({
-        next: (comment) => {
-          if (this.ticket?.id) this.loadComments(this.ticket.id);
-        },
-        error: (error) => {}
-      });
+      const commentRequest: CommentRequest = {
+        ticketId: this.ticket.id,
+        content: changeMessage
+      };
+      
+      this.commentService.createComment(commentRequest)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (comment) => {
+            if (this.ticket?.id) this.loadComments(this.ticket.id);
+          },
+          error: (error) => {}
+        });
     }
   }
 
@@ -692,19 +809,40 @@ export class TicketDetailsComponent implements OnInit, OnDestroy {
 
   addComment() {
     if (!this.ticket?.id || !this.newComment.trim()) return;
-    this.isLoading = true;
-    this.ticketService.addComment(this.ticket.id, this.newComment).subscribe({
-      next: (comment) => {
-        this.comments.unshift(comment);
-        this.newComment = '';
-        this.isLoading = false;
-        this.snackBar.open('Comment added successfully', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.errorService.handleError(error, 'Adding comment', true);
-      }
-    });
+    
+    this.isSubmittingComment = true;
+    
+    const commentRequest: CommentRequest = {
+      ticketId: this.ticket.id,
+      content: this.newComment,
+      parentCommentId: this.replyingTo?.id
+    };
+    
+    this.commentService.createComment(commentRequest)
+      .pipe(
+        finalize(() => {
+          this.isSubmittingComment = false;
+          this.cdRef.detectChanges();
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (newComment) => {
+          // Refresh comments list instead of manually updating the array
+          if (this.ticket?.id) {
+            this.loadComments(this.ticket.id);
+          }
+          this.newComment = '';
+          this.replyingTo = null;
+          this.snackBar.open('Comment added successfully', 'Close', { 
+            duration: 3000, 
+            panelClass: ['success-snackbar'] 
+          });
+        },
+        error: (error) => {
+          this.errorService.handleError(error, 'Adding comment', true);
+        }
+      });
   }
 
   deleteTicket() {
@@ -767,7 +905,7 @@ export class TicketDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  selectAssignee(userId: number) {
+  selectAssignee(userId: number | null) {
     this.ticketForm.get('assignedToUserId')?.setValue(userId);
     this.ticketForm.get('assignedToUserId')?.markAsDirty();
     this.assigneeDropdownOpen = false;
@@ -806,6 +944,42 @@ export class TicketDetailsComponent implements OnInit, OnDestroy {
     return assignedUser?.email || (assignedUser?.firstname && assignedUser?.lastname ? `${assignedUser.firstname} ${assignedUser.lastname}` : `User ${ticket.assignedToUserId}`);
   }
 
+  getAssignedUserInitials(): string {
+    if (!this.ticket?.assignedToUserId) return 'U';
+    const ticket = this.ticket!;
+    
+    // Try to find the user in staff members
+    const assignedUser = this.staffMembers.find(user => user.id === ticket.assignedToUserId);
+    
+    if (assignedUser) {
+      // If we have first and last name
+      if (assignedUser.firstname && assignedUser.lastname) {
+        return (assignedUser.firstname.charAt(0) + assignedUser.lastname.charAt(0)).toUpperCase();
+      }
+      
+      // If we have email, use first character
+      if (assignedUser.email) {
+        const parts = assignedUser.email.split('@')[0].split('.');
+        if (parts.length > 1) {
+          return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+        }
+        return assignedUser.email.charAt(0).toUpperCase();
+      }
+    }
+    
+    // Fallback to ticket assignedToEmail
+    if (ticket.assignedToEmail) {
+      const emailParts = ticket.assignedToEmail.split('@')[0].split('.');
+      if (emailParts.length > 1) {
+        return (emailParts[0].charAt(0) + emailParts[1].charAt(0)).toUpperCase();
+      }
+      return ticket.assignedToEmail.charAt(0).toUpperCase();
+    }
+    
+    // Final fallback
+    return 'U';
+  }
+
   setupForm() {
     if (!this.ticket) return;
     this.ticketForm = this.fb.group({
@@ -821,5 +995,51 @@ export class TicketDetailsComponent implements OnInit, OnDestroy {
     this.assigneeDropdownOpen = false;
     document.removeEventListener('click', this.closeDropdownOnClickOutside);
     this.cdRef.detectChanges();
+  }
+
+  setReplyToComment(comment: CommentResponse | null) {
+    this.replyingTo = comment;
+    if (comment) {
+      const textarea = document.getElementById('comment') as HTMLTextAreaElement;
+      if (textarea) {
+        textarea.focus();
+      }
+    }
+  }
+  
+  getCommentAuthorDisplay(comment: CommentResponse): string {
+    if (comment.mentionedUsers && comment.mentionedUsers.length > 0) {
+      const author = comment.mentionedUsers.find(user => user.id === comment.authorUserId);
+      if (author) {
+        return author.name || author.email;
+      }
+    }
+    return 'Unknown User';
+  }
+  
+  getCommentAuthorInitials(comment: CommentResponse): string {
+    const authorName = this.getCommentAuthorDisplay(comment);
+    if (authorName === 'Unknown User') return 'U';
+    
+    const parts = authorName.split(' ');
+    if (parts.length > 1) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return authorName.substring(0, 1).toUpperCase();
+  }
+  
+  getCommentDate(comment: CommentResponse): Date {
+    return new Date(comment.createdAt);
+  }
+  
+  getAvatarColor(comment: CommentResponse): string {
+    // Generate a consistent color based on the author ID
+    const colors = [
+      'bg-blue-600', 'bg-green-600', 'bg-purple-600', 'bg-yellow-600',
+       'bg-indigo-600', 'bg-pink-600', 'bg-teal-600'
+    ];
+    
+    const index = comment.authorUserId % colors.length;
+    return colors[index];
   }
 }

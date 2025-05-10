@@ -52,6 +52,10 @@ export class ProjectSettingsComponent implements OnInit {
       next: (projectData) => {
         this.project = new Project(projectData);
         this.projectTags = [...this.project.tags];
+        console.log('Loaded project:', {
+          primaryTag: this.project.projectTag,
+          tags: this.projectTags
+        });
       },
       error: (error: any) => {
         console.error('Error loading project:', error);
@@ -62,19 +66,17 @@ export class ProjectSettingsComponent implements OnInit {
 
   addTag() {
     if (this.newTag.trim()) {
-      if (!this.project.tags.includes(this.newTag.trim())) {
-        this.project.tags.push(this.newTag.trim());
-        this.projectTags = [...this.project.tags];
+      if (!this.projectTags.includes(this.newTag.trim())) {
+        this.projectTags.push(this.newTag.trim());
       }
       this.newTag = '';
     }
   }
 
   removeTag(tag: string) {
-    const index = this.project.tags.indexOf(tag);
+    const index = this.projectTags.indexOf(tag);
     if (index > -1) {
-      this.project.tags.splice(index, 1);
-      this.projectTags = [...this.project.tags];
+      this.projectTags.splice(index, 1);
     }
   }
 
@@ -113,21 +115,17 @@ export class ProjectSettingsComponent implements OnInit {
       formData.append('priority', this.project.priority);
     }
     
-    // Handle technologies (convert array to string if needed)
-    if (this.project.technologies) {
-      if (Array.isArray(this.project.technologies)) {
-        formData.append('technologies', JSON.stringify(this.project.technologies));
-      } else {
-        formData.append('technologies', this.project.technologies);
-      }
+    // Handle technologies
+    if (this.project.technologies && this.project.technologies.length > 0) {
+      formData.append('technologies', JSON.stringify(this.project.technologies));
     }
     
-    // Handle primary tag (single tag)
-    if (this.projectTags && this.projectTags.length > 0) {
-      formData.append('primaryTag', this.projectTags[0]); // Use first tag as primary
+    // Handle primary tag (project identifier) - keep the existing one
+    if (this.project.projectTag) {
+      formData.append('primaryTag', this.project.projectTag);
     }
     
-    // Handle tags array
+    // Handle regular tags array - use projectTags
     if (this.projectTags && this.projectTags.length > 0) {
       formData.append('tags', JSON.stringify(this.projectTags));
     }
@@ -147,14 +145,10 @@ export class ProjectSettingsComponent implements OnInit {
       name: this.project.name,
       description: this.project.description,
       technologies: this.project.technologies,
-      primaryTag: this.projectTags[0],
-      tags: this.projectTags,
+      primaryTag: this.project.projectTag, // Primary tag (identifier)
+      tags: this.projectTags, // Regular tags
       documentationUrls: this.project.documentationUrls
     });
-
-    // Log FormData entries for debugging
-    const formDataEntries = Array.from((formData as any).entries());
-    console.log('FormData entries:', formDataEntries);
 
     this.projectService.updateProject(this.projectId, formData).subscribe({
       next: (response) => {

@@ -127,12 +127,12 @@
         <div
           *ngFor="let project of projects"
           class="project-card dark:bg-gray-700"
-          (click)="selectProject(project.id)"
+          (click)="selectProject(project.getId())"
         >
           <div class="project-header">
             <h3 class="project-name">{{ project.name }}</h3>
             <span class="text-gray-400 dark:text-gray-500">{{
-              project.id
+              project.getId()
             }}</span>
           </div>
 
@@ -147,7 +147,7 @@
                 Total Issues
               </span>
               <span class="stat-value">{{
-                getIssueCountForProject(project.id)
+                getIssueCountForProject(project.getId())
               }}</span>
             </div>
 
@@ -157,13 +157,13 @@
                 High Priority
               </span>
               <span class="stat-value">{{
-                getIssueCountByPriority(project.id, "HIGH")
+                getIssueCountByPriority(project.getId(), "HIGH")
               }}</span>
             </div>
             <div class="progress-container">
               <div
                 class="progress-bar progress-high"
-                [style.width.%]="getIssuePercentByPriority(project.id, 'HIGH')"
+                [style.width.%]="getIssuePercentByPriority(project.getId(), 'HIGH')"
               ></div>
             </div>
 
@@ -173,14 +173,14 @@
                 Medium Priority
               </span>
               <span class="stat-value">{{
-                getIssueCountByPriority(project.id, "MEDIUM")
+                getIssueCountByPriority(project.getId(), "MEDIUM")
               }}</span>
             </div>
             <div class="progress-container">
               <div
                 class="progress-bar progress-medium"
                 [style.width.%]="
-                  getIssuePercentByPriority(project.id, 'MEDIUM')
+                  getIssuePercentByPriority(project.getId(), 'MEDIUM')
                 "
               ></div>
             </div>
@@ -191,13 +191,13 @@
                 Low Priority
               </span>
               <span class="stat-value">{{
-                getIssueCountByPriority(project.id, "LOW")
+                getIssueCountByPriority(project.getId(), "LOW")
               }}</span>
             </div>
             <div class="progress-container">
               <div
                 class="progress-bar progress-low"
-                [style.width.%]="getIssuePercentByPriority(project.id, 'LOW')"
+                [style.width.%]="getIssuePercentByPriority(project.getId(), 'LOW')"
               ></div>
             </div>
           </div>

@@ -38,10 +38,10 @@ export const managementGuard: CanActivateFn = (route, state) => {
 
 // Issues page guard (allows both Manager and Developer)
 export const issuesGuard: CanActivateFn = (route, state) => {
-  return roleGuard([Role.MANAGER, Role.DEVELOPER, Role.TESTER])(route, state);
+  return roleGuard([Role.MANAGER, Role.DEVELOPER, Role.TESTER, Role.PARTNER])(route, state);
 };
 
 // Issue details guard (allows both Manager and Developer)
 export const issueDetailsGuard: CanActivateFn = (route, state) => {
-  return roleGuard([Role.MANAGER, Role.DEVELOPER, Role.TESTER])(route, state);
+  return roleGuard([Role.MANAGER, Role.DEVELOPER, Role.TESTER, Role.PARTNER])(route, state);
 }; 

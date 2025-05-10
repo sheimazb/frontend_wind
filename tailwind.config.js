@@ -31,10 +31,24 @@ module.exports = {
           accent: '#362C45',
         },
         warning: '#FFB84D',
+        gray: {
+          650: '#3B4758', // Custom gray color for dark hover states
+          750: '#2A3441', // Custom gray color for dark backgrounds
+          850: '#1E2836', // Even darker gray for deep backgrounds
+        },
       },
       backgroundImage: {
         'gradient-discord': 'linear-gradient(to right, #E1567C, #9F3996)',
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+      },
+      animation: {
+        fadeIn: 'fadeIn 0.2s ease-in-out forwards',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: 0, transform: 'translateY(-10px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' },
+        },
       },
     },
   },

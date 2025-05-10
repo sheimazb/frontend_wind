@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,6 +25,13 @@ import { SolutionDialogModule } from '../../../components/solutions/solution-dia
 import { SolutionService, ComplexityLevel, SolutionStatus, Solution as ServiceSolution, LogAnalysisRequest, DevelopersSolutions } from '../../../services/solution.service';
 import { Subscription } from 'rxjs';
 import { UserService } from '../../../services/user.service';
+import { CommentService, CommentRequest, CommentResponse } from '../../../services/comment.service';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { MatMenuModule } from '@angular/material/menu';
+import { ProjectService } from '../../../services/project.service';
+import { User } from '../../../models/user.model';
+import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
+import { fromEvent } from 'rxjs';
 
 // Define SimilarLog interface to match backend response format
 interface SimilarLog {
@@ -93,6 +100,7 @@ const VERY_HIGH = ComplexityLevel.VERY_HIGH;
     DragDropModule,
     SolutionDialogModule,
     MarkdownModule,
+    MatMenuModule
   ],
   templateUrl: './issue-page.component.html',
   styleUrl: './issue-page.component.css',
@@ -111,7 +119,7 @@ export class IssuePageComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   tickets: Ticket[] = []; 
   ticketLoadError: boolean = false; 
-  activeTab: 'details' | 'tickets' | 'solutions' = 'details'; 
+  activeTab: 'details' | 'tickets' | 'solutions' | 'comments' = 'details'; 
   ticket: Ticket | null = null;
   ticketsViewMode: 'list' | 'kanban' = 'kanban'; 
   activeSolutionsTab: 'my-solutions' | 'developer-solutions' | 'ai-solutions' = 'my-solutions';
@@ -179,6 +187,44 @@ export class IssuePageComponent implements OnInit, OnDestroy {
     }
   ];
 
+  // Comments-related properties
+  comments: CommentResponse[] = [];
+  isLoadingComments: boolean = false;
+  isSubmittingComment: boolean = false;
+  newCommentText: string = '';
+  commentError: string | null = null;
+  editingCommentId: number | null = null;
+  editCommentText: string = '';
+  hasMoreComments: boolean = false;
+  isLoadingMoreComments: boolean = false;
+  currentPage: number = 1;
+  pageSize: number = 10;
+
+  // Additional comment-related properties for replies
+  replyingToCommentId: number | null = null;
+  replyText: string = '';
+  parentCommentMap: Map<number, CommentResponse> = new Map();
+
+  // Add missing properties for comments
+  replyToCommentId: number | null = null;
+  rootComments: CommentResponse[] = [];
+  currentUserId: number | null = null;
+
+  // Add a map to store user details
+  private userDetailsCache = new Map<number, any>();
+
+  @ViewChild('commentTextarea') commentTextarea!: ElementRef;
+  @ViewChild('newCommentTextarea') newCommentTextarea!: ElementRef;
+  @ViewChild('editCommentTextarea') editCommentTextarea!: ElementRef;
+
+  projectId: number = 0;
+  projectMembers: User[] = [];
+  filteredMembers: User[] = [];
+  showNewCommentSuggestions = false;
+  showEditCommentSuggestions = false;
+  cursorPosition = 0;
+  mentionStart = -1;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -190,7 +236,10 @@ export class IssuePageComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private errorService: ErrorService,
     private authService: AuthService,
-    private solutionService: SolutionService
+    private solutionService: SolutionService,
+    private commentService: CommentService,
+    private sanitizer: DomSanitizer,
+    private projectService: ProjectService
   ) {
     // Initialize dark mode detection
     this.checkDarkMode();
@@ -198,6 +247,11 @@ export class IssuePageComponent implements OnInit, OnDestroy {
     // Get the current user role
     const user = this.authService.getCurrentUser();
     this.userRole = user?.role?.toUpperCase() || '';
+    
+    // Get current user ID
+    const userStr = localStorage.getItem('user');
+    const userData = userStr ? JSON.parse(userStr) : null;
+    this.currentUserId = userData?.id || null;
   }
 
   private darkMode = false;
@@ -237,6 +291,11 @@ export class IssuePageComponent implements OnInit, OnDestroy {
    isManager(): boolean {
     const user = this.authService.getCurrentUser();
     return user?.role === 'MANAGER';
+  }
+
+  isPartner(): boolean{
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'PARTNER';
   }
 
   checkDeveloperPermission(): void {
@@ -356,7 +415,11 @@ export class IssuePageComponent implements OnInit, OnDestroy {
   }
 
   onDashboardClick() {
-    this.router.navigate(['dashboard', 'issues']);
+    if (this.isPartner()) {
+      this.router.navigate(['dashboard', 'project-details', this.log?.projectId]);
+    } else {
+      this.router.navigate(['dashboard', 'issues']);
+    }
   }
 
   resolveBug() {
@@ -657,12 +720,7 @@ export class IssuePageComponent implements OnInit, OnDestroy {
     return this.getMergedTickets().length;
   }
 
-  /**
-   * Checks if a user is allowed to move a ticket to a specific status
-   * @param currentStatus The current status of the ticket
-   * @param newStatus The target status
-   * @returns boolean indicating if the transition is allowed
-   */
+ 
   isStatusTransitionAllowed(currentStatus: Status, newStatus: Status): boolean {
     // Don't allow moving to the same status
     if (currentStatus === newStatus) return false;
@@ -767,7 +825,7 @@ export class IssuePageComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (error) => {
-       // ... (existing error handling)
+       // ... (rest of the error handling)
        
         // Revert local changes and refresh from server on error
         this.snackBar.open(`Failed to update ticket #${ticketId} status. Reverting change.`, 'Close', {
@@ -995,10 +1053,6 @@ export class IssuePageComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Get solution recommendations based on log message
-   * @param logMessage The log message to analyze
-   */
   getSolutionRecommendations(logMessage: string): void {
     console.log('Starting getSolutionRecommendations with log message:', logMessage);
     this.isLoading = true;
@@ -1277,6 +1331,596 @@ export class IssuePageComponent implements OnInit, OnDestroy {
     if (types.some(t => t.toLowerCase().includes('security'))) return 'SEC';
     
     return 'DB'; // Default icon
+  }
+
+  /**
+   * Get the first ticket ID for the comments feature 
+   * (since comments are associated with tickets in the backend)
+   */
+  getFirstTicketId(): number | null {
+    console.log('Tickets in getFirstTicketId:', this.tickets);
+    
+    if (!this.tickets || this.tickets.length === 0) {
+      console.warn('No tickets available for comments');
+      return null;
+    }
+    
+    // Find the first ticket with an ID
+    for (const ticket of this.tickets) {
+      if (ticket && ticket.id) {
+        console.log('Using ticket ID for comments:', ticket.id);
+        return ticket.id;
+      }
+    }
+    
+    console.warn('No ticket with valid ID found');
+    return null;
+  }
+
+  /**
+   * Load comments for the first ticket associated with this issue
+   */
+  loadComments() {
+    const ticketId = this.getFirstTicketId();
+    if (!ticketId) {
+      console.warn('No ticket available for comments. First create a ticket.');
+      this.commentError = 'No ticket available to post comments. Please create a ticket first.';
+      return;
+    }
+
+    console.log('Loading comments for ticket ID:', ticketId);
+    this.isLoadingComments = true;
+    this.commentService.getCommentsByTicketId(ticketId).subscribe({
+      next: (comments) => {
+        console.log('Received comments from server:', comments);
+        // Process comments to build reply structure
+        this.comments = this.processCommentReplies(comments);
+        
+        // Fetch user details for each comment
+        this.comments.forEach(comment => {
+          if (comment.authorUserId) {
+            this.getUserDetails(comment.authorUserId);
+          }
+        });
+        
+        console.log('Processed comments:', this.comments);
+        this.isLoadingComments = false;
+        this.hasMoreComments = comments.length >= this.pageSize;
+        this.commentError = null;
+      },
+      error: (error) => {
+        this.isLoadingComments = false;
+        this.commentError = 'Failed to load comments. Please try again.';
+        console.error('Error loading comments:', error);
+      }
+    });
+  }
+
+  /**
+   * Reload comments
+   */
+  refreshComments() {
+    console.log('Refreshing comments');
+    this.comments = []; // Clear current comments before reloading
+    this.loadComments();
+  }
+
+  /**
+   * Load more comments (pagination)
+   */
+  loadMoreComments() {
+    const ticketId = this.getFirstTicketId();
+    if (!ticketId) return;
+
+    this.isLoadingMoreComments = true;
+    this.currentPage++;
+    
+    // In a real implementation, you would pass pagination parameters
+    // This is a simplified version
+    this.commentService.getCommentsByTicketId(ticketId).subscribe({
+      next: (newComments) => {
+        this.comments = [...this.comments, ...newComments];
+        this.isLoadingMoreComments = false;
+        this.hasMoreComments = newComments.length >= this.pageSize;
+      },
+      error: (error) => {
+        this.isLoadingMoreComments = false;
+        console.error('Error loading more comments:', error);
+      }
+    });
+  }
+
+  /**
+   * Add a new comment
+   */
+  addComment() {
+    const ticketId = this.getFirstTicketId();
+    if (!ticketId) {
+      this.commentError = 'No ticket available to post comments. Please create a ticket first.';
+      return;
+    }
+
+    if (!this.newCommentText.trim()) {
+      this.commentError = 'Comment cannot be empty';
+      return;
+    }
+
+    console.log('Adding new comment for ticketId:', ticketId);
+    this.isSubmittingComment = true;
+    this.commentError = null;
+
+    // Extract mentioned user IDs from the comment text
+    const mentionedUserIds = this.extractMentionedUserIds(this.newCommentText);
+    console.log('Extracted mentioned user IDs:', mentionedUserIds);
+
+    const commentRequest: CommentRequest = {
+      ticketId: ticketId,
+      content: this.newCommentText,
+      mentionedUserIds: mentionedUserIds.length > 0 ? mentionedUserIds : undefined
+    };
+
+    console.log('Sending comment request:', commentRequest);
+
+    this.commentService.createComment(commentRequest).subscribe({
+      next: (response) => {
+        console.log('Comment added successfully:', response);
+        
+        // New approach: Refresh all comments to ensure we have the latest data
+        this.loadComments();
+        
+        // Clear the input
+        this.newCommentText = ''; 
+        this.isSubmittingComment = false;
+        this.snackBar.open('Comment added successfully', 'Close', { duration: 3000 });
+      },
+      error: (error) => {
+        console.error('Error adding comment:', error);
+        this.isSubmittingComment = false;
+        
+        // More detailed error message based on error status
+        if (error.status === 401 || error.status === 403) {
+          this.commentError = 'You do not have permission to add comments.';
+        } else if (error.status === 404) {
+          this.commentError = 'The ticket could not be found.';
+        } else if (error.status === 400) {
+          this.commentError = 'Invalid comment data. Please check your input.';
+        } else {
+          this.commentError = 'Failed to add comment. Please try again.';
+        }
+      }
+    });
+  }
+
+ 
+  private extractMentionedUserIds(text: string): number[] {
+    return this.projectMembers
+      .filter(member => member.firstname && text.includes(`@${member.firstname}`))
+      .map(member => member.id);
+  }
+
+  /**
+   * Check if the current user can edit a comment
+   */
+  canEditComment(comment: CommentResponse): boolean {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) return false;
+    
+    // Get current user ID from localStorage
+    const userStr = localStorage.getItem('user');
+    const userData = userStr ? JSON.parse(userStr) : null;
+    const userId = userData?.id;
+    
+    // User can edit if they are the author or an admin
+    return !!userId && (comment.authorUserId === Number(userId) || currentUser.role === 'ADMIN');
+  }
+
+  /**
+   * Check if the current user can delete a comment
+   */
+  canDeleteComment(comment: CommentResponse): boolean {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) return false;
+    
+    // Get current user ID from localStorage
+    const userStr = localStorage.getItem('user');
+    const userData = userStr ? JSON.parse(userStr) : null;
+    const userId = userData?.id;
+    
+    // User can delete if they are the author or an admin
+    return !!userId && (comment.authorUserId === Number(userId) || currentUser.role === 'ADMIN');
+  }
+
+  /**
+   * Enter edit mode for a comment
+   */
+  editComment(comment: CommentResponse) {
+    this.editingCommentId = comment.id;
+    this.editCommentText = comment.content;
+    // Set the newCommentText to enable mention functionality in edit mode
+    this.newCommentText = comment.content;
+  }
+
+  /**
+   * Cancel editing a comment
+   */
+  cancelEditOrReply() {
+    this.editingCommentId = null;
+    this.replyToCommentId = null;
+    this.newCommentText = '';
+  }
+
+  /**
+   * Save edited comment
+   */
+  saveEditedComment(comment: CommentResponse | number) {
+    if (!this.editCommentText.trim()) {
+      return;
+    }
+
+    this.isSubmittingComment = true;
+    const commentId = typeof comment === 'number' ? comment : comment.id;
+
+    // Extract mentioned user IDs from the edited comment text
+    const mentionedUserIds = this.extractMentionedUserIds(this.editCommentText);
+
+    const commentRequest: CommentRequest = {
+      ticketId: this.getFirstTicketId() || 0,
+      content: this.editCommentText,
+      mentionedUserIds: mentionedUserIds.length > 0 ? mentionedUserIds : undefined
+    };
+
+    this.commentService.updateComment(commentId, commentRequest).subscribe({
+      next: (updatedComment) => {
+        // Find and update the comment in the array
+        const index = this.comments.findIndex(c => c.id === commentId);
+        if (index !== -1) {
+          this.comments[index] = updatedComment;
+        }
+        this.isSubmittingComment = false;
+        this.editingCommentId = null;
+        this.editCommentText = '';
+        this.newCommentText = ''; // Clear newCommentText as well
+        this.snackBar.open('Comment updated successfully', 'Close', { duration: 3000 });
+      },
+      error: (error) => {
+        this.isSubmittingComment = false;
+        console.error('Error updating comment:', error);
+        this.snackBar.open('Failed to update comment', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  /**
+   * Delete a comment
+   */
+  deleteComment(comment: CommentResponse) {
+    if (confirm('Are you sure you want to delete this comment?')) {
+      this.commentService.deleteComment(comment.id).subscribe({
+        next: () => {
+          // Remove the comment from the array
+          this.comments = this.comments.filter(c => c.id !== comment.id);
+          this.snackBar.open('Comment deleted successfully', 'Close', { duration: 3000 });
+        },
+        error: (error) => {
+          console.error('Error deleting comment:', error);
+          this.snackBar.open('Failed to delete comment', 'Close', { duration: 3000 });
+        }
+      });
+    }
+  }
+
+  /**
+   * Format comment with highlighted @mentions
+   */
+  formatCommentWithMentions(comment: CommentResponse): SafeHtml {
+    if (!comment.content) return '';
+    
+    let formattedContent = comment.content;
+    
+    // Replace @mentions with highlighted spans
+    if (comment.mentionedUsers && comment.mentionedUsers.length > 0) {
+      comment.mentionedUsers.forEach(user => {
+        const displayName = user.name || `User ${user.id}`;
+        // Match both the display format and the ID format
+        const mentionRegex = new RegExp(`@${displayName}`, 'g');
+        formattedContent = formattedContent.replace(mentionRegex, `<span class="mention">@${displayName}</span>`);
+      });
+    }
+    
+    // Sanitize the HTML to prevent XSS
+    return this.sanitizer.bypassSecurityTrustHtml(formattedContent);
+  }
+
+  // Load comments when switching to the comments tab
+  onTabChange(tab: 'details' | 'tickets' | 'solutions' | 'comments') {
+    this.activeTab = tab;
+    if (tab === 'comments') {
+      // If tickets are not loaded yet, load them first
+      if (!this.tickets || this.tickets.length === 0) {
+        this.isLoading = true;
+        this.loadTicketsForIssue(this.issueId);
+      }
+      // Load project members for mentions
+      if (this.log?.projectId) {
+        this.projectId = Number(this.log.projectId);
+        this.loadProjectMembers();
+      }
+      this.loadComments();
+    }
+  }
+
+  // Update loadProjectMembers to use the correct project ID
+  async loadProjectMembers() {
+    try {
+      if (!this.projectId) {
+        console.error('No project ID available');
+        return;
+      }
+      const members = await this.projectService.getProjectMembers(this.projectId).toPromise();
+      if (members) {
+        this.projectMembers = members;
+        console.log('Loaded project members:', members);
+      }
+    } catch (error) {
+      console.error('Error loading project members:', error);
+    }
+  }
+
+  /**
+   * Start replying to a comment
+   */
+  replyToComment(comment: CommentResponse) {
+    this.replyingToCommentId = comment.id;
+    this.replyText = '';
+    
+    // If we were editing a comment, cancel that
+    if (this.editingCommentId) {
+      this.cancelEditOrReply();
+    }
+  }
+  
+  /**
+   * Cancel replying to a comment
+   */
+  cancelReply() {
+    this.replyingToCommentId = null;
+    this.replyText = '';
+  }
+  
+  /**
+   * Submit a reply to a comment
+   */
+  submitReply(parentComment: CommentResponse) {
+    if (!this.replyText.trim() || this.isSubmittingComment) {
+      return;
+    }
+    
+    const ticketId = this.getFirstTicketId();
+    if (!ticketId) {
+      this.commentError = 'No ticket available to post comments. Please create a ticket first.';
+      return;
+    }
+    
+    this.isSubmittingComment = true;
+    
+    // Extract mentioned user IDs from the reply text
+    const mentionedUserIds = this.extractMentionedUserIds(this.replyText);
+    
+    const commentRequest: CommentRequest = {
+      ticketId: ticketId,
+      content: this.replyText,
+      parentCommentId: parentComment.id, // Set the parent comment ID
+      mentionedUserIds: mentionedUserIds.length > 0 ? mentionedUserIds : undefined
+    };
+    
+    this.commentService.createComment(commentRequest).subscribe({
+      next: (response) => {
+        // Add the reply to the parent comment's replies array
+        if (!parentComment.replies) {
+          parentComment.replies = [];
+        }
+        parentComment.replies.push(response);
+        
+        // Add to parent comment map for easy lookup
+        this.parentCommentMap.set(response.id, parentComment);
+        
+        // Reset reply state
+        this.replyingToCommentId = null;
+        this.replyText = '';
+        this.isSubmittingComment = false;
+        
+        this.snackBar.open('Reply added successfully', 'Close', { duration: 3000 });
+      },
+      error: (error) => {
+        this.isSubmittingComment = false;
+        console.error('Error adding reply:', error);
+        this.snackBar.open('Failed to add reply', 'Close', { duration: 3000 });
+      }
+    });
+  }
+  
+  /**
+   * Get the author name of a parent comment
+   */
+  getParentCommentAuthor(parentCommentId: number): string {
+    const parentComment = this.comments.find(c => c.id === parentCommentId);
+    return parentComment?.authorUserId ? this.getUserEmail(parentComment.authorUserId) : 'Unknown User';
+  }
+  
+  /**
+   * Process comments to build reply structure and parent map
+   */
+  processCommentReplies(comments: CommentResponse[]): CommentResponse[] {
+    // Reset the parent comment map
+    this.parentCommentMap = new Map();
+    
+    // If comments array is empty or undefined, return empty array
+    if (!comments || comments.length === 0) {
+      console.log('No comments to process');
+      return [];
+    }
+    
+    console.log('Processing comment replies for', comments.length, 'comments');
+    
+    // Separate top-level comments and replies
+    const topLevelComments: CommentResponse[] = [];
+    const replies: CommentResponse[] = [];
+    
+    comments.forEach(comment => {
+      if (comment.parentCommentId) {
+        replies.push(comment);
+      } else {
+        comment.replies = []; // Initialize replies array
+        topLevelComments.push(comment);
+      }
+    });
+    
+    // Add replies to their parent comments
+    replies.forEach(reply => {
+      const parentComment = topLevelComments.find(c => c.id === reply.parentCommentId);
+      if (parentComment) {
+        if (!parentComment.replies) {
+          parentComment.replies = [];
+        }
+        parentComment.replies.push(reply);
+        this.parentCommentMap.set(reply.id, parentComment);
+      } else {
+        // If parent not found, treat as top-level comment
+        reply.replies = [];
+        topLevelComments.push(reply);
+      }
+    });
+    
+    // Set rootComments to be top-level comments
+    this.rootComments = topLevelComments;
+    
+    return topLevelComments;
+  }
+
+  // Add missing methods for comments
+  submitComment() {
+    if (this.editingCommentId) {
+      const commentToEdit = this.comments.find(c => c.id === this.editingCommentId);
+      if (commentToEdit) {
+        this.saveEditedComment(commentToEdit);
+      }
+    } else if (this.replyToCommentId) {
+      const parentComment = this.comments.find(c => c.id === this.replyToCommentId);
+      if (parentComment) {
+        this.submitReply(parentComment);
+      }
+    } else {
+      this.addComment();
+    }
+  }
+
+  hasReplies(commentId: number): boolean {
+    return this.comments.some(comment => comment.parentCommentId === commentId);
+  }
+
+  getRepliesForComment(commentId: number): CommentResponse[] {
+    return this.comments.filter(comment => comment.parentCommentId === commentId);
+  }
+
+  // Method to get user details
+  private getUserDetails(userId: number): void {
+    if (this.userDetailsCache.has(userId)) return;
+
+    this.userService.getUserById(userId).subscribe({
+      next: (user) => {
+        this.userDetailsCache.set(userId, user);
+        // Trigger change detection
+        this.comments = [...this.comments];
+      },
+      error: (error) => {
+        console.error(`Error fetching user details for ID ${userId}:`, error);
+        this.userDetailsCache.set(userId, { email: 'Unknown User' });
+      }
+    });
+  }
+
+  // Get user email from cache
+  getUserEmail(userId: number): string {
+    const user = this.userDetailsCache.get(userId);
+    return user ? user.email : 'Loading...';
+  }
+
+  // Get total comments count including replies
+  getTotalCommentsCount(): number {
+    let count = 0;
+    if (this.comments) {
+      count = this.comments.length;
+      this.comments.forEach(comment => {
+        if (comment.replies) {
+          count += comment.replies.length;
+        }
+      });
+    }
+    return count;
+  }
+
+  // Handle input for mentions
+  handleInput(event: any, isEdit: boolean = false) {
+    const textarea = event.target;
+    this.cursorPosition = textarea.selectionStart;
+    const text = textarea.value;
+    
+    // Find the last @ symbol before cursor
+    const lastAtSymbol = text.lastIndexOf('@', this.cursorPosition - 1);
+    
+    if (lastAtSymbol !== -1 && this.cursorPosition > lastAtSymbol) {
+      const searchText = text.substring(lastAtSymbol + 1, this.cursorPosition).toLowerCase();
+      this.mentionStart = lastAtSymbol;
+      
+      // Filter members based on firstname or email
+      this.filteredMembers = this.projectMembers.filter(member => 
+        (member.firstname && member.firstname.toLowerCase().includes(searchText)) ||
+        member.email.toLowerCase().includes(searchText)
+      );
+      
+      // Show suggestions for the appropriate textarea
+      if (isEdit) {
+        this.showEditCommentSuggestions = this.filteredMembers.length > 0;
+        this.showNewCommentSuggestions = false;
+      } else {
+        this.showNewCommentSuggestions = this.filteredMembers.length > 0;
+        this.showEditCommentSuggestions = false;
+      }
+    } else {
+      this.showNewCommentSuggestions = false;
+      this.showEditCommentSuggestions = false;
+      this.mentionStart = -1;
+    }
+  }
+
+  // Select member for mention
+  selectMember(member: User, isEdit: boolean = false) {
+    if (this.mentionStart !== -1) {
+      const textarea = isEdit ? this.editCommentTextarea.nativeElement : this.newCommentTextarea.nativeElement;
+      const text = textarea.value;
+      const beforeMention = text.substring(0, this.mentionStart);
+      const afterMention = text.substring(this.cursorPosition);
+      
+      // Insert @firstname[email]
+      const displayName = member.firstname || member.email;
+      const mention = `@${displayName}`;
+      textarea.value = beforeMention + mention + afterMention;
+      
+      // Update model based on context
+      if (isEdit) {
+        this.editCommentText = textarea.value;
+        this.showEditCommentSuggestions = false;
+      } else {
+        this.newCommentText = textarea.value;
+        this.showNewCommentSuggestions = false;
+      }
+      
+      // Move cursor and cleanup
+      const newPosition = this.mentionStart + mention.length;
+      textarea.setSelectionRange(newPosition, newPosition);
+      this.mentionStart = -1;
+      textarea.focus();
+    }
   }
 }
 

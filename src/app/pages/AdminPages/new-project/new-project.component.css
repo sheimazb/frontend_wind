@@ -1,0 +1,53 @@
+/* Architecture cards hover effects */
+.border-gray-200:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+}
+
+/* Step indication active step */
+.bg-blue-500 {
+  position: relative;
+}
+
+.bg-blue-500::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  animation: pulse 2s infinite;
+  box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  }
+  
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+/* Transitions for stepper navigation */
+.opacity-60 {
+  transition: opacity 0.3s ease;
+}
+
+.opacity-100 {
+  transition: opacity 0.3s ease;
+}
+
+/* Selected technology styling */
+.selected {
+  border-color: #8b5cf6;
+  background-color: rgba(139, 92, 246, 0.1);
+} 

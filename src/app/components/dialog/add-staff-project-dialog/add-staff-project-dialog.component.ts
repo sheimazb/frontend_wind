@@ -101,7 +101,7 @@ export class AddStaffProjectDialogComponent implements OnInit {
 
   addToProject(project: Project) {
     this.isLoading = true;
-    this.projectService.addUserToProject(project.id, this.data.staffId).subscribe({
+    this.projectService.addUserToProject(project.getId(), this.data.staffId).subscribe({
       next: () => {
         this.toastr.success('Successfully added to project');
         this.dialogRef.close(true);

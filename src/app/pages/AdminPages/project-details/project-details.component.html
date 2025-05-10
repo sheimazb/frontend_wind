@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+<div class="min-h-screen">
   <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
     <div class="mx-auto max-w-7xl">
       <!-- Breadcrumb and Header -->
@@ -33,7 +33,9 @@
               </svg>
               Share
             </button>
-            <button type="button" class="inline-flex items-center justify-center gap-2 rounded-md border border-transparent bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:bg-purple-700 dark:hover:bg-purple-800">
+            <button
+            (click)="onEditButtonClick()"
+            type="button" class="inline-flex items-center justify-center gap-2 rounded-md border border-transparent bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:bg-purple-700 dark:hover:bg-purple-800">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
@@ -567,6 +569,110 @@
                         </tr>
                       </table>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+        <!-- Issues Tab -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <div class="flex items-center gap-2.5 px-2 py-1">
+              <mat-icon class="text-current text-lg">bug_report</mat-icon>
+              <span class="font-medium">Issues</span>
+            </div>
+          </ng-template>
+          
+          <div class="p-6">
+            <div *ngIf="loading" class="flex items-center justify-center py-8">
+              <mat-spinner diameter="40"></mat-spinner>
+            </div>
+
+            <div *ngIf="!loading">
+              <!-- Issues Header -->
+              <div class="issues-header mb-6">
+                <div>
+                  <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    Project Issues
+                  </h2>
+                  <div class="flex items-center gap-4 mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    <span class="flex items-center gap-1">
+                      <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                      Total: {{filteredLogs.length}}
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                      High: {{getHighPriorityFilteredCount()}}
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                      Medium: {{getMediumPriorityFilteredCount()}}
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                      Low: {{getLowPriorityFilteredCount()}}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Filters -->
+              <div class="filters mb-6">
+                <div class="filter-group">
+                  <span class="filter-label">Priority:</span>
+                  <select [(ngModel)]="priorityFilter"
+                          (change)="applyIssueFilters()"
+                          class="filter-select">
+                    <option value="">All Priorities</option>
+                    <option value="HIGH">High</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="LOW">Low</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Issues List -->
+              <div class="divide-y divide-gray-100 dark:divide-gray-800">
+                <div *ngIf="filteredLogs.length === 0" class="empty-state">
+                  <mat-icon class="empty-state-icon">check_circle</mat-icon>
+                  <h3 class="empty-state-title">No Issues Found</h3>
+                  <p class="empty-state-desc">This project doesn't have any reported issues yet. That's great news!</p>
+                </div>
+
+                <div *ngFor="let issue of filteredLogs" class="issue-item">
+                  <div class="flex flex-col items-start gap-4">
+                    <span class="text-sm text-red-500 font-bold">{{issue.type}}</span>
+                    <div [ngClass]="{
+                      'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': issue.severity === 'HIGH',
+                      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400': issue.severity === 'MEDIUM',
+                      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': issue.severity === 'LOW'
+                    }" class="priority-badge">
+                      <mat-icon class="text-sm">flag</mat-icon>
+                      {{issue.severity}}
+                    </div>
+                  </div>
+
+                  <div class="issue-info">
+                    <h4 class="issue-title">{{issue.description}}</h4>
+                    <p class="issue-desc">{{issue.type}} - {{issue.errorCode}}</p>
+
+                    <div class="issue-meta">
+                      <div class="meta-item">
+                        <mat-icon class="text-sm">access_time</mat-icon>
+                        {{issue.timestamp | date:'medium'}}
+                      </div>
+                      <div class="meta-item">
+                        <mat-icon class="text-sm">person</mat-icon>
+                        {{issue.source}}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="issue-actions">
+                    <button class="action-button" title="View details" (click)="onIssueClick(issue.id)">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
                   </div>
                 </div>
               </div>

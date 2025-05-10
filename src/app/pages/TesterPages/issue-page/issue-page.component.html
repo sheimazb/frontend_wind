@@ -1,6 +1,13 @@
-<div *ngIf="isLoading" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
-  <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-xl flex items-center gap-3">
-    <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+<div
+  *ngIf="isLoading"
+  class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30"
+>
+  <div
+    class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-xl flex items-center gap-3"
+  >
+    <div
+      class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"
+    ></div>
     <span class="text-gray-700 dark:text-gray-300">Loading...</span>
   </div>
 </div>
@@ -9,148 +16,235 @@
   <!-- Breadcrumb and page actions -->
   <div class="mb-6 flex items-center justify-between">
     <div class="flex flex-col items-start gap-2">
-    <h1 class="text-2xl font-bold dark:text-white">Issue Details</h1>
-      <span *ngIf="log?.id" class="text-sm text-yellow-500 dark:text-gray-400"> <span class="text-gray-500 dark:text-gray-400">Project Tag  :</span> # {{ log?.tag }}</span>
+      <h1 class="text-2xl font-bold dark:text-white">Issue Details</h1>
+      <span *ngIf="log?.id" class="text-sm text-yellow-500 dark:text-gray-400">
+        <span class="text-gray-500 dark:text-gray-400">Project Tag :</span> #
+        {{ log?.tag }}</span
+      >
     </div>
     <nav>
       <ol class="flex items-center gap-2">
         <li>
-          <a class="font-medium dark:text-gray-300 cursor-pointer text-gray-700 hover:text-blue-500 transition-colors" (click)="onDashboardClick()">Dashboard /</a>
+          <a
+            class="font-medium dark:text-gray-300 cursor-pointer text-gray-700 hover:text-blue-500 transition-colors"
+            (click)="onDashboardClick()"
+            >Dashboard /</a
+          >
         </li>
         <li class="font-medium text-blue-500 cursor-pointer">Issue Details</li>
       </ol>
     </nav>
   </div>
-  
+
   <!-- Issue Header - Enhanced with better visual hierarchy -->
-  <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md mb-6 overflow-hidden" *ngIf="log">
+  <div
+    class="bg-white dark:bg-slate-800 rounded-lg shadow-md mb-6 overflow-hidden"
+    *ngIf="log"
+  >
     <!-- Header section with gradient background -->
-    <div class="bg-gradient-to-r from-red-500/10 to-indigo-500/10 dark:from-blue-900/30 dark:to-indigo-900/30 p-6 border-b dark:border-gray-700">
-      <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+    <div
+      class="bg-gradient-to-r from-red-500/10 to-indigo-500/10 dark:from-blue-900/30 dark:to-indigo-900/30 p-6 border-b dark:border-gray-700"
+    >
+      <div
+        class="flex flex-col md:flex-row md:justify-between md:items-start gap-4"
+      >
         <!-- Issue summary -->
         <div>
           <div class="flex flex-wrap items-center gap-2 mb-3">
-            <span class="text-red-600 text-xl font-bold dark:text-red-400">{{ log.type }}</span>
-            <span 
+            <span class="text-red-600 text-xl font-bold dark:text-red-400">{{
+              log.type
+            }}</span>
+            <span
               [ngClass]="{
-                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300': isIssueHandled(),
-                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300': !isIssueHandled()
+                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300':
+                  isIssueHandled(),
+                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300':
+                  !isIssueHandled()
               }"
               class="text-xs font-medium px-2.5 py-0.5 rounded-full"
             >
-              {{ isIssueHandled() ? 'Handled' : 'Unhandled' }}
+              {{ isIssueHandled() ? "Handled" : "Unhandled" }}
             </span>
-            <span 
+            <span
               [ngClass]="{
-                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300': log.severity === 'HIGH',
-                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300': log.severity === 'MEDIUM',
-                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300': log.severity === 'LOW'
+                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300':
+                  log.severity === 'HIGH',
+                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300':
+                  log.severity === 'MEDIUM',
+                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300':
+                  log.severity === 'LOW'
               }"
               class="text-xs font-medium px-2.5 py-0.5 rounded-full"
             >
               {{ log.severity }}
             </span>
           </div>
-          <p class="text-gray-800 dark:text-gray-200 text-lg font-medium mb-2">{{ log.description }}</p>
-          <div class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
-            <span>{{ log.timestamp | date:'medium' }}</span>
+          <p class="text-gray-800 dark:text-gray-200 text-lg font-medium mb-2">
+            {{ log.description }}
+          </p>
+          <div
+            class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2"
+          >
+            <span>{{ log.timestamp | date : "medium" }}</span>
             <span class="w-1 h-1 bg-gray-400 rounded-full"></span>
             <span>{{ log.className }}</span>
-            <span *ngIf="log.errorCode" class="w-1 h-1 bg-gray-400 rounded-full"></span>
-            <span *ngIf="log.errorCode" class="text-red-500 dark:text-red-400">{{ log.errorCode }}</span>
+            <span
+              *ngIf="log.errorCode"
+              class="w-1 h-1 bg-gray-400 rounded-full"
+            ></span>
+            <span
+              *ngIf="log.errorCode"
+              class="text-red-500 dark:text-red-400"
+              >{{ log.errorCode }}</span
+            >
           </div>
         </div>
-        
+
         <!-- Action buttons -->
         <div class="flex flex-wrap gap-3">
-          <button class="px-3 py-2 border dark:border-gray-600 bg-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 inline-flex items-center rounded-full transition-colors shadow-sm">
-            <mat-icon class="text-gray-600 dark:text-gray-400">archive</mat-icon>
+          <button
+            class="px-3 py-2 border dark:border-gray-600 bg-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 inline-flex items-center rounded-full transition-colors shadow-sm"
+          >
+            <mat-icon class="text-gray-600 dark:text-gray-400"
+              >archive</mat-icon
+            >
           </button>
         </div>
       </div>
     </div>
-    
+
     <!-- Issue Stats - Redesigned for better readability -->
-    <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-3 gap-6 border-b dark:border-gray-700">
+    <div
+      class="px-6 py-4 grid grid-cols-1 md:grid-cols-3 gap-6 border-b dark:border-gray-700"
+    >
       <div class="flex flex-col relative">
-        <h3 class="text-sm text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-1">
+        <h3
+          class="text-sm text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-1"
+        >
           Events
-          <button class="text-gray-400 dark:text-gray-500" matTooltip="Number of times this issue has occurred">
+          <button
+            class="text-gray-400 dark:text-gray-500"
+            matTooltip="Number of times this issue has occurred"
+          >
             <mat-icon class="text-sm">info</mat-icon>
           </button>
         </h3>
         <div class="flex items-center gap-3 group">
-          <span class="text-xl font-bold dark:text-white">{{ getOccurrenceCount() }}</span>
-          <div class="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden dark:bg-gray-700">
-            <div class="h-full bg-blue-500" [style.width.%]="getOccurrencePercentage()"></div>
+          <span class="text-xl font-bold dark:text-white">{{
+            getOccurrenceCount()
+          }}</span>
+          <div
+            class="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden dark:bg-gray-700"
+          >
+            <div
+              class="h-full bg-blue-500"
+              [style.width.%]="getOccurrencePercentage()"
+            ></div>
           </div>
-          <span class="text-xs text-gray-500 dark:text-gray-400">{{ getTimeAgo() }}</span>
-          
+          <span class="text-xs text-gray-500 dark:text-gray-400">{{
+            getTimeAgo()
+          }}</span>
+
           <!-- Detailed stats popup on hover -->
-          <div class="absolute left-0 top-full mt-2 z-10 bg-white dark:bg-slate-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 p-4 w-72 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
+          <div
+            class="absolute left-0 top-full mt-2 z-10 bg-white dark:bg-slate-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 p-4 w-72 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-2 group-hover:translate-y-0"
+          >
             <div class="text-sm text-gray-700 dark:text-gray-300 space-y-3">
               <div class="flex justify-between items-center">
                 <span class="font-medium">First seen:</span>
-                <span>{{ occurrenceStats?.firstSeen | date:'medium' }}</span>
+                <span>{{ occurrenceStats?.firstSeen | date : "medium" }}</span>
               </div>
               <div class="flex justify-between items-center">
                 <span class="font-medium">Last seen:</span>
-                <span>{{ occurrenceStats?.lastSeen | date:'medium' }}</span>
+                <span>{{ occurrenceStats?.lastSeen | date : "medium" }}</span>
               </div>
               <div class="flex justify-between items-center">
                 <span class="font-medium">Total occurrences:</span>
-                <span class="font-semibold text-blue-600 dark:text-blue-400">{{ occurrenceStats?.count || 'Loading...' }}</span>
+                <span class="font-semibold text-blue-600 dark:text-blue-400">{{
+                  occurrenceStats?.count || "Loading..."
+                }}</span>
               </div>
               <div class="flex justify-between items-center">
                 <span class="font-medium">System impact:</span>
                 <span class="flex items-center">
-                  <span 
+                  <span
                     [ngClass]="{
-                      'text-red-600 dark:text-red-400': (occurrenceStats?.percentage || 0) > 70,
-                      'text-yellow-600 dark:text-yellow-400': (occurrenceStats?.percentage || 0) > 40 && (occurrenceStats?.percentage || 0) <= 70,
-                      'text-green-600 dark:text-green-400': (occurrenceStats?.percentage || 0) <= 40
+                      'text-red-600 dark:text-red-400':
+                        (occurrenceStats?.percentage || 0) > 70,
+                      'text-yellow-600 dark:text-yellow-400':
+                        (occurrenceStats?.percentage || 0) > 40 &&
+                        (occurrenceStats?.percentage || 0) <= 70,
+                      'text-green-600 dark:text-green-400':
+                        (occurrenceStats?.percentage || 0) <= 40
                     }"
-                  >{{ occurrenceStats?.percentage || 0 }}%</span>
-                  <mat-icon 
+                    >{{ occurrenceStats?.percentage || 0 }}%</span
+                  >
+                  <mat-icon
                     class="ml-1 text-sm"
                     [ngClass]="{
                       'text-red-500': (occurrenceStats?.percentage || 0) > 70,
-                      'text-yellow-500': (occurrenceStats?.percentage || 0) > 40 && (occurrenceStats?.percentage || 0) <= 70,
+                      'text-yellow-500':
+                        (occurrenceStats?.percentage || 0) > 40 &&
+                        (occurrenceStats?.percentage || 0) <= 70,
                       'text-green-500': (occurrenceStats?.percentage || 0) <= 40
                     }"
                   >
-                    {{ (occurrenceStats?.percentage || 0) > 70 ? 'priority_high' : 
-                       (occurrenceStats?.percentage || 0) > 40 ? 'warning' : 'check_circle' }}
+                    {{
+                      (occurrenceStats?.percentage || 0) > 70
+                        ? "priority_high"
+                        : (occurrenceStats?.percentage || 0) > 40
+                        ? "warning"
+                        : "check_circle"
+                    }}
                   </mat-icon>
                 </span>
               </div>
-              <div class="pt-2 text-xs text-gray-500 dark:text-gray-400 border-t dark:border-gray-700">
-                <span *ngIf="!isIssueHandled()" class="text-red-500 dark:text-red-400">This issue is still active and may continue to occur.</span>
-                <span *ngIf="isIssueHandled()" class="text-green-500 dark:text-green-400">This issue has been handled with a solution and should no longer occur.</span>
+              <div
+                class="pt-2 text-xs text-gray-500 dark:text-gray-400 border-t dark:border-gray-700"
+              >
+                <span
+                  *ngIf="!isIssueHandled()"
+                  class="text-red-500 dark:text-red-400"
+                  >This issue is still active and may continue to occur.</span
+                >
+                <span
+                  *ngIf="isIssueHandled()"
+                  class="text-green-500 dark:text-green-400"
+                  >This issue has been handled with a solution and should no
+                  longer occur.</span
+                >
               </div>
             </div>
           </div>
         </div>
       </div>
-      
+
       <div class="flex flex-col">
         <h3 class="text-sm text-gray-600 dark:text-gray-400 mb-1">First Seen</h3>
-        <div class="text-base font-medium dark:text-white">{{ log.timestamp | date:'mediumDate' }}</div>
-        <div class="text-xs text-gray-500 dark:text-gray-400">{{ log.timestamp | date:'shortTime' }}</div>
+        <div class="text-base font-medium dark:text-white">
+          {{ log.timestamp | date : "mediumDate" }}
+        </div>
+        <div class="text-xs text-gray-500 dark:text-gray-400">
+          {{ log.timestamp | date : "shortTime" }}
+        </div>
       </div>
-      
+
       <div class="flex flex-col">
         <h3 class="text-sm text-gray-600 dark:text-gray-400 mb-1">Priority</h3>
         <div class="flex items-center">
-          <select 
+          <select
             [ngClass]="{
-              'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300': log.severity === 'HIGH',
-              'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300': log.severity === 'MEDIUM',
-              'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300': log.severity === 'LOW'
+              'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300':
+                log.severity === 'HIGH',
+              'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300':
+                log.severity === 'MEDIUM',
+              'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300':
+                log.severity === 'LOW'
             }"
             class="text-sm font-medium px-3 py-2 rounded-md border-0 cursor-pointer"
             [(ngModel)]="log.severity"
-            (change)="changePriority($event)">
+            (change)="changePriority($event)"
+          >
             <option value="HIGH">HIGH</option>
             <option value="MEDIUM">MEDIUM</option>
             <option value="LOW">LOW</option>
@@ -158,7 +252,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Additional metadata -->
     <div class="px-6 py-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
       <div>
@@ -169,86 +263,133 @@
         <span class="block text-gray-500 dark:text-gray-400">Project ID</span>
         <span class="font-medium dark:text-white">{{ log.projectId }}</span>
       </div>
-         
+
       <div>
-        <span class="block text-gray-500 dark:text-gray-400">Container Name </span>
+        <span class="block text-gray-500 dark:text-gray-400"
+          >Container Name
+        </span>
         <span class="font-medium dark:text-white">{{ log.containerName }}</span>
       </div>
-      
+
       <div>
         <span class="block text-gray-500 dark:text-gray-400">Thread</span>
         <span class="font-medium dark:text-white">{{ log.thread }}</span>
       </div>
     </div>
   </div>
-  
+
   <!-- Empty state when no log is loaded -->
-  <div *ngIf="!log && !isLoading" class="bg-white dark:bg-slate-800 rounded-lg shadow-md mb-6 p-8 text-center">
-    <div class="w-20 h-20 mx-auto bg-red-100 dark:bg-red-900/30 flex items-center justify-center rounded-full mb-4">
-      <mat-icon class="text-4xl text-red-500 dark:text-red-400">error_outline</mat-icon>
+  <div
+    *ngIf="!log && !isLoading"
+    class="bg-white dark:bg-slate-800 rounded-lg shadow-md mb-6 p-8 text-center"
+  >
+    <div
+      class="w-20 h-20 mx-auto bg-red-100 dark:bg-red-900/30 flex items-center justify-center rounded-full mb-4"
+    >
+      <mat-icon class="text-4xl text-red-500 dark:text-red-400"
+        >error_outline</mat-icon
+      >
     </div>
-    <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">No Issue Details Available</h3>
-    <p class="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">The issue details could not be loaded or the issue ID was not provided. Please check the URL or try again later.</p>
-    <button (click)="onDashboardClick()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors shadow-sm">
+    <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+      No Issue Details Available
+    </h3>
+    <p class="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
+      The issue details could not be loaded or the issue ID was not provided.
+      Please check the URL or try again later.
+    </p>
+    <button
+      (click)="onDashboardClick()"
+      class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors shadow-sm"
+    >
       Back to Issues
     </button>
   </div>
-  
+
   <!-- Tabs - Improved design -->
   <div class="mb-6">
     <div class="border-b dark:border-gray-700">
       <ul class="flex -mb-px text-sm font-medium text-center">
         <li class="mr-2">
-          <a (click)="activeTab = 'details'" 
-             [class.border-blue-500]="activeTab === 'details'"
-             [class.text-blue-500]="activeTab === 'details'"
-             class="inline-block p-4 border-b-2 cursor-pointer transition-colors flex items-center gap-2"
-             [class.border-transparent]="activeTab !== 'details'"
-             [class.hover:border-gray-300]="activeTab !== 'details'"
-             [class.text-gray-500]="activeTab !== 'details'"
-             [class.dark:text-gray-400]="activeTab !== 'details'">
-             <mat-icon class="text-base">info</mat-icon>
-             Details
+          <a
+            (click)="onTabChange('details')"
+            [class.border-blue-500]="activeTab === 'details'"
+            [class.text-blue-500]="activeTab === 'details'"
+            class="inline-block p-4 border-b-2 cursor-pointer transition-colors flex items-center gap-2"
+            [class.border-transparent]="activeTab !== 'details'"
+            [class.hover:border-gray-300]="activeTab !== 'details'"
+            [class.text-gray-500]="activeTab !== 'details'"
+            [class.dark:text-gray-400]="activeTab !== 'details'"
+          >
+            <mat-icon class="text-base">info</mat-icon>
+            Details
           </a>
         </li>
         <li class="mr-2">
-          <a (click)="activeTab = 'tickets'"
-             [class.border-blue-500]="activeTab === 'tickets'"
-             [class.text-blue-500]="activeTab === 'tickets'"
-             class="inline-block p-4 border-b-2 cursor-pointer transition-colors flex items-center gap-2"
-             [class.border-transparent]="activeTab !== 'tickets'"
-             [class.hover:border-gray-300]="activeTab !== 'tickets'"
-             [class.text-gray-500]="activeTab !== 'tickets'"
-             [class.dark:text-gray-400]="activeTab !== 'tickets'">
-             <mat-icon class="text-base">assignment</mat-icon>
-             Tickets
-             <span *ngIf="tickets.length > 0" 
-                   class="ml-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-full px-2 py-0.5">
-                {{ tickets.length }}
-             </span>
+          <a
+            (click)="onTabChange('tickets')"
+            [class.border-blue-500]="activeTab === 'tickets'"
+            [class.text-blue-500]="activeTab === 'tickets'"
+            class="inline-block p-4 border-b-2 cursor-pointer transition-colors flex items-center gap-2"
+            [class.border-transparent]="activeTab !== 'tickets'"
+            [class.hover:border-gray-300]="activeTab !== 'tickets'"
+            [class.text-gray-500]="activeTab !== 'tickets'"
+            [class.dark:text-gray-400]="activeTab !== 'tickets'"
+          >
+            <mat-icon class="text-base">assignment</mat-icon>
+            Tickets
+            <span
+              *ngIf="tickets.length > 0"
+              class="ml-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-full px-2 py-0.5"
+            >
+              {{ tickets.length }}
+            </span>
           </a>
         </li>
         <li class="mr-2">
-          <a (click)="activeTab = 'solutions'"
-             [class.border-blue-500]="activeTab === 'solutions'"
-             [class.text-blue-500]="activeTab === 'solutions'"
-             class="inline-block p-4 border-b-2 cursor-pointer transition-colors flex items-center gap-2"
-             [class.border-transparent]="activeTab !== 'solutions'"
-             [class.hover:border-gray-300]="activeTab !== 'solutions'"
-             [class.text-gray-500]="activeTab !== 'solutions'"
-             [class.dark:text-gray-400]="activeTab !== 'solutions'">
-             <mat-icon class="text-base">lightbulb</mat-icon>
-             Solutions
-             <span *ngIf="hasSolutions()" 
-                   class="ml-1 text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded-full px-2 py-0.5">
-                {{ getSolutionsCount() }}
-             </span>
+          <a
+            (click)="onTabChange('solutions')"
+            [class.border-blue-500]="activeTab === 'solutions'"
+            [class.text-blue-500]="activeTab === 'solutions'"
+            class="inline-block p-4 border-b-2 cursor-pointer transition-colors flex items-center gap-2"
+            [class.border-transparent]="activeTab !== 'solutions'"
+            [class.hover:border-gray-300]="activeTab !== 'solutions'"
+            [class.text-gray-500]="activeTab !== 'solutions'"
+            [class.dark:text-gray-400]="activeTab !== 'solutions'"
+          >
+            <mat-icon class="text-base">lightbulb</mat-icon>
+            Solutions
+            <span
+              *ngIf="hasSolutions()"
+              class="ml-1 text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded-full px-2 py-0.5"
+            >
+              {{ getSolutionsCount() }}
+            </span>
+          </a>
+        </li>
+        <li class="mr-2">
+          <a
+            (click)="onTabChange('comments')"
+            [class.border-blue-500]="activeTab === 'comments'"
+            [class.text-blue-500]="activeTab === 'comments'"
+            class="inline-block p-4 border-b-2 cursor-pointer transition-colors flex items-center gap-2"
+            [class.border-transparent]="activeTab !== 'comments'"
+            [class.hover:border-gray-300]="activeTab !== 'comments'"
+            [class.text-gray-500]="activeTab !== 'comments'"
+            [class.dark:text-gray-400]="activeTab !== 'comments'"
+          >
+            <mat-icon class="text-base">comment</mat-icon>
+            Comments
+            <span
+              class="ml-1 text-xs bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 rounded-full px-2 py-0.5"
+            >
+              {{ getTotalCommentsCount() }}
+            </span>
           </a>
         </li>
       </ul>
     </div>
   </div>
-  
+
   <!-- Tab Content -->
   <div [ngSwitch]="activeTab">
     <!-- Details Tab -->
@@ -262,77 +403,136 @@
           <table class="w-full">
             <tbody>
               <tr class="border-b dark:border-gray-700">
-                <td class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium">Handled</td>
-                <td class="py-3 text-sm dark:text-gray-300">{{ log?.handled ? 'Yes' : 'No' }}</td>
+                <td
+                  class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium"
+                >
+                  Handled
+                </td>
+                <td class="py-3 text-sm dark:text-gray-300">
+                  {{ log?.handled ? "Yes" : "No" }}
+                </td>
               </tr>
               <tr class="border-b dark:border-gray-700">
-                <td class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium">Level</td>
+                <td
+                  class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium"
+                >
+                  Level
+                </td>
                 <td class="py-3 text-sm dark:text-gray-300">{{ log?.type }}</td>
               </tr>
               <tr class="border-b dark:border-gray-700">
-                <td class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium">Exception Type</td>
-                <td class="py-3 text-sm dark:text-gray-300">{{ log?.exceptionType }}</td>
+                <td
+                  class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium"
+                >
+                  Exception Type
+                </td>
+                <td class="py-3 text-sm dark:text-gray-300">
+                  {{ log?.exceptionType }}
+                </td>
               </tr>
-              
+
               <tr class="border-b dark:border-gray-700">
-                <td class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium">Source</td>
+                <td
+                  class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium"
+                >
+                  Source
+                </td>
                 <td class="py-3 text-sm text-blue-500 break-all">
                   {{ log?.source }}
                 </td>
               </tr>
               <tr class="border-b dark:border-gray-700">
-                <td class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium">Container Name</td>
-                <td class="py-3 text-sm dark:text-gray-300">{{ log?.containerName }}</td>
+                <td
+                  class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium"
+                >
+                  Container Name
+                </td>
+                <td class="py-3 text-sm dark:text-gray-300">
+                  {{ log?.containerName }}
+                </td>
               </tr>
               <tr class="border-b dark:border-gray-700">
-                <td class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium">Container Id</td>
-                <td class="py-3 text-sm dark:text-gray-300">{{ log?.containerId }}</td>
+                <td
+                  class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium"
+                >
+                  Container Id
+                </td>
+                <td class="py-3 text-sm dark:text-gray-300">
+                  {{ log?.containerId }}
+                </td>
               </tr>
               <tr>
-                <td class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium">Timestamp</td>
-                <td class="py-3 text-sm dark:text-gray-300">{{ log?.timestamp }}</td>
+                <td
+                  class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium"
+                >
+                  Timestamp
+                </td>
+                <td class="py-3 text-sm dark:text-gray-300">
+                  {{ log?.timestamp }}
+                </td>
               </tr>
               <tr>
-                <td class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium">Original Timestamp</td>
-                <td class="py-3 text-sm dark:text-gray-300">{{ log?.originalTimestamp }}</td>
+                <td
+                  class="py-3 text-sm text-gray-600 dark:text-gray-400 font-medium"
+                >
+                  Original Timestamp
+                </td>
+                <td class="py-3 text-sm dark:text-gray-300">
+                  {{ log?.originalTimestamp }}
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-      
+
       <!-- Stack Trace -->
       <div class="bg-white dark:bg-slate-800 rounded-lg shadow">
         <div class="p-6 border-b dark:border-gray-700 flex justify-between">
           <h3 class="font-bold text-lg dark:text-white">Stack Trace</h3>
           <div>
-            <button 
-              (click)="toggleStackTrace()" 
+            <button
+              (click)="toggleStackTrace()"
               class="px-3 py-1 text-sm border dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
-              [ngClass]="{'bg-blue-50 dark:bg-blue-900/20': showFullStackTrace}"
+              [ngClass]="{
+                'bg-blue-50 dark:bg-blue-900/20': showFullStackTrace
+              }"
             >
-              <mat-icon class="text-base">{{ showFullStackTrace ? 'unfold_less' : 'unfold_more' }}</mat-icon>
-              {{ showFullStackTrace ? 'Show Less' : 'Full Stack Trace' }}
+              <mat-icon class="text-base">{{
+                showFullStackTrace ? "unfold_less" : "unfold_more"
+              }}</mat-icon>
+              {{ showFullStackTrace ? "Show Less" : "Full Stack Trace" }}
             </button>
           </div>
         </div>
         <div class="p-6 overflow-x-auto">
-          <pre class="text-sm text-gray-800 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-4 rounded whitespace-pre-wrap break-words">{{ getStackTrace() }}</pre>
+          <pre
+            class="text-sm text-gray-800 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-4 rounded whitespace-pre-wrap break-words"
+            >{{ getStackTrace() }}</pre
+          >
         </div>
       </div>
     </div>
-    
+
     <!-- Tickets Tab -->
     <div *ngSwitchCase="'tickets'" class="space-y-6">
       <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md">
-        <div class="p-6 border-b dark:border-gray-700 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div
+          class="p-6 border-b dark:border-gray-700 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4"
+        >
           <h3 class="font-bold text-lg dark:text-white">Tickets</h3>
           <div class="flex items-center gap-2">
-            <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            <div
+              class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1"
+            >
               <button
                 (click)="ticketsViewMode = 'list'"
                 class="p-2 rounded-md transition-colors"
-                [ngClass]="{'bg-white dark:bg-gray-600 shadow text-blue-600 dark:text-blue-400': ticketsViewMode === 'list', 'text-gray-600 dark:text-gray-400': ticketsViewMode !== 'list'}"
+                [ngClass]="{
+                  'bg-white dark:bg-gray-600 shadow text-blue-600 dark:text-blue-400':
+                    ticketsViewMode === 'list',
+                  'text-gray-600 dark:text-gray-400': ticketsViewMode !== 'list'
+                }"
                 matTooltip="List View"
               >
                 <mat-icon>view_list</mat-icon>
@@ -340,323 +540,560 @@
               <button
                 (click)="ticketsViewMode = 'kanban'"
                 class="p-2 rounded-md transition-colors"
-                [ngClass]="{'bg-white dark:bg-gray-600 shadow text-blue-600 dark:text-blue-400': ticketsViewMode === 'kanban', 'text-gray-600 dark:text-gray-400': ticketsViewMode !== 'kanban'}"
+                [ngClass]="{
+                  'bg-white dark:bg-gray-600 shadow text-blue-600 dark:text-blue-400':
+                    ticketsViewMode === 'kanban',
+                  'text-gray-600 dark:text-gray-400':
+                    ticketsViewMode !== 'kanban'
+                }"
                 matTooltip="Kanban View"
               >
                 <mat-icon>view_column</mat-icon>
               </button>
             </div>
-            <button (click)="createTicket()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors flex items-center gap-2 shadow-sm">
-            <mat-icon class="text-base">add</mat-icon>
-            <span>Create Ticket</span>
-          </button>
+            <button
+              (click)="createTicket()"
+              class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors flex items-center gap-2 shadow-sm"
+              [ngClass]="{'opacity-50 hidden': isManager() || isPartner()}"
+              >
+              <mat-icon class="text-base">add</mat-icon>
+              <span>Create Ticket</span>
+            </button>
           </div>
         </div>
         <div class="p-6">
           <!-- Loading indicator -->
           <div *ngIf="isLoading" class="text-center py-8">
-            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p class="text-gray-600 dark:text-gray-400 text-lg">Loading tickets...</p>
+            <div
+              class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"
+            ></div>
+            <p class="text-gray-600 dark:text-gray-400 text-lg">
+              Loading tickets...
+            </p>
           </div>
-          
+
           <!-- No tickets message -->
-          <div *ngIf="!isLoading && tickets.length === 0" class="text-center py-12">
-            <div class="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-              <mat-icon class="text-4xl text-blue-500 dark:text-blue-400">assignment</mat-icon>
+          <div
+            *ngIf="!isLoading && tickets.length === 0"
+            class="text-center py-12"
+          >
+            <div
+              class="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <mat-icon class="text-4xl text-blue-500 dark:text-blue-400"
+                >assignment</mat-icon
+              >
             </div>
-            <h3 class="text-xl font-medium mb-2 dark:text-white">No Tickets Found</h3>
-            <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">There are no tickets associated with this issue yet. Create a ticket to start tracking the resolution process.</p>
-            <button (click)="createTicket()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors shadow-sm">
+            <h3 class="text-xl font-medium mb-2 dark:text-white">
+              No Tickets Found
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+              There are no tickets associated with this issue yet. Create a
+              ticket to start tracking the resolution process.
+            </p>
+            <button
+              (click)="createTicket()"
+              class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors shadow-sm"
+            >
               Create First Ticket
             </button>
           </div>
-          
+
           <!-- Tickets List View - Modern design -->
-          <div *ngIf="!isLoading && tickets.length > 0 && ticketsViewMode === 'list'" class="space-y-4">
-            <div *ngFor="let ticket of tickets" 
-                 class="border dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-slate-800 hover:shadow-md transition-shadow">
+          <div
+            *ngIf="
+              !isLoading && tickets.length > 0 && ticketsViewMode === 'list'
+            "
+            class="space-y-4"
+          >
+            <div
+              *ngFor="let ticket of tickets"
+              class="border dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-slate-800 hover:shadow-md transition-shadow"
+            >
               <!-- Status header with colored background based on status -->
-              <div class="px-5 py-3 flex items-center justify-between" 
-                   [ngClass]="{
-                     'bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800': ticket.status === Status.IN_PROGRESS,
-                     'bg-green-50 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800': ticket.status === Status.RESOLVED,
-                     'bg-purple-50 dark:bg-purple-900/20 border-b border-purple-200 dark:border-purple-800': ticket.status === Status.MERGED_TO_TEST,
-                     'bg-teal-50 dark:bg-teal-900/20 border-b border-teal-200 dark:border-teal-800': ticket.status === Status.DONE
-                   }">
+              <div
+                class="px-5 py-3 flex items-center justify-between"
+                [ngClass]="{
+                  'bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800':
+                    ticket.status === Status.IN_PROGRESS,
+                  'bg-green-50 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800':
+                    ticket.status === Status.RESOLVED,
+                  'bg-purple-50 dark:bg-purple-900/20 border-b border-purple-200 dark:border-purple-800':
+                    ticket.status === Status.MERGED_TO_TEST,
+                  'bg-teal-50 dark:bg-teal-900/20 border-b border-teal-200 dark:border-teal-800':
+                    ticket.status === Status.DONE
+                }"
+              >
                 <div class="flex items-center gap-3">
-                  <span 
+                  <span
                     [ngClass]="{
-                      'bg-gray-100 text-gray-800 dark:bg-gray-900/50 dark:text-gray-300': ticket.status === Status.TO_DO,
-                      'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300': ticket.status === Status.IN_PROGRESS,
-                      'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300': ticket.status === Status.RESOLVED,
-                      'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300': ticket.status === Status.MERGED_TO_TEST,
-                      'bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300': ticket.status === Status.DONE
-                    }" 
-                    class="text-xs font-medium px-3 py-1 rounded-full">
-                    {{ticket.status}}
+                      'bg-gray-100 text-gray-800 dark:bg-gray-900/50 dark:text-gray-300':
+                        ticket.status === Status.TO_DO,
+                      'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300':
+                        ticket.status === Status.IN_PROGRESS,
+                      'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300':
+                        ticket.status === Status.RESOLVED,
+                      'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300':
+                        ticket.status === Status.MERGED_TO_TEST,
+                      'bg-teal-100 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300':
+                        ticket.status === Status.DONE
+                    }"
+                    class="text-xs font-medium px-3 py-1 rounded-full"
+                  >
+                    {{ ticket.status }}
                   </span>
-                  <span 
+                  <span
                     [ngClass]="{
-                      'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300': ticket.priority === Priority.HIGH,
-                      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300': ticket.priority === Priority.MEDIUM,
-                      'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300': ticket.priority === Priority.LOW,
-                      'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300': ticket.priority === Priority.CRITICAL
-                    }" 
-                    class="text-xs font-medium px-3 py-1 rounded-full">
-                    {{ticket.priority}}
+                      'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300':
+                        ticket.priority === Priority.HIGH,
+                      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300':
+                        ticket.priority === Priority.MEDIUM,
+                      'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300':
+                        ticket.priority === Priority.LOW,
+                      'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300':
+                        ticket.priority === Priority.CRITICAL
+                    }"
+                    class="text-xs font-medium px-3 py-1 rounded-full"
+                  >
+                    {{ ticket.priority }}
                   </span>
                 </div>
-                <span class="text-xs text-gray-500 dark:text-gray-400">ID: #{{ticket.id}}</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400"
+                  >ID: #{{ ticket.id }}</span
+                >
               </div>
-              
+
               <!-- Ticket content -->
               <div class="p-5">
-                <h4 class="text-lg font-medium mb-3 text-gray-900 dark:text-white flex items-center gap-2">
-                  <mat-icon 
+                <h4
+                  class="text-lg font-medium mb-3 text-gray-900 dark:text-white flex items-center gap-2"
+                >
+                  <mat-icon
                     [ngClass]="{
-                      'text-gray-500 dark:text-gray-400': ticket.status === Status.TO_DO,
-                      'text-blue-500 dark:text-blue-400': ticket.status === Status.IN_PROGRESS,
-                      'text-green-500 dark:text-green-400': ticket.status === Status.RESOLVED,
-                      'text-purple-500 dark:text-purple-400': ticket.status === Status.MERGED_TO_TEST,
-                      'text-teal-500 dark:text-teal-400': ticket.status === Status.DONE
+                      'text-gray-500 dark:text-gray-400':
+                        ticket.status === Status.TO_DO,
+                      'text-blue-500 dark:text-blue-400':
+                        ticket.status === Status.IN_PROGRESS,
+                      'text-green-500 dark:text-green-400':
+                        ticket.status === Status.RESOLVED,
+                      'text-purple-500 dark:text-purple-400':
+                        ticket.status === Status.MERGED_TO_TEST,
+                      'text-teal-500 dark:text-teal-400':
+                        ticket.status === Status.DONE
                     }"
                   >
-                    {{ ticket.status === Status.TO_DO ? 'assignment' : 
-                       (ticket.status === Status.IN_PROGRESS ? 'hourglass_empty' : 
-                        (ticket.status === Status.RESOLVED ? 'task_alt' : 
-                         (ticket.status === Status.MERGED_TO_TEST ? 'merge_type' : 'done_all'))) }}
+                    {{
+                      ticket.status === Status.TO_DO
+                        ? "assignment"
+                        : ticket.status === Status.IN_PROGRESS
+                        ? "hourglass_empty"
+                        : ticket.status === Status.RESOLVED
+                        ? "task_alt"
+                        : ticket.status === Status.MERGED_TO_TEST
+                        ? "merge_type"
+                        : "done_all"
+                    }}
                   </mat-icon>
-                  {{ticket.title}}
+                  {{ ticket.title }}
                 </h4>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4 whitespace-pre-line">{{ticket.description}}</p>
-                
+                <p
+                  class="text-sm text-gray-600 dark:text-gray-400 mb-4 whitespace-pre-line"
+                >
+                  {{ ticket.description }}
+                </p>
+
                 <!-- Metadata grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
+                <div
+                  class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-4 rounded-md"
+                >
                   <div class="flex items-center gap-2">
                     <mat-icon class="text-sm text-gray-400">event</mat-icon>
-                    <span class="font-medium">Created:</span> {{ticket.createdAt | date:'medium'}}
+                    <span class="font-medium">Created:</span>
+                    {{ ticket.createdAt | date : "medium" }}
                   </div>
                   <div class="flex items-center gap-2">
                     <mat-icon class="text-sm text-gray-400">person</mat-icon>
-                    <span class="font-medium">Assigned to:</span> 
-                    <span [ngClass]="{
-                      'text-red-500': ticket.assignedToEmail === 'No access',
-                      'text-gray-500': ticket.assignedToEmail === 'Unknown'
-                    }">{{ticket.assignedToEmail || 'Unassigned'}}</span>
+                    <span class="font-medium">Assigned to:</span>
+                    <span
+                      [ngClass]="{
+                        'text-red-500': ticket.assignedToEmail === 'No access',
+                        'text-gray-500': ticket.assignedToEmail === 'Unknown'
+                      }"
+                      >{{ ticket.assignedToEmail || "Unassigned" }}</span
+                    >
                   </div>
-                  <div *ngIf="ticket.hasSolution" class="flex items-center gap-2">
-                    <mat-icon class="text-sm text-green-500">check_circle</mat-icon>
-                    <span class="font-medium">Resolved:</span> {{ticket.solution?.createdAt | date:'medium'}}
+                  <div
+                    *ngIf="ticket.hasSolution"
+                    class="flex items-center gap-2"
+                  >
+                    <mat-icon class="text-sm text-green-500"
+                      >check_circle</mat-icon
+                    >
+                    <span class="font-medium">Resolved:</span>
+                    {{ ticket.solution?.createdAt | date : "medium" }}
                   </div>
-                  <div *ngIf="ticket.hasSolution" class="flex items-center gap-2">
+                  <div
+                    *ngIf="ticket.hasSolution"
+                    class="flex items-center gap-2"
+                  >
                     <mat-icon class="text-sm text-blue-500">schedule</mat-icon>
                     <span class="font-medium">Time to Resolution:</span>
                     <span class="text-blue-600 dark:text-blue-400">
-                      {{calculateTimeToResolution(ticket.createdAt, ticket.solution?.createdAt)}}
+                      {{
+                        calculateTimeToResolution(
+                          ticket.createdAt,
+                          ticket.solution?.createdAt
+                        )
+                      }}
                     </span>
                   </div>
                 </div>
               </div>
-              
+
               <!-- Actions footer -->
-              <div class="px-5 py-3 bg-gray-50 dark:bg-gray-700 border-t border-gray-100 dark:border-gray-600 flex justify-end gap-2">
-                <button (click)="viewTicketDetails(ticket)" 
-                        class="px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors flex items-center gap-1 shadow-sm">
+              <div
+                class="px-5 py-3 bg-gray-50 dark:bg-gray-700 border-t border-gray-100 dark:border-gray-600 flex justify-end gap-2"
+              >
+                <button
+                  (click)="viewTicketDetails(ticket)"
+                  class="px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors flex items-center gap-1 shadow-sm"
+                >
                   <mat-icon class="text-sm">visibility</mat-icon>
                   View Details
                 </button>
-                <button (click)="editTicket(ticket)"
-                        class="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md transition-colors flex items-center gap-1 shadow-sm">
+                <button
+                  (click)="editTicket(ticket)"
+                  class="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md transition-colors flex items-center gap-1 shadow-sm"
+                >
                   <mat-icon class="text-sm">edit</mat-icon>
                   Edit
                 </button>
               </div>
             </div>
           </div>
-          
+
           <!-- Kanban Board View - Updated Structure -->
-          <div *ngIf="!isLoading && tickets.length > 0 && ticketsViewMode === 'kanban'" class="mt-6 kanban-board">
+          <div
+            *ngIf="
+              !isLoading && tickets.length > 0 && ticketsViewMode === 'kanban'
+            "
+            class="mt-6 kanban-board"
+          >
             <!-- Loop through defined columns -->
-            <div *ngFor="let column of kanbanColumns" 
-                 class="kanban-column rounded-lg border overflow-hidden" 
-                 [ngClass]="{
-                   'border-gray-200 dark:border-gray-700': column.color === 'gray',
-                   'border-blue-200 dark:border-blue-800': column.color === 'blue',
-                   'border-green-200 dark:border-green-800': column.color === 'green',
-                   'border-teal-200 dark:border-teal-800': column.color === 'teal',
-                   'border-purple-200 dark:border-purple-800': column.color === 'purple'
-                 }">
+            <div
+              *ngFor="let column of kanbanColumns"
+              class="kanban-column rounded-lg border overflow-hidden"
+              [ngClass]="{
+                'border-gray-200 dark:border-gray-700': column.color === 'gray',
+                'border-blue-200 dark:border-blue-800': column.color === 'blue',
+                'border-green-200 dark:border-green-800':
+                  column.color === 'green',
+                'border-teal-200 dark:border-teal-800': column.color === 'teal',
+                'border-purple-200 dark:border-purple-800':
+                  column.color === 'purple'
+              }"
+            >
               <!-- Column Header -->
-              <div class="column-header p-4 border-b" 
-                   [ngClass]="{
-                     'bg-gray-50 dark:bg-gray-800/30 border-gray-200 dark:border-gray-700': column.color === 'gray',
-                     'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800': column.color === 'blue',
-                     'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800': column.color === 'green',
-                     'bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800': column.color === 'teal',
-                     'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800': column.color === 'purple'
-                   }">
-                <h3 class="font-medium flex items-center" 
+              <div
+                class="column-header p-4 border-b"
+                [ngClass]="{
+                  'bg-gray-50 dark:bg-gray-800/30 border-gray-200 dark:border-gray-700':
+                    column.color === 'gray',
+                  'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800':
+                    column.color === 'blue',
+                  'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800':
+                    column.color === 'green',
+                  'bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800':
+                    column.color === 'teal',
+                  'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800':
+                    column.color === 'purple'
+                }"
+              >
+                <h3
+                  class="font-medium flex items-center"
+                  [ngClass]="{
+                    'text-gray-700 dark:text-gray-300': column.color === 'gray',
+                    'text-blue-800 dark:text-blue-300': column.color === 'blue',
+                    'text-green-800 dark:text-green-300':
+                      column.color === 'green',
+                    'text-teal-800 dark:text-teal-300': column.color === 'teal',
+                    'text-purple-800 dark:text-purple-300':
+                      column.color === 'purple'
+                  }"
+                >
+                  <mat-icon
+                    class="mr-2 text-base"
                     [ngClass]="{
-                      'text-gray-700 dark:text-gray-300': column.color === 'gray',
-                      'text-blue-800 dark:text-blue-300': column.color === 'blue',
-                      'text-green-800 dark:text-green-300': column.color === 'green',
-                      'text-teal-800 dark:text-teal-300': column.color === 'teal',
-                      'text-purple-800 dark:text-purple-300': column.color === 'purple'
-                    }">
-                  <mat-icon class="mr-2 text-base" 
-                            [ngClass]="{
-                              'text-gray-500 dark:text-gray-400': column.color === 'gray',
-                              'text-blue-600 dark:text-blue-400': column.color === 'blue',
-                              'text-green-600 dark:text-green-400': column.color === 'green',
-                              'text-teal-600 dark:text-teal-400': column.color === 'teal',
-                              'text-purple-600 dark:text-purple-400': column.color === 'purple'
-                            }">
-                      {{column.icon}}
+                      'text-gray-500 dark:text-gray-400':
+                        column.color === 'gray',
+                      'text-blue-600 dark:text-blue-400':
+                        column.color === 'blue',
+                      'text-green-600 dark:text-green-400':
+                        column.color === 'green',
+                      'text-teal-600 dark:text-teal-400':
+                        column.color === 'teal',
+                      'text-purple-600 dark:text-purple-400':
+                        column.color === 'purple'
+                    }"
+                  >
+                    {{ column.icon }}
                   </mat-icon>
-                  {{column.name}}
-                  <span class="ml-2 rounded-full px-2 py-0.5 text-xs"
-                        [ngClass]="{
-                          'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300': column.color === 'gray',
-                          'bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-300': column.color === 'blue',
-                          'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-300': column.color === 'green',
-                          'bg-teal-200 dark:bg-teal-800 text-teal-800 dark:text-teal-300': column.color === 'teal',
-                          'bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-300': column.color === 'purple'
-                        }">
+                  {{ column.name }}
+                  <span
+                    class="ml-2 rounded-full px-2 py-0.5 text-xs"
+                    [ngClass]="{
+                      'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300':
+                        column.color === 'gray',
+                      'bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-300':
+                        column.color === 'blue',
+                      'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-300':
+                        column.color === 'green',
+                      'bg-teal-200 dark:bg-teal-800 text-teal-800 dark:text-teal-300':
+                        column.color === 'teal',
+                      'bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-300':
+                        column.color === 'purple'
+                    }"
+                  >
                     {{ column.tickets.length }}
                   </span>
                   <!-- Role permission hints (optional, can be added similarly to old code) -->
                 </h3>
               </div>
               <!-- Column Content (Drop List) -->
-              <div class="column-content p-3 bg-gray-50 dark:bg-gray-800 min-h-[300px]"
-                  cdkDropList
-                  [id]="column.id"
-                  [cdkDropListData]="column.tickets"
-                  [cdkDropListConnectedTo]="getConnectedDropLists()"
-                  (cdkDropListDropped)="drop($event)">
+              <div
+                class="column-content p-3 bg-gray-50 dark:bg-gray-800 min-h-[300px]"
+                cdkDropList
+                [id]="column.id"
+                [cdkDropListData]="column.tickets"
+                [cdkDropListConnectedTo]="getConnectedDropLists()"
+                (cdkDropListDropped)="drop($event)"
+              >
                 <!-- Ticket Cards -->
-                <div *ngFor="let ticket of column.tickets" 
-                    class="ticket-card mb-3 p-3 rounded-md shadow-sm hover:shadow-md transition-shadow bg-white dark:bg-gray-700"
-                    [ngClass]="'border-' + column.color + '-500'" 
-                    cdkDrag
-                    [cdkDragData]="ticket"
-                   >
+                <div
+                  *ngFor="let ticket of column.tickets"
+                  class="ticket-card mb-3 p-3 rounded-md shadow-sm hover:shadow-md transition-shadow bg-white dark:bg-gray-700"
+                  [ngClass]="'border-' + column.color + '-500'"
+                  cdkDrag
+                  [cdkDragData]="ticket"
+                >
                   <!-- Lock icon if drag disabled -->
-                  <div 
-                      class="absolute top-1 right-1 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs font-medium px-1 py-0.5 rounded-full z-10">
+                  <div
+                    class="absolute top-1 right-1 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs font-medium px-1 py-0.5 rounded-full z-10"
+                  >
                     <mat-icon class="icon-xs align-text-bottom">lock</mat-icon>
                   </div>
-                  
+
                   <!-- Draggable Handle (optional, can wrap content) -->
                   <div class="cdkDragHandle">
-                     <!-- Ticket Header -->
-                     <div class="flex justify-between items-start mb-2">
-                        <span class="ticket-id text-xs font-medium text-gray-500 dark:text-gray-400">#{{ticket.id}}</span>
-                        <!-- Assignee Avatar -->
-                        <div *ngIf="ticket.assignedToUserId" class="avatar rounded-full w-5 h-5 flex items-center justify-center text-white text-xs" 
-                           [ngClass]="{
-                           'bg-blue-500': ticket.assignedToUserId && ticket.assignedToUserId % 5 === 0,
-                           'bg-amber-500': ticket.assignedToUserId && ticket.assignedToUserId % 5 === 1,
-                           'bg-green-500': ticket.assignedToUserId && ticket.assignedToUserId % 5 === 2,
-                           'bg-purple-500': ticket.assignedToUserId && ticket.assignedToUserId % 5 === 3,
-                           'bg-red-500': ticket.assignedToUserId && ticket.assignedToUserId % 5 === 4,
-                           'bg-gray-400': !ticket.assignedToUserId
-                           }">
-                        {{ (ticket.assignedToEmail ? ticket.assignedToEmail.charAt(0) : 'U') | uppercase }}
-                       </div>
-                       <div *ngIf="!ticket.assignedToUserId" class="avatar rounded-full w-5 h-5 flex items-center justify-center text-white text-xs bg-gray-400" matTooltip="Unassigned">
-                         U
-                       </div>
-                     </div>
-                     <!-- Ticket Title -->
-                     <h5 class="ticket-title text-sm font-medium text-gray-900 dark:text-white mb-1.5 line-clamp-2">
-                       {{ticket.title}}
-                     </h5>
-                     <!-- Ticket Description (Optional Snippet) -->
-                     <p *ngIf="ticket.description" class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-2">
-                       {{ticket.description}}
-                     </p>
+                    <!-- Ticket Header -->
+                    <div class="flex justify-between items-start mb-2">
+                      <span
+                        class="ticket-id text-xs font-medium text-gray-500 dark:text-gray-400"
+                        >#{{ ticket.id }}</span
+                      >
+                      <!-- Assignee Avatar -->
+                      <div
+                        *ngIf="ticket.assignedToUserId"
+                        class="avatar rounded-full w-5 h-5 flex items-center justify-center text-white text-xs"
+                        [ngClass]="{
+                          'bg-blue-500':
+                            ticket.assignedToUserId &&
+                            ticket.assignedToUserId % 5 === 0,
+                          'bg-amber-500':
+                            ticket.assignedToUserId &&
+                            ticket.assignedToUserId % 5 === 1,
+                          'bg-green-500':
+                            ticket.assignedToUserId &&
+                            ticket.assignedToUserId % 5 === 2,
+                          'bg-purple-500':
+                            ticket.assignedToUserId &&
+                            ticket.assignedToUserId % 5 === 3,
+                          'bg-red-500':
+                            ticket.assignedToUserId &&
+                            ticket.assignedToUserId % 5 === 4,
+                          'bg-gray-400': !ticket.assignedToUserId
+                        }"
+                      >
+                        {{
+                          (ticket.assignedToEmail
+                            ? ticket.assignedToEmail.charAt(0)
+                            : "U"
+                          ) | uppercase
+                        }}
+                      </div>
+                      <div
+                        *ngIf="!ticket.assignedToUserId"
+                        class="avatar rounded-full w-5 h-5 flex items-center justify-center text-white text-xs bg-gray-400"
+                        matTooltip="Unassigned"
+                      >
+                        U
+                      </div>
+                    </div>
+                    <!-- Ticket Title -->
+                    <h5
+                      class="ticket-title text-sm font-medium text-gray-900 dark:text-white mb-1.5 line-clamp-2"
+                    >
+                      {{ ticket.title }}
+                    </h5>
+                    <!-- Ticket Description (Optional Snippet) -->
+                    <p
+                      *ngIf="ticket.description"
+                      class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-2"
+                    >
+                      {{ ticket.description }}
+                    </p>
                   </div>
-                     
+
                   <!-- Ticket Footer -->
-                  <div class="ticket-footer flex items-center justify-between border-t border-gray-100 dark:border-gray-600 pt-2 mt-2">
+                  <div
+                    class="ticket-footer flex items-center justify-between border-t border-gray-100 dark:border-gray-600 pt-2 mt-2"
+                  >
                     <!-- Priority Tag -->
-                    <span class="priority-pill text-xs px-2 py-0.5 rounded-full"
-                          [ngClass]="{
-                            'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300': ticket.priority === Priority.LOW,
-                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300': ticket.priority === Priority.MEDIUM,
-                            'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300': ticket.priority === Priority.HIGH,
-                            'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300': ticket.priority === Priority.CRITICAL
-                          }">
-                      {{ticket.priority}}
+                    <span
+                      class="priority-pill text-xs px-2 py-0.5 rounded-full"
+                      [ngClass]="{
+                        'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300':
+                          ticket.priority === Priority.LOW,
+                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300':
+                          ticket.priority === Priority.MEDIUM,
+                        'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300':
+                          ticket.priority === Priority.HIGH,
+                        'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300':
+                          ticket.priority === Priority.CRITICAL
+                      }"
+                    >
+                      {{ ticket.priority }}
                     </span>
-                     <!-- Action Buttons (View Details, etc.) -->
-                     <div class="flex gap-1">
-                       <button (click)="$event.stopPropagation(); viewTicketDetails(ticket)" 
-                                class="text-xs p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-400 transition-colors cdkDragDisableHandle"
-                                matTooltip="View Details">
-                         <mat-icon class="icon-xs">visibility</mat-icon>
-                       </button>
-                       <button *ngIf="column.id === 'resolvedList'" 
-                               (click)="$event.stopPropagation(); updateTicketStatus(ticket.id!, Status.MERGED_TO_TEST)" 
-                                class="text-xs p-1 rounded hover:bg-purple-100 dark:hover:bg-purple-800 text-purple-600 dark:text-purple-400 transition-colors cdkDragDisableHandle"
-                                matTooltip="Mark as Merged to Test">
-                         <mat-icon class="icon-xs">merge_type</mat-icon>
-                       </button>
-                     </div>
+                    <!-- Action Buttons (View Details, etc.) -->
+                    <div class="flex gap-1">
+                      <button
+                        (click)="
+                          $event.stopPropagation(); viewTicketDetails(ticket)
+                        "
+                        class="text-xs p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-400 transition-colors cdkDragDisableHandle"
+                        matTooltip="View Details"
+                      >
+                        <mat-icon class="icon-xs">visibility</mat-icon>
+                      </button>
+                      <button
+                        *ngIf="column.id === 'resolvedList'"
+                        (click)="
+                          $event.stopPropagation();
+                          updateTicketStatus(ticket.id!, Status.MERGED_TO_TEST)
+                        "
+                        class="text-xs p-1 rounded hover:bg-purple-100 dark:hover:bg-purple-800 text-purple-600 dark:text-purple-400 transition-colors cdkDragDisableHandle"
+                        matTooltip="Mark as Merged to Test"
+                      >
+                        <mat-icon class="icon-xs">merge_type</mat-icon>
+                      </button>
+                    </div>
                   </div>
 
                   <!-- Drag Preview -->
-                  <div *cdkDragPreview class="cdk-drag-preview p-3 w-64 ticket-card" [ngClass]="'border-' + column.color + '-500'">
-                     <div class="flex justify-between items-start mb-1">
-                        <span class="ticket-id text-xs font-medium text-gray-500 dark:text-gray-400">#{{ticket.id}}</span>
-                        <span class="priority-pill text-xs px-2 py-0.5 rounded-full"
-                              [ngClass]="{
-                                'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300': ticket.priority === Priority.LOW,
-                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300': ticket.priority === Priority.MEDIUM,
-                                'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300': ticket.priority === Priority.HIGH,
-                                'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300': ticket.priority === Priority.CRITICAL
-                              }">
-                          {{ticket.priority}}
-                        </span>
-                     </div>
-                     <h4 class="ticket-title text-sm font-medium text-gray-900 dark:text-white mb-1 line-clamp-1">
-                       {{ticket.title}}
-                     </h4>
-                     <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">Dragging...</p>
+                  <div
+                    *cdkDragPreview
+                    class="cdk-drag-preview p-3 w-64 ticket-card"
+                    [ngClass]="'border-' + column.color + '-500'"
+                  >
+                    <div class="flex justify-between items-start mb-1">
+                      <span
+                        class="ticket-id text-xs font-medium text-gray-500 dark:text-gray-400"
+                        >#{{ ticket.id }}</span
+                      >
+                      <span
+                        class="priority-pill text-xs px-2 py-0.5 rounded-full"
+                        [ngClass]="{
+                          'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300':
+                            ticket.priority === Priority.LOW,
+                          'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300':
+                            ticket.priority === Priority.MEDIUM,
+                          'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300':
+                            ticket.priority === Priority.HIGH,
+                          'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300':
+                            ticket.priority === Priority.CRITICAL
+                        }"
+                      >
+                        {{ ticket.priority }}
+                      </span>
+                    </div>
+                    <h4
+                      class="ticket-title text-sm font-medium text-gray-900 dark:text-white mb-1 line-clamp-1"
+                    >
+                      {{ ticket.title }}
+                    </h4>
+                    <p
+                      class="text-xs text-gray-500 dark:text-gray-400 line-clamp-1"
+                    >
+                      Dragging...
+                    </p>
                   </div>
                   <!-- Placeholder for drag operation -->
                   <div *cdkDragPlaceholder class="cdk-drag-placeholder"></div>
                 </div>
                 <!-- Empty Column Message -->
-                <div *ngIf="column.tickets.length === 0" class="flex flex-col items-center justify-center h-24 text-gray-400 dark:text-gray-500 text-sm italic">
-                  <mat-icon class="text-3xl text-gray-300 dark:text-gray-600 mb-2">inbox</mat-icon>
-                  No tickets in {{column.name}}
+                <div
+                  *ngIf="column.tickets.length === 0"
+                  class="flex flex-col items-center justify-center h-24 text-gray-400 dark:text-gray-500 text-sm italic"
+                >
+                  <mat-icon
+                    class="text-3xl text-gray-300 dark:text-gray-600 mb-2"
+                    >inbox</mat-icon
+                  >
+                  No tickets in {{ column.name }}
                 </div>
               </div>
             </div>
           </div>
-          
+
           <!-- Role Permissions Legend -->
-          <div class="mt-4 p-4 bg-white dark:bg-darksecondry rounded-lg border border-gray-200 dark:border-gray-700">
-            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Role Permissions:</h4>
+          <div
+            class="mt-4 p-4 bg-white dark:bg-darksecondry rounded-lg border border-gray-200 dark:border-gray-700"
+          >
+            <h4
+              class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Role Permissions:
+            </h4>
             <div class="flex flex-wrap gap-4">
-              <div class="flex items-center text-xs text-gray-600 dark:text-gray-400">
+              <div
+                class="flex items-center text-xs text-gray-600 dark:text-gray-400"
+              >
                 <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                <span *ngIf="userRole === 'DEVELOPER'">Developers can move tickets to IN_PROGRESS or RESOLVED</span>
-                <span *ngIf="userRole === 'TESTER'">Testers can move tickets to DONE</span>
-                <span *ngIf="userRole === 'MANAGER'">Managers can move tickets to TO_DO or MERGED_TO_TEST</span>
+                <span *ngIf="userRole === 'DEVELOPER'"
+                  >Developers can move tickets to IN_PROGRESS or RESOLVED</span
+                >
+                <span *ngIf="userRole === 'TESTER'"
+                  >Testers can move tickets to DONE</span
+                >
+                <span *ngIf="userRole === 'MANAGER'"
+                  >Managers can move tickets to TO_DO or MERGED_TO_TEST</span
+                >
               </div>
-              <div *ngIf="userRole !== 'ADMIN'" class="flex items-center text-xs text-gray-600 dark:text-gray-400">
+              <div
+                *ngIf="userRole !== 'ADMIN'"
+                class="flex items-center text-xs text-gray-600 dark:text-gray-400"
+              >
                 <mat-icon class="text-gray-400 mr-1 icon-xs">lock</mat-icon>
-                <span>Locked tickets cannot be moved due to role permissions</span>
+                <span
+                  >Locked tickets cannot be moved due to role permissions</span
+                >
               </div>
-              <div *ngIf="userRole === 'TESTER'" class="flex items-center text-xs text-gray-600 dark:text-gray-400">
-                <mat-icon class="text-gray-400 mr-1 icon-xs">visibility</mat-icon>
+              <div
+                *ngIf="userRole === 'TESTER'"
+                class="flex items-center text-xs text-gray-600 dark:text-gray-400"
+              >
+                <mat-icon class="text-gray-400 mr-1 icon-xs"
+                  >visibility</mat-icon
+                >
                 <span>Grayed out columns are read-only for testers</span>
               </div>
-              <div *ngIf="userRole === 'ADMIN'" class="flex items-center text-xs text-green-600 dark:text-green-400">
-                <mat-icon class="text-green-400 mr-1 icon-xs">admin_panel_settings</mat-icon>
+              <div
+                *ngIf="userRole === 'ADMIN'"
+                class="flex items-center text-xs text-green-600 dark:text-green-400"
+              >
+                <mat-icon class="text-green-400 mr-1 icon-xs"
+                  >admin_panel_settings</mat-icon
+                >
                 <span>Admins can move tickets to any status</span>
               </div>
             </div>
@@ -664,18 +1101,271 @@
         </div>
       </div>
     </div>
-    
+
+    <!-- Comments Tab -->
+    <div *ngSwitchCase="'comments'" class="space-y-6">
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md">
+        <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <h3 class="font-bold text-lg dark:text-white">Comments</h3>
+            <span class="text-sm px-2.5 py-1 rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+              {{ getTotalCommentsCount() }}
+            </span>
+          </div>
+          <button 
+            (click)="refreshComments()" 
+            class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
+            [disabled]="isLoadingComments"
+            matTooltip="Refresh comments">
+            <mat-icon [class.animate-spin]="isLoadingComments">refresh</mat-icon>
+          </button>
+        </div>
+
+        <div class="divide-y dark:divide-gray-700">
+          <!-- Add Comment Section -->
+          <div class="p-6 bg-gray-50 dark:bg-gray-800/50">
+            <form #commentForm="ngForm" (ngSubmit)="submitComment()" class="space-y-4">
+              <div>
+                <!-- New Comment Textarea -->
+                <div class="relative">
+                  <textarea
+                    #newCommentTextarea
+                    [(ngModel)]="newCommentText"
+                    (input)="handleInput($event, false)"
+                    placeholder="Type your comment here..."
+                    class="w-full rounded-md border dark:border-gray-600 shadow-sm p-3 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    rows="3"
+                  ></textarea>
+
+                  <!-- Member Suggestions Dropdown for New Comment -->
+                  <div *ngIf="showNewCommentSuggestions" class="absolute z-50 left-0 right-0 mt-1">
+                    <div class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      <div *ngFor="let member of filteredMembers" 
+                           (click)="selectMember(member, false)"
+                           class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
+                        <div class="h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+                          <span class="text-purple-700 dark:text-purple-300 text-sm font-medium">
+                            {{ member.firstname?.charAt(0) || member.email?.charAt(0)?.toUpperCase() }}
+                          </span>
+                        </div>
+                        <div class="flex flex-col">
+                          <span class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {{ member.firstname || 'User' }}
+                          </span>
+                          <span class="text-xs text-gray-500 dark:text-gray-400">
+                            {{ member.email }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                  Use &#64; to mention someone
+                </span>
+                <button
+                  (click)="submitComment()"
+                  [disabled]="!newCommentText.trim() || isSubmittingComment"
+                  class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Comments List Section -->
+          <div class="p-6">
+            <!-- Error State -->
+            <div *ngIf="commentError" class="mb-6 rounded-md bg-red-50 dark:bg-red-900/30 p-4">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <mat-icon class="h-5 w-5 text-red-400">error_outline</mat-icon>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-red-800 dark:text-red-200">Error</h3>
+                  <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+                    {{ commentError }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Loading State -->
+            <div *ngIf="isLoadingComments" class="flex justify-center py-12">
+              <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!isLoadingComments && (!comments || comments.length === 0)" class="text-center py-12">
+              <div class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600">
+                <mat-icon class="h-12 w-12 text-4xl">chat_bubble_outline</mat-icon>
+              </div>
+              <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No comments yet</h3>
+              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Start the conversation by adding the first comment.</p>
+            </div>
+
+            <!-- Comments List -->
+            <div *ngIf="!isLoadingComments && comments && comments.length > 0" class="space-y-6">
+              <div *ngFor="let comment of comments" class="relative">
+                <div [class.ml-10]="comment.parentCommentId" class="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+                  <!-- Comment Header -->
+                  <div class="p-4 flex items-start space-x-3">
+                    <div class="flex-shrink-0">
+                      <div class="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+                        <span class="text-purple-700 dark:text-purple-300 font-medium">
+                          {{ getUserEmail(comment.authorUserId)?.charAt(0)?.toUpperCase() || 'U' }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                         <b>{{ getUserEmail(comment.authorUserId) }}</b> 
+                        </h4>
+                        <div class="flex items-center space-x-2">
+                          <span class="text-sm text-gray-500 dark:text-gray-400">
+                            {{ comment.createdAt | date:'medium' }}
+                          </span>
+                          <!-- Comment Actions Menu -->
+                          <div class="relative" *ngIf="canEditComment(comment) || canDeleteComment(comment)">
+                            <button 
+                              type="button"
+                              class="p-1 rounded-full text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                              [matMenuTriggerFor]="commentMenu">
+                              <mat-icon>more_vert</mat-icon>
+                            </button>
+                            <mat-menu #commentMenu="matMenu">
+                              <button mat-menu-item *ngIf="canEditComment(comment)" (click)="editComment(comment)">
+                                <mat-icon>edit</mat-icon>
+                                <span>Edit</span>
+                              </button>
+                              <button mat-menu-item *ngIf="canDeleteComment(comment)" (click)="deleteComment(comment)">
+                                <mat-icon>delete</mat-icon>
+                                <span>Delete</span>
+                              </button>
+                            </mat-menu>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Comment Content -->
+                      <div class="mt-2 text-sm text-gray-700 dark:text-gray-300 space-y-4">
+                        <!-- Edit Mode -->
+                        <div *ngIf="editingCommentId === comment.id">
+                          <div *ngIf="editingCommentId" class="relative mt-4">
+                            <textarea
+                              #editCommentTextarea
+                              [(ngModel)]="editCommentText"
+                              (input)="handleInput($event, true)"
+                              placeholder="Edit your comment..."
+                              class="w-full rounded-md border dark:border-gray-600 shadow-sm p-3 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                              rows="3"
+                            ></textarea>
+
+                            <!-- Member Suggestions Dropdown for Edit -->
+                            <div *ngIf="showEditCommentSuggestions" class="absolute z-50 left-0 right-0 mt-1">
+                              <div class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                <div *ngFor="let member of filteredMembers" 
+                                     (click)="selectMember(member, true)"
+                                     class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center space-x-2">
+                                  <div class="h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+                                    <span class="text-purple-700 dark:text-purple-300 text-sm font-medium">
+                                      {{ member.firstname?.charAt(0) || member.email?.charAt(0)?.toUpperCase() }}
+                                    </span>
+                                  </div>
+                                  <div class="flex flex-col">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                      {{ member.firstname || 'User' }}
+                                    </span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                      {{ member.email }}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="mt-3 flex justify-end space-x-3">
+                            <button
+                              type="button"
+                              (click)="cancelEditOrReply()"
+                              class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              (click)="saveEditedComment(comment)"
+                              class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 transition-colors">
+                              Save Changes
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <!-- View Mode -->
+                        <div *ngIf="editingCommentId !== comment.id">
+                          <div [innerHTML]="formatCommentWithMentions(comment)" class="prose prose-sm dark:prose-invert max-w-none"></div>
+                          
+                          <!-- Reply Form -->
+                          <div *ngIf="replyingToCommentId === comment.id" class="mt-4">
+                            <textarea
+                              [(ngModel)]="replyText"
+                              class="w-full rounded-md border dark:border-gray-600 shadow-sm p-3 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                              rows="3"
+                              placeholder="Write your reply..."></textarea>
+                            <div class="mt-3 flex justify-end space-x-3">
+                              <button
+                                type="button"
+                                (click)="cancelReply()"
+                                class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                Cancel
+                              </button>
+                              <button
+                                type="button"
+                                (click)="submitReply(comment)"
+                                [disabled]="!replyText.trim()"
+                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                Reply
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <!-- Comment Actions -->
+                          <div *ngIf="replyingToCommentId !== comment.id" class="mt-4 flex space-x-3">
+                            <button
+                              type="button"
+                              (click)="replyToComment(comment)"
+                              class="inline-flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                              <mat-icon class="h-4 w-4 mr-1">reply</mat-icon>
+                              Reply
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Solutions Tab -->
     <div *ngSwitchCase="'solutions'" class="space-y-6">
       <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md">
         <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center">
           <h3 class="font-bold text-lg dark:text-white">Solutions</h3>
+        
           <button *ngIf="tickets.length > 0" 
                   [disabled]="isManager()"
                   (click)="addSolution()" 
-                  class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors shadow-sm flex items-center gap-2"
-                  [ngClass]="{'opacity-50 cursor-not-allowed': isManager()}">
-            <mat-icon class="text-base">add</mat-icon>
+                  [ngClass]="{'opacity-50 hidden': isManager() || isPartner()}"
+                  class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors shadow-sm flex items-center gap-2"
+          > <mat-icon class="text-base">add</mat-icon>
             <span>Add Solution</span>
           </button>
         </div>
@@ -692,8 +1382,8 @@
                  [class.hover:border-gray-300]="activeSolutionsTab !== 'my-solutions'"
                  [class.text-gray-500]="activeSolutionsTab !== 'my-solutions'"
                  [class.dark:text-gray-400]="activeSolutionsTab !== 'my-solutions'">
-                 <mat-icon class="text-base">check_circle</mat-icon>
-                 My Solutions
+                  <mat-icon class="text-base">check_circle</mat-icon>
+                  {{ isPartner() || isManager() ? 'Implemented Solutions' : 'My Solutions'  }}
                  <span *ngIf="hasSolutions()" 
                        class="ml-1 text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded-full px-2 py-0.5">
                     {{ getSolutionsCount() }}
@@ -777,14 +1467,7 @@
                       Solutions that have been implemented and verified for this issue
                     </p>
                   </div>
-                  <button *ngIf="tickets.length > 0" 
-                          [disabled]="isManager()"
-                          (click)="addSolution()" 
-                          class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors shadow-sm flex items-center gap-2"
-                          [ngClass]="{'opacity-50 cursor-not-allowed': isManager()}">
-                    <mat-icon class="text-base">add</mat-icon>
-                    <span>Add Solution</span>
-                  </button>
+               
                 </div>
 
                 <!-- Solutions list -->
@@ -1079,51 +1762,6 @@
     </div>
   </div>
 </div>
-
-<!-- Add the explanation before the kanban view if this is where the tickets are displayed -->
-<div *ngIf="ticketsViewMode === 'kanban'" class="issue-page-kanban-view">
-  <!-- Role-based filtering explanation -->
-  <div class="role-filter-explanation mat-elevation-z1">
-    <mat-icon>info</mat-icon>
-    <span *ngIf="userRole === 'MANAGER'">
-      As a Manager, you're seeing only unassigned tickets in the TO DO column that need to be assigned to developers.
-    </span>
-    <span *ngIf="userRole === 'DEVELOPER'">
-      As a Developer, you're seeing only tickets assigned to you in the TO DO column.
-    </span>
-    <span *ngIf="userRole !== 'MANAGER' && userRole !== 'DEVELOPER'">
-      You're seeing all tickets in the system.
-    </span>
-  </div>
-
-  <!-- Existing kanban view content -->
-  <!-- ... existing code ... -->
-</div>
-<!-- ... existing code ... -->
-
-<!-- Add some CSS at the end of the file for this new element -->
-<style>
-.role-filter-explanation {
-  margin-bottom: 15px;
-  padding: 10px 15px;
-  background-color: #f8f9fa;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  color: #505050;
-}
-
-.role-filter-explanation mat-icon {
-  margin-right: 8px;
-  color: #3f51b5;
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .role-filter-explanation {
-    background-color: #2d2d2d;
-    color: #dadada;
-  }
-}
-</style>
+ 
+     
+    

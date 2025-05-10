@@ -200,10 +200,10 @@ export class IssuesComponent implements OnInit {
           const firstProject = this.projects[0];
           console.log('First project counts check:', {
             project: firstProject.name,
-            totalIssues: this.getIssueCountForProject(firstProject.id),
-            highPriority: this.getIssueCountByPriority(firstProject.id, 'HIGH'),
-            mediumPriority: this.getIssueCountByPriority(firstProject.id, 'MEDIUM'),
-            lowPriority: this.getIssueCountByPriority(firstProject.id, 'LOW')
+            totalIssues: this.getIssueCountForProject(firstProject.getId()),
+            highPriority: this.getIssueCountByPriority(firstProject.getId(), 'HIGH'),
+            mediumPriority: this.getIssueCountByPriority(firstProject.getId(), 'MEDIUM'),
+            lowPriority: this.getIssueCountByPriority(firstProject.getId(), 'LOW')
           });
         }
         
@@ -479,7 +479,7 @@ export class IssuesComponent implements OnInit {
   // Get project name from ID
   getProjectName(): string {
     if (!this.selectedProjectId) return '';
-    const project = this.projects.find(p => p.id.toString() === this.selectedProjectId);
+    const project = this.projects.find(p => p.getId().toString() === this.selectedProjectId);
     return project ? project.name : '';
   }
   
@@ -604,7 +604,7 @@ export class IssuesComponent implements OnInit {
     
     // Create an array to hold all the API calls
     const projectRequests = this.projects.map(project => {
-      return this.fetchAndCacheProjectLogs(project.id);
+      return this.fetchAndCacheProjectLogs(project.getId());
     });
     
     // Wait for all requests to complete
@@ -658,12 +658,16 @@ export class IssuesComponent implements OnInit {
   preloadAllProjectLogs() {
     console.log('Preloading logs for all projects...');
     
-    // For each project, fetch and cache its logs silently in the background
-    if (this.projects && this.projects.length > 0) {
-      this.projects.forEach(project => {
-        this.fetchAndCacheProjectLogs(project.id).subscribe();
-      });
-    }
+    // Only preload for projects that don't have cached logs
+    this.projects.forEach(project => {
+      // Skip if already cached
+      if (this.projectLogsCache[project.getId().toString()]) {
+        return;
+      }
+      
+      // Fetch and cache logs
+      this.fetchAndCacheProjectLogs(project.getId()).subscribe();
+    });
   }
 }
 

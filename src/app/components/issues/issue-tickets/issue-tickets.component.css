@@ -1,0 +1,43 @@
+/* Custom styles for the issue tickets component */
+
+/* Kanban board layout */
+.kanban-column {
+  height: fit-content;
+  min-width: 250px;
+}
+
+/* Customize the drag preview */
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 0.375rem;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  background-color: white;
+  opacity: 0.9;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.4;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.column-content.cdk-drop-list-dragging .ticket-card:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Smaller icon size */
+.icon-xs {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+  .kanban-column {
+    min-width: 100%;
+  }
+} 

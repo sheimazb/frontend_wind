@@ -13,6 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { ProjectService } from '../../../services/project.service';
 import { StaffService } from '../../../services/staff.service';
+import { LogService } from '../../../services/log.service';
 import { User } from '../../../models/user.model';
 import { Project } from '../../../models/project.model';
 
@@ -59,6 +60,11 @@ export class ProjectDetailsComponent implements OnInit {
   // Available roles
   roles: string[] = ['DEVELOPER', 'MANAGER', 'TESTER'];
 
+  // Logs related properties
+  filteredLogs: any[] = [];
+  allLogs: any[] = [];
+  priorityFilter: string = '';
+
   @ViewChild('memberSort') memberSort!: MatSort;
   @ViewChild('staffSort') staffSort!: MatSort;
 
@@ -66,13 +72,16 @@ export class ProjectDetailsComponent implements OnInit {
     private router: Router, 
     private route: ActivatedRoute, 
     private projectService: ProjectService,
-    private staffService: StaffService
+    private staffService: StaffService,
+    private logService: LogService
   ) {}
 
   onDashboardClick() {
     this.router.navigate(['/dashboard/project']);
   }
-
+  onEditButtonClick(){
+    this.router.navigate(['/dashboard/project-settings/', this.project.id]);
+  }
   ngOnInit(): void {
     const projectId = +this.route.snapshot.params['id'];
     if (projectId) {
@@ -88,8 +97,10 @@ export class ProjectDetailsComponent implements OnInit {
   onTabChange(event: MatTabChangeEvent) {
     this.selectedTabIndex = event.index;
     if (this.selectedTabIndex === 1) { // Team Members tab
-      this.loadProjectMembers(this.project.id);
+      this.loadProjectMembers(this.project.getId());
       this.loadAvailableStaff();
+    } else if (this.selectedTabIndex === 2) { // Logs tab
+      this.loadProjectLogs();
     }
   }
 
@@ -185,10 +196,11 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   addUserToProject(userId: number) {
-    if (this.project.id) {
-      this.projectService.addUserToProject(this.project.id, userId).subscribe({
+    const projectId = this.project.getId();
+    if (projectId) {
+      this.projectService.addUserToProject(projectId, userId).subscribe({
         next: () => {
-          this.loadProjectMembers(this.project.id!);
+          this.loadProjectMembers(projectId);
           this.loadAvailableStaff();
         },
         error: (error) => {
@@ -199,10 +211,11 @@ export class ProjectDetailsComponent implements OnInit {
   }
 
   removeUserFromProject(userId: number) {
-    if (this.project.id) {
-      this.projectService.removeUserFromProject(this.project.id, userId).subscribe({
+    const projectId = this.project.getId();
+    if (projectId) {
+      this.projectService.removeUserFromProject(projectId, userId).subscribe({
         next: () => {
-          this.loadProjectMembers(this.project.id!);
+          this.loadProjectMembers(projectId);
           this.loadAvailableStaff();
         },
         error: (error) => {
@@ -256,5 +269,57 @@ export class ProjectDetailsComponent implements OnInit {
   // Get full name helper
   getFullName(user: User): string {
     return user ? `${user.firstname} ${user.lastname}` : '';
+  }
+
+  // Logs related methods
+  loadProjectLogs() {
+    const projectId = this.project.getId();
+    if (!projectId) return;
+    
+    this.loading = true;
+    this.logService.getLogsByProjectId(projectId.toString()).subscribe({
+      next: (logs: any[]) => {
+        this.allLogs = logs;
+        this.filteredLogs = [...this.allLogs];
+        this.applyIssueFilters();
+      },
+      error: (error: any) => {
+        console.error('Error loading project logs:', error);
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
+  }
+
+  applyIssueFilters() {
+    this.filteredLogs = this.allLogs.filter(log => {
+      if (this.priorityFilter && log.severity !== this.priorityFilter) {
+        return false;
+      }
+      return true;
+    });
+  }
+
+  getHighPriorityFilteredCount(): number {
+    return this.filteredLogs.filter(log => log.severity === 'HIGH').length;
+  }
+
+  getMediumPriorityFilteredCount(): number {
+    return this.filteredLogs.filter(log => log.severity === 'MEDIUM').length;
+  }
+
+  getLowPriorityFilteredCount(): number {
+    return this.filteredLogs.filter(log => log.severity === 'LOW').length;
+  }
+
+  updatePriority(log: any) {
+    // Implement priority update logic
+    console.log('Update priority for log:', log);
+  }
+
+  onIssueClick(logId: number) {
+   // Navigate to issue details if permission check passes
+   this.router.navigate(['dashboard', 'issues-details', logId]);
   }
 }

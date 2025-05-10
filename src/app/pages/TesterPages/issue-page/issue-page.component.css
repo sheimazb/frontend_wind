@@ -1,4 +1,4 @@
-h1{
+h1, h3, h4{
     margin-bottom: 0px;
 }
 
@@ -208,4 +208,26 @@ h1{
 .dark .cdk-drag-preview {
    background-color: #2d3748;
    color: #e5e7eb;
+}
+
+/* Comment styling */
+.comment-content {
+  word-break: break-word;
+}
+
+.comment-content .mention {
+  display: inline-block;
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .comment-content .mention {
+    background-color: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+  }
 }
