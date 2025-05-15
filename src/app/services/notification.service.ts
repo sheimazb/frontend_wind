@@ -5,6 +5,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { User } from '../models/user.model';
 import { AuthService } from './auth.service';
 import { map, tap, catchError } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 export interface NotificationItem {
   id: number;
@@ -16,6 +17,8 @@ export interface NotificationItem {
   createdAt: Date;
   recipientEmail?: string;
   sourceId?: number;
+  sourceType?: string;
+  actionType?: string;
 }
 
 @Injectable({
@@ -36,7 +39,11 @@ export class NotificationService {
   userId: number = 0;
   currentUserTenant: string = '';
 
-  constructor(private http: HttpClient, private authService: AuthService) { 
+  constructor(
+    private http: HttpClient, 
+    private authService: AuthService,
+    private router: Router
+  ) { 
     this.initUserInfo();
   }
 
@@ -107,12 +114,14 @@ export class NotificationService {
     // Create a formatted notification item
     const newNotification: NotificationItem = {
       id: notification.id || this.generateTempId(),
-      title: notification.title || this.generateTitle(notification.type || 'info'),
+      title: notification.subject || this.generateTitle(notification.type || 'info'),
       message: notification.message || 'New notification received',
       type: notification.type || 'info',
       read: false,
       timeAgo: 'Just now',
       sourceId: notification.sourceId || 0,
+      sourceType: notification.sourceType || '',
+      actionType: notification.actionType || '',
       createdAt: notification.createdAt || new Date(),
       recipientEmail: notification.recipientEmail || this.currentUserEmail
     };
@@ -398,6 +407,49 @@ export class NotificationService {
           
           // Error handling in fetchUnreadNotificationsCount ensures UI doesn't break
         });
+    }
+  }
+
+  /**
+   * Handle notification click and redirect based on sourceType
+   * @param notification The notification that was clicked
+   */
+  handleNotificationClick(notification: NotificationItem): void {
+    // First mark the notification as read
+    this.markAsRead(notification.id);
+    
+    // If no sourceType or sourceId, do nothing
+    if (!notification.sourceType || !notification.sourceId) {
+      console.log('Notification has no source type or ID for redirection');
+      return;
+    }
+    
+    console.log(`Handling notification click: ${notification.sourceType} with ID ${notification.sourceId}`);
+    
+    // Redirect based on sourceType
+    switch (notification.sourceType.toUpperCase()) {
+      case 'COMMENT':
+        // Redirect to the comment with the given sourceId
+        this.router.navigate(['/dashboard/issues-details', notification.sourceId], {
+          queryParams: { focusComment: true }
+        });
+        break;
+        
+      case 'SOLUTION':
+        // Redirect to the solution with the given sourceId
+        this.router.navigate(['/dashboard/issues-details', notification.sourceId], {
+          queryParams: { focusSolution: true }
+        });
+        break;
+        
+      case 'LOG':
+        // Redirect to the issue with the given sourceId
+        this.router.navigate(['/dashboard/issues-details', notification.sourceId]);
+        break;
+        
+      default:
+        console.log(`Unknown notification source type: ${notification.sourceType}`);
+        break;
     }
   }
 }

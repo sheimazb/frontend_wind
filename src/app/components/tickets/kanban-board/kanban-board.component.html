@@ -700,19 +700,19 @@
               <div class="space-y-4">
                 <!-- Add Comment Section -->
                 <div>
-                  <h5
-                    class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
+                  <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Add Comment
                   </h5>
                   <textarea
+                    [(ngModel)]="newCommentContent"
                     placeholder="Write a comment..."
                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-gray-700 dark:text-gray-200 dark:bg-gray-700 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                  </textarea>
+                  ></textarea>
                   <div class="mt-2 flex justify-end">
                     <button
-                      class="btn btn-primary text-stone-50 rounded-full p-2 bg-blue-500 dark:bg-blue-900/30"
+                      (click)="addComment()"
+                      [disabled]="!newCommentContent.trim()"
+                      class="btn btn-primary text-stone-50 rounded-full px-4 py-2 bg-blue-500 dark:bg-blue-900/30 hover:bg-blue-600 dark:hover:bg-blue-800/50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Add Comment
                     </button>
@@ -721,60 +721,47 @@
 
                 <!-- Comments List -->
                 <div class="mt-6 space-y-6">
-                  <h5
-                    class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wider"
-                  >
+                  <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wider">
                     Comments
                   </h5>
 
-                  <!-- Comment Item -->
-                  <div class="comment-container">
-                    <div class="flex items-start mb-2">
-                      <div class="avatar bg-green-500 mr-3">T</div>
-                      <div class="flex-1">
-                        <div class="flex justify-between items-center">
-                          <span
-                            class="text-sm font-medium text-gray-900 dark:text-white"
-                            >Tech Support</span
-                          >
-                          <span
-                            class="text-xs text-gray-500 dark:text-gray-400"
-                            >Today at 10:30 AM</span
-                          >
-                        </div>
-                        <p
-                          class="text-sm text-gray-600 dark:text-gray-300 mt-1"
-                        >
-                          I've reviewed this issue and it appears to be
-                          related to the recent API changes. Will look into
-                          it further.
-                        </p>
-                      </div>
-                    </div>
+                  <!-- Loading State -->
+                  <div *ngIf="isLoadingComments" class="flex justify-center items-center py-4">
+                    <mat-spinner diameter="24"></mat-spinner>
+                    <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Loading comments...</span>
                   </div>
 
-                  <!-- Comment Item -->
-                  <div class="comment-container">
-                    <div class="flex items-start mb-2">
-                      <div class="avatar bg-blue-500 mr-3">D</div>
-                      <div class="flex-1">
-                        <div class="flex justify-between items-center">
-                          <span
-                            class="text-sm font-medium text-gray-900 dark:text-white"
-                            >Developer</span
-                          >
-                          <span
-                            class="text-xs text-gray-500 dark:text-gray-400"
-                            >Yesterday at 3:45 PM</span
-                          >
+                  <!-- No Comments State -->
+                  <div *ngIf="!isLoadingComments && comments.length === 0" class="text-center py-6">
+                    <mat-icon class="text-4xl text-gray-400 dark:text-gray-500 mb-2">chat_bubble_outline</mat-icon>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">No comments yet</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Be the first to comment on this ticket</p>
+                  </div>
+
+                  <!-- Comments List -->
+                  <div *ngIf="!isLoadingComments && comments.length > 0" class="space-y-4">
+                    <div *ngFor="let comment of comments" class="comment-container">
+                      <div class="flex items-start mb-2">
+                        <div class="avatar mr-3 h-8 w-8 rounded-full flex items-center justify-center text-white text-sm"
+                             [ngClass]="{'bg-blue-500': getUserEmail(comment.authorUserId) !== 'Loading...', 'bg-gray-400': getUserEmail(comment.authorUserId) === 'Loading...'}">
+                          {{ getUserEmail(comment.authorUserId).charAt(0).toUpperCase() }}
                         </div>
-                        <p
-                          class="text-sm text-gray-600 dark:text-gray-300 mt-1"
-                        >
-                          Can you provide more details on the steps to
-                          reproduce this issue? I've tried testing it but
-                          couldn't replicate the behavior.
-                        </p>
+                        <div class="flex-1">
+                          <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-2">
+                              {{ getUserEmail(comment.authorUserId) }}
+                              <span *ngIf="getUserEmail(comment.authorUserId) === 'Loading...'" 
+                                    class="inline-block w-4 h-4 border-2 border-t-transparent border-blue-500 rounded-full animate-spin">
+                              </span>
+                            </span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">
+                              {{ formatDate(comment.createdAt) }}
+                            </span>
+                          </div>
+                          <p class="text-sm text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">
+                            {{ comment.content }}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>

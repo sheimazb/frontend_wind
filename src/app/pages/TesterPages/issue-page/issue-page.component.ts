@@ -273,11 +273,43 @@ export class IssuePageComponent implements OnInit, OnDestroy {
   }
   private subscriptions = new Subscription();
   ngOnInit() {
+    // Subscribe to route parameters
     this.route.params.subscribe((params) => {
       if (params['id']) {
         this.issueId = params['id'];
         this.loadIssueDetails(this.issueId);
         this.loadTicketsForIssue(this.issueId);
+      }
+    });
+
+    // Subscribe to query parameters for notification redirects
+    this.route.queryParams.subscribe(queryParams => {
+      if (queryParams['focusComment'] === 'true') {
+        // When redirected from a comment notification, switch to comments tab
+        setTimeout(() => {
+          this.onTabChange('comments');
+          
+          // Scroll to the comment section after it's loaded
+          setTimeout(() => {
+            const commentSection = document.getElementById('comments-section');
+            if (commentSection) {
+              commentSection.scrollIntoView({ behavior: 'smooth' });
+            }
+          }, 500);
+        }, 300);
+      } else if (queryParams['focusSolution'] === 'true') {
+        // When redirected from a solution notification, switch to solutions tab
+        setTimeout(() => {
+          this.onTabChange('solutions');
+          
+          // Scroll to the solutions section after it's loaded
+          setTimeout(() => {
+            const solutionsSection = document.getElementById('solutions-section');
+            if (solutionsSection) {
+              solutionsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+          }, 500);
+        }, 300);
       }
     });
   }
@@ -630,34 +662,43 @@ export class IssuePageComponent implements OnInit, OnDestroy {
           next: (solution) => {
             console.log('Solution saved successfully:', solution);
             
-            // Update the ticket status to resolved if it's not already
-            if (ticket?.status !== Status.RESOLVED) {
-              this.ticketService.updateTicketStatus(ticketId, Status.RESOLVED).subscribe({
-                next: () => {
-                  this.snackBar.open('Solution saved and ticket resolved', 'Close', {
-                    duration: 3000
-                  });
-                  // Refresh the tickets list
-                  this.loadTicketsForIssue(this.issueId);
-                },
-                error: (statusError: any) => {
-                  console.error('Error updating ticket status:', statusError);
-                  this.snackBar.open('Solution saved but ticket status could not be updated', 'Close', {
-                    duration: 3000
-                  });
-                  this.loadTicketsForIssue(this.issueId);
-                },
-                complete: () => {
-                  this.isLoading = false;
+            // Always update the ticket status to RESOLVED after adding a solution
+            // regardless of its current status (to ensure consistent behavior)
+            this.ticketService.updateTicketStatus(ticketId, Status.RESOLVED).subscribe({
+              next: (updatedTicket) => {
+                console.log('Ticket status updated successfully:', updatedTicket);
+                
+                // Find and update the ticket in the main tickets array
+                const index = this.tickets.findIndex(t => t.id === ticketId);
+                if (index !== -1) {
+                  this.tickets[index] = updatedTicket;
+                  this.tickets[index].hasSolution = true;
+                  this.tickets[index].solution = solution as any;
                 }
-              });
-            } else {
-              this.snackBar.open('Solution saved successfully', 'Close', {
-                duration: 3000
-              });
-              this.loadTicketsForIssue(this.issueId);
-              this.isLoading = false;
-            }
+                
+                // Re-distribute tickets to ensure Kanban columns are up-to-date
+                this.distributeTicketsToKanbanColumns();
+                
+                this.snackBar.open('Solution saved and ticket resolved', 'Close', {
+                  duration: 3000
+                });
+                
+                // Refresh all data to ensure UI is consistent
+                this.loadTicketsForIssue(this.issueId);
+              },
+              error: (statusError: any) => {
+                console.error('Error updating ticket status:', statusError);
+                this.snackBar.open('Solution saved but ticket status could not be updated', 'Close', {
+                  duration: 3000
+                });
+                
+                // Still refresh tickets to reflect the solution addition
+                this.loadTicketsForIssue(this.issueId);
+              },
+              complete: () => {
+                this.isLoading = false;
+              }
+            });
           },
           error: (error: any) => {
             this.errorService.handleError(error, 'Saving solution', true);
@@ -991,12 +1032,12 @@ export class IssuePageComponent implements OnInit, OnDestroy {
     });
   }
 
-  getSolutionContent(ticket: Ticket): string {
-    if (!ticket || !ticket.solution) return 'No description available';
+  getSolutionContent(ticket: Ticket): string | null {
+    if (!ticket || !ticket.solution) return null;
     
     const solution = ticket.solution as unknown as ServiceSolution;
     // Try content first, then fall back to description
-    return solution.content || solution.title || 'No description available';
+    return solution.content || solution.title || null;
   }
   
   getSolutionProperty(ticket: Ticket, property: keyof ServiceSolution): any {

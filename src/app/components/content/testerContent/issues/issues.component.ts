@@ -26,6 +26,10 @@ import { TicketService } from '../../../../services/ticket.service';
 import { forkJoin, of } from 'rxjs';
 import { switchMap, map, catchError } from 'rxjs/operators';
 import { User } from '../../../../models/user.model';
+import { ProjectTypePipe } from './project-type.pipe';
+import { Ticket, Status } from '../../../../services/ticket.service';
+import { SolutionService } from '../../../../services/solution.service';
+import { Solution } from '../../../../models/ticket.model';
 @Component({
   selector: 'app-issues',
   standalone: true,
@@ -39,7 +43,8 @@ import { User } from '../../../../models/user.model';
     CommonModule,
     FormsModule,
     MatSnackBarModule,
-    MatDialogModule
+    MatDialogModule,
+    ProjectTypePipe
   ],
   templateUrl: './issues.component.html',
   styleUrl: './issues.component.css',
@@ -54,31 +59,74 @@ export class IssuesComponent implements OnInit {
     private ticketService: TicketService,
     private authService: AuthService,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private solutionService: SolutionService
   ) {}
 
   // Data properties
   logs: Log[] = [];
+  tickets: Ticket[] = []; 
+  ticket: Ticket | null = null;
   projects: Project[] = [];
   selectedProjectId: string = '';
   tenant: string = '';
   userId: number = 0;
   userRole: string = '';
-  
+  solutions: any[] = [];
   // UI state properties
   loading: boolean = false;
   selectedView: 'projects' | 'logs' = 'projects';
   logsByProjectId: Log[] = [];
   filteredLogs: Log[] = [];
   priorityFilter: string = '';
+  handledFilter: 'all' | 'handled' | 'notHandled' = 'all';
+  isFilterDropdownOpen: boolean = false;
+  searchQuery = '';
+  // Project type properties
+  projectTypeFilter: 'all' | 'package' | 'monolithic' = 'all';
+  currentPackageId: number | null = null;
+  isViewingPackage: boolean = false;
+  microservicesInPackage: Project[] = [];
+  currentPackage: Project | null = null;
+  loadingMicroservices: boolean = false;
+  selectedMicroservice: Project | null = null;
 
-  // New properties
+  // Cache properties
   projectLogsCache: Record<string, Log[]> = {};
   isDeveloper: boolean = false;
-  // Cache to store which logs have tickets assigned to the current user
   assignableLogIds = new Set<string>();
     
+  // Add these properties
+  allMicroservices: Project[] = [];
+  microserviceMembership: Map<number, boolean> = new Map();
    
+  // Add these properties for microservice filtering
+  microserviceSearchQuery: string = '';
+  microserviceFilter: 'all' | 'accessible' | 'restricted' = 'all';
+
+  // Add computed property for filtered microservices
+  get filteredMicroservices(): Project[] {
+    let filtered = [...this.allMicroservices];
+
+    // Apply search filter
+    if (this.microserviceSearchQuery) {
+      const query = this.microserviceSearchQuery.toLowerCase();
+      filtered = filtered.filter(ms => 
+        ms.name.toLowerCase().includes(query) || 
+        ms.description.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply accessibility filter
+    if (this.microserviceFilter === 'accessible') {
+      filtered = filtered.filter(ms => this.isMemberOfMicroservice(ms));
+    } else if (this.microserviceFilter === 'restricted') {
+      filtered = filtered.filter(ms => !this.isMemberOfMicroservice(ms));
+    }
+
+    return filtered;
+  }
+
   ngOnInit(): void {
     this.loadUserData();
   }
@@ -116,12 +164,46 @@ export class IssuesComponent implements OnInit {
   loadUserProjects() {
     this.loading = true;
     
-    // Use getUserProjects for all roles - this endpoint is role-aware and will return
-    // the appropriate projects based on the user's role
     this.projectService.getUserProjects(this.userId).subscribe({
       next: (projects) => {
-        this.projects = projects;
-        this.loading = false;
+        if (this.userRole === Role.MANAGER) {
+          // For managers, we need to handle microservices differently
+          const microservices = projects.filter(p => p.projectType === 'MICROSERVICES');
+          const otherProjects = projects.filter(p => p.projectType !== 'MICROSERVICES');
+          
+          // For each microservice, get its parent package
+          const packageRequests = microservices.map(ms => {
+            if (ms.parentProject && ms.parentProject.id) {
+              return this.projectService.getProjectById(ms.parentProject.id);
+            }
+            return of(null);
+          });
+
+          // Wait for all package requests to complete
+          forkJoin(packageRequests).subscribe({
+            next: (packages) => {
+              // Filter out null values and duplicates
+              const uniquePackages = packages
+                .filter((p): p is Project => p !== null)
+                .filter((p, index, self) => 
+                  index === self.findIndex(t => t.getId() === p.getId())
+                );
+              
+              // Combine unique packages with other projects
+              this.projects = [...uniquePackages, ...otherProjects];
+              this.loading = false;
+            },
+            error: (error) => {
+              console.error('Error loading packages:', error);
+              this.loading = false;
+              this.showNotification('Failed to load some project packages', 'error');
+            }
+          });
+        } else {
+          // For other roles, keep the existing behavior
+          this.projects = projects;
+          this.loading = false;
+        }
       },
       error: (error) => {
         console.error('Error loading projects:', error);
@@ -217,57 +299,69 @@ export class IssuesComponent implements OnInit {
       }
     });
   }
-  
+  onSearchProjects(event: any): void {
+    this.searchQuery = event.target.value;
+    this.applyFilters();
+  }
   loadLogsByProjectId(projectId: string) {
-    if (!projectId) return;
-    
     this.loading = true;
-    console.log(`Loading logs for project ID: ${projectId}`);
-    
     this.logService.getLogsByProjectId(projectId).subscribe({
       next: (logs) => {
-        console.log(`Received ${logs.length} logs for project ${projectId}`);
+        this.logsByProjectId = logs;
+        this.filteredLogs = [...logs];
         
-        // Normalize severity to uppercase for consistency
-        this.logsByProjectId = logs.map(log => {
-          if (log.severity) {
-            log.severity = log.severity.toString().toUpperCase();
+        // Load tickets for all logs
+        const ticketRequests = logs.map(log => 
+          this.ticketService.getTicketsByLogId(log.id!.toString()).pipe(
+            switchMap(tickets => {
+              // For each ticket, check if it has a solution
+              const solutionRequests = tickets.map(ticket =>
+                this.solutionService.getSolutionByTicketId(ticket.id!).pipe(
+                  map(solution => {
+                    ticket.solution = {
+                      id: solution.id,
+                      ticketId: ticket.id!,
+                      description: solution.content || '',
+                      codeSnippet: solution.content || '',
+                      createdByUserId: solution.authorUserId,
+                      createdAt: solution.createdAt,
+                      updatedAt: solution.updatedAt
+                    };
+                    return ticket;
+                  }),
+                  catchError(() => of(ticket))
+                )
+              );
+              return forkJoin(solutionRequests).pipe(
+                catchError(() => of(tickets))
+              );
+            }),
+            catchError(error => {
+              console.error(`Error loading tickets for log ${log.id}:`, error);
+              return of([]);
+            })
+          )
+        );
+
+        // Combine all ticket requests
+        forkJoin(ticketRequests).subscribe({
+          next: (ticketsArray) => {
+            this.tickets = ticketsArray.flat();
+            this.loading = false;
+          },
+          error: (error) => {
+            console.error('Error loading tickets:', error);
+            this.loading = false;
           }
-          return log;
         });
-        
-        // Update the cache with these logs
-        this.projectLogsCache[projectId] = [...this.logsByProjectId];
-        
-        // For developers, filter logs to only show those they're assigned to fix
+
         if (this.isDeveloper) {
           this.filterLogsByDeveloperAssignment();
-        } else {
-          this.filteredLogs = [...this.logsByProjectId]; // Initialize filtered logs
         }
-        
-        this.loading = false;
-        
-        // Log counts to help debug discrepancies
-        const totalFromMain = this.getIssueCountForProject(Number(projectId));
-        console.log(`Comparing counts - From main logs: ${totalFromMain}, From project-specific: ${this.logsByProjectId.length}`);
-        
-        // Distribution by priority in this project
-        const highCount = this.logsByProjectId.filter(log => log.severity === 'HIGH').length;
-        const mediumCount = this.logsByProjectId.filter(log => log.severity === 'MEDIUM').length;
-        const lowCount = this.logsByProjectId.filter(log => log.severity === 'LOW').length;
-        
-        console.log(`Project ${projectId} priority distribution:`, {
-          high: highCount,
-          medium: mediumCount,
-          low: lowCount,
-          total: this.logsByProjectId.length
-        });
       },
       error: (error) => {
-        console.error('Error loading logs by project ID:', error);
+        console.error('Error loading logs:', error);
         this.loading = false;
-        this.showNotification('Failed to load logs for this project', 'error');
       }
     });
   }
@@ -350,7 +444,8 @@ export class IssuesComponent implements OnInit {
     const projectId = event.target.value;
     this.selectedProjectId = projectId;
     this.loadLogsByProjectId(projectId);
-    this.priorityFilter = ''; // Reset filter when changing projects
+    this.priorityFilter = ''; // Reset priority filter when changing projects
+    this.handledFilter = 'all'; // Reset handled filter when changing projects
   }
 
   selectProject(projectId: number) {
@@ -374,7 +469,8 @@ export class IssuesComponent implements OnInit {
    
     this.loadLogsByProjectId(this.selectedProjectId);
     this.selectedView = 'logs'; // Switch to logs view after selecting a project
-    this.priorityFilter = ''; // Reset filter when selecting a project
+    this.priorityFilter = ''; // Reset priority filter when selecting a project
+    this.handledFilter = 'all'; // Reset handled filter when selecting a project
   }
 
   onIssueClick(logId: string | number | undefined) {
@@ -512,30 +608,33 @@ export class IssuesComponent implements OnInit {
   
   // Apply filters after changing the dropdown
   applyFilters() {
+    let initialLogs: Log[] = [];
+
     if (!this.isDeveloper) {
       // Non-developers see all logs with priority filter
-      if (!this.priorityFilter) {
-        this.filteredLogs = [...this.logsByProjectId];
-      } else {
-        this.filteredLogs = this.logsByProjectId.filter(log => 
-          log.severity === this.priorityFilter
-        );
-      }
-      return;
+      initialLogs = [...this.logsByProjectId];
+    } else {
+      // For developers, we need to maintain the assignment filter
+      // Get the current set of logs the developer can access
+      initialLogs = this.logsByProjectId.filter(log => this.canAccessLog(log));
     }
     
-    // For developers, we need to maintain the assignment filter
-    // Get the current set of logs the developer can access
-    const accessibleLogs = this.logsByProjectId.filter(log => this.canAccessLog(log));
-    
-    // Then apply the priority filter
-    if (!this.priorityFilter) {
-      this.filteredLogs = accessibleLogs;
-    } else {
-      this.filteredLogs = accessibleLogs.filter(log => 
+    // Apply priority filter if set
+    if (this.priorityFilter) {
+      initialLogs = initialLogs.filter(log => 
         log.severity === this.priorityFilter
       );
     }
+    
+    // Apply handled status filter if not set to 'all'
+    if (this.handledFilter !== 'all') {
+      initialLogs = initialLogs.filter(log => {
+        const isHandled = this.isIssueHandled(log.id);
+        return this.handledFilter === 'handled' ? isHandled : !isHandled;
+      });
+    }
+    
+    this.filteredLogs = initialLogs;
   }
   
   // Check if current user can access this log (for developers)
@@ -669,6 +768,170 @@ export class IssuesComponent implements OnInit {
       this.fetchAndCacheProjectLogs(project.getId()).subscribe();
     });
   }
+
+  isPackage(project: Project): boolean {
+    return project.projectType === 'MICROSERVICES_PACKAGE';
+  }
+
+  isMicroservice(project: Project): boolean {
+    return project.projectType === 'MICROSERVICES';
+  }
+
+  openPackage(packageProject: Project): void {
+    this.loadingMicroservices = true;
+    this.currentPackageId = packageProject.getId();
+    this.currentPackage = packageProject;
+    this.isViewingPackage = true;
+    this.selectedMicroservice = null;
+    this.microserviceSearchQuery = ''; // Reset search
+    this.microserviceFilter = 'all'; // Reset filter
+    
+    this.projectService.getMicroservicesInPackage(packageProject.getId()).subscribe({
+      next: (microservices) => {
+        this.allMicroservices = microservices;
+        
+        // Create an array of observables to check membership for each microservice
+        const membershipChecks = microservices.map(ms => 
+          this.projectService.getProjectMembers(ms.getId()).pipe(
+            map(members => ({
+              microservice: ms,
+              isMember: members.some(member => member.id === this.userId)
+            })),
+            catchError(error => {
+              console.error(`Error checking membership for microservice ${ms.getId()}:`, error);
+              return of({ microservice: ms, isMember: false });
+            })
+          )
+        );
+
+        // Wait for all membership checks to complete
+        forkJoin(membershipChecks).subscribe({
+          next: (results) => {
+            // Store membership information
+            results.forEach(result => {
+              this.microserviceMembership.set(result.microservice.getId(), result.isMember);
+            });
+
+            // Filter accessible microservices for operations
+            this.microservicesInPackage = results
+              .filter(result => result.isMember || this.userRole === 'TESTER')
+              .map(result => result.microservice);
+
+            this.loadingMicroservices = false;
+            
+            if (this.microservicesInPackage.length === 0) {
+              this.showNotification('No microservices found that you are a member of', 'success');
+            }
+            
+            this.loadLogsForMicroservices();
+          },
+          error: (error) => {
+            console.error('Error checking microservice memberships:', error);
+            this.showNotification('Failed to verify microservice access', 'error');
+            this.loadingMicroservices = false;
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Error loading microservices:', error);
+        this.showNotification('Failed to load microservices in this package', 'error');
+        this.loadingMicroservices = false;
+      }
+    });
+  }
+
+  loadLogsForMicroservices(): void {
+    if (!this.microservicesInPackage.length) return;
+
+    const logRequests = this.microservicesInPackage.map(microservice => 
+      this.logService.getLogsByProjectId(microservice.getId().toString()).pipe(
+        catchError(error => {
+          console.error(`Error loading logs for microservice ${microservice.getId()}:`, error);
+          return of([]);
+        })
+      )
+    );
+
+    forkJoin(logRequests).subscribe({
+      next: (logsArray) => {
+        // Combine all logs and update the cache
+        logsArray.forEach((logs, index) => {
+          const microserviceId = this.microservicesInPackage[index].getId().toString();
+          this.projectLogsCache[microserviceId] = logs;
+        });
+      },
+      error: (error) => {
+        console.error('Error loading microservice logs:', error);
+        this.showNotification('Failed to load some microservice logs', 'error');
+      }
+    });
+  }
+
+  selectMicroservice(microservice: Project): void {
+    if (!this.isMemberOfMicroservice(microservice)) {
+      return;
+    }
+    this.selectedMicroservice = microservice;
+    this.selectedProjectId = microservice.getId().toString();
+    this.selectedView = 'logs';
+    this.loadLogsByProjectId(this.selectedProjectId);
+  }
+
+  backToMicroservicesList(): void {
+    this.selectedMicroservice = null;
+    this.selectedProjectId = '';
+    this.selectedView = 'projects';
+    this.filteredLogs = [];
+  }
+
+  backToProjects(): void {
+    this.isViewingPackage = false;
+    this.currentPackageId = null;
+    this.currentPackage = null;
+    this.microservicesInPackage = [];
+    this.allMicroservices = [];
+    this.microserviceMembership.clear();
+    this.selectedMicroservice = null;
+    this.selectedProjectId = '';
+    this.selectedView = 'projects';
+    this.filteredLogs = [];
+    this.microserviceSearchQuery = '';
+    this.microserviceFilter = 'all';
+  }
+
+  // Add this helper method
+  isMemberOfMicroservice(microservice: Project): boolean {
+    return this.userRole === 'TESTER' || this.microserviceMembership.get(microservice.getId()) || false;
+  }
+
+  // Helper method to convert string ID to number
+  getProjectIdAsNumber(): number {
+    return this.selectedProjectId ? parseInt(this.selectedProjectId) : 0;
+  }
+
+  isIssueHandled(issueId: string | number | undefined): boolean {
+    if (!issueId) return false;
+    
+    // Find all tickets for this issue
+    const issueTickets = this.tickets.filter(ticket => 
+      ticket.logId?.toString() === issueId.toString()
+    );
+    
+    // Check if any ticket has a solution
+    return issueTickets.some(ticket => ticket.solution !== undefined && ticket.solution !== null);
+  }
+
+  // Toggle the filter dropdown visibility
+  toggleFilterDropdown() {
+    this.isFilterDropdownOpen = !this.isFilterDropdownOpen;
+  }
+
+  // Apply a filter and close the dropdown
+  applyHandledFilter(filterValue: 'all' | 'handled' | 'notHandled') {
+    this.handledFilter = filterValue;
+    this.applyFilters();
+    this.isFilterDropdownOpen = false;
+  }
 }
 
 @Component({
@@ -714,7 +977,11 @@ export class IssuesComponent implements OnInit {
 export class UpdatePriorityDialogComponent {
   data: { priority: string };
   priorities = ['HIGH', 'MEDIUM', 'LOW'];
-  
+  tickets: any;
+  logs: any;
+  ticketService: any;
+  solutionService: any;
+
   constructor(
     public dialogRef: MatDialogRef<UpdatePriorityDialogComponent>,
     @Inject(MAT_DIALOG_DATA) data: { priority: string }
@@ -724,6 +991,54 @@ export class UpdatePriorityDialogComponent {
   
   selectPriority(priority: string) {
     this.dialogRef.close(priority);
+  }
+
+  loadTickets() {
+    if (this.logs.map((log: Log) => log.id)) {
+      this.loadTicketsForIssue(this.logs.map((log: Log) => log.id));
+    }
+  }
+  isIssueHandled(logId: number): boolean {
+    if (!this.tickets || this.tickets.length === 0) {
+        return this.logs.find((log: Log) => log.id === logId)?.handled || false;
+    }
+    return this.hasSolutions();
+  }
+  loadTicketsForIssue(logId: number) {
+    console.log('Starting to load tickets for logId:', logId);
+    this.ticketService.getTicketsByLogId(logId).subscribe({
+      next: (tickets: Ticket[]) => {
+        console.log('Received tickets from server:', tickets);
+        this.tickets = tickets; // Keep the main list
+        this.tickets.forEach((ticket: Ticket) => {
+          this.loadSolutionForTicket(ticket);
+        });
+  
+      },
+      error: (error: any) => {
+        console.error('Error loading tickets:', error);  },
+    });
+  }
+  loadSolutionForTicket(ticket: Ticket): void {
+    if (!ticket.id) return;
+    
+    this.solutionService.getSolutionByTicketId(ticket.id).subscribe({
+      next: (solution: any) => {
+        if (solution) {          
+          ticket.solution = solution as any;          
+          console.log(`Loaded solution for ticket #${ticket.id}:`, solution);
+        }
+      },
+      error: (error: any) => {
+        // No solution found for this ticket or error occurred
+        if (error.status !== 404) {
+          console.error(`Error loading solution for ticket #${ticket.id}:`, error);
+        }
+      }
+    });
+  }
+  hasSolutions(): boolean {
+    return this.tickets.some((ticket: Ticket) => ticket.solution);
   }
   
   onCancel() {

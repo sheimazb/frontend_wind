@@ -41,6 +41,7 @@ export class ProfileComponent implements OnInit {
   currentMonth = 'Jan';
   currentYear = new Date().getFullYear();
   totalContributions = 0;
+  defaultProfileImage = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
 
   profileData: ProfileData = {
     firstname: '',
@@ -75,6 +76,9 @@ export class ProfileComponent implements OnInit {
 
     const storedUser = localStorage.getItem('user');
     const userEmail = storedUser ? JSON.parse(storedUser).email : '';
+
+    // Set default profile image initially
+    this.profileImage = this.defaultProfileImage;
 
     if (!userEmail) {
       this.errorMessage = 'User email not found. Please log in again.';
@@ -356,5 +360,12 @@ export class ProfileComponent implements OnInit {
     }
 
     this.weeks = weeks.reverse();
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img) {
+      img.src = this.defaultProfileImage;
+    }
   }
 }

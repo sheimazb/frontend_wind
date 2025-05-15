@@ -23,7 +23,7 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <div class="view-toggle bg-gray-200  dark:bg-gray-700 rounded-md">
+      <div class="view-toggle bg-white  dark:bg-slate-900 rounded-md">
         <button
           [class.active]="selectedView === 'projects'"
           (click)="selectedView = 'projects'"
@@ -41,20 +41,77 @@
           <span>Issues</span>
         </button>
       </div>
-
+<!--
       <button
         (click)="forceSyncCounts()"
         title="Sync issue counts"
-        class="px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-gray-700 dark:text-gray-300 flex items-center gap-1"
+        class="px-2 py-1 text-xs bg-white hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-gray-700 dark:text-gray-300 flex items-center gap-1"
       >
         <mat-icon class="text-sm">sync</mat-icon>
         <span>Sync Counts</span>
+      </button> -->
+    </div>
+  </div>
+  <mat-divider class="dark:bg-gray-850"></mat-divider>
+<div class="flex gap-4 mb-2">
+  <!-- Project Type Filter -->
+  <div *ngIf="selectedView === 'projects' && !isViewingPackage" class="flex justify-between items-center">
+    <div class="inline-flex rounded-md shadow-sm bg-white dark:bg-slate-900 p-1">
+      <button 
+        (click)="projectTypeFilter = 'all'" 
+        [ngClass]="projectTypeFilter === 'all' ? 'bg-purple-500 text-white' : 'bg-transparent text-gray-700 dark:text-gray-200'" 
+        class="px-4 py-2 rounded-l-md font-medium focus:outline-none transition"
+      >
+        All
+      </button>
+      <button 
+        (click)="projectTypeFilter = 'package'" 
+        [ngClass]="projectTypeFilter === 'package' ? 'bg-purple-500 text-white' : 'bg-transparent text-gray-700 dark:text-gray-200'" 
+        class="px-4 py-2 font-medium focus:outline-none transition"
+      >
+        Packages
+      </button>
+      <button 
+        (click)="projectTypeFilter = 'monolithic'" 
+        [ngClass]="projectTypeFilter === 'monolithic' ? 'bg-purple-500 text-white' : 'bg-transparent text-gray-700 dark:text-gray-200'" 
+        class="px-4 py-2 rounded-r-md font-medium focus:outline-none transition"
+      >
+        Monolithic
       </button>
     </div>
   </div>
 
+        <div *ngIf="selectedView === 'projects' && !isViewingPackage"  class="relative lg:w-full">
+          <input
+            type="text"
+            (input)="onSearchProjects($event)"
+            [value]="searchQuery"
+            class="w-full pl-12 pr-4 py-3 rounded-md  shadow-sm  bg-white  dark:bg-slate-900 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+            placeholder="Search projects by name or description..."
+          />
+          <div
+            class="absolute inset-y-0 left-4 flex items-center pointer-events-none"
+          >
+            <svg
+              class="w-5 h-5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0118 0z"
+              />
+            </svg>
+          </div>
+        </div>
+    
+  </div>
+
   <!-- Project Selection (only shown in issues view) -->
-  <div *ngIf="selectedView === 'logs'" class="mb-6">
+  <div *ngIf="selectedView === 'logs'" class="mb-2">
     <div class="flex items-center gap-3">
       <label
         for="projectSelect"
@@ -69,6 +126,7 @@
         <option value="" disabled selected>Select a project</option>
         <option *ngFor="let project of projects" [value]="project.id">
           {{ project.name }}
+          <span *ngIf="isPackage(project)">(Package)</span>
         </option>
       </select>
 
@@ -80,12 +138,22 @@
         <mat-icon>refresh</mat-icon>
         <span>Refresh</span>
       </button>
+    
+    </div>
+
+    <!-- Manager-specific note -->
+    <div
+      *ngIf="userRole === 'MANAGER'"
+      class="mt-2 text-sm text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 p-2 rounded-md flex items-center gap-2"
+    >
+      <mat-icon class="text-sm">info</mat-icon>
+      <span>As a manager, you'll see packages containing your assigned microservices.</span>
     </div>
 
     <!-- Developer-specific note -->
     <div
       *ngIf="isDeveloper"
-      class="mt-2 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 p-2 rounded-md flex items-center gap-2"
+      class="mt-2 text-sm text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20 p-2 rounded-md flex items-center gap-2"
     >
       <mat-icon class="text-sm">info</mat-icon>
       <span
@@ -122,15 +190,31 @@
       </div>
 
       <!-- Projects Grid -->
-      <div *ngIf="projects.length > 0" class="projects-grid">
-        <!-- Tester - All Projects Badge -->
+      <div *ngIf="projects.length > 0 && !isViewingPackage" class="projects-grid">
         <div
-          *ngFor="let project of projects"
-          class="project-card dark:bg-gray-700"
-          (click)="selectProject(project.getId())"
+          *ngFor="let project of projects | projectType:projectTypeFilter"
+          class="project-card dark:bg-slate-900"
+          (click)="isPackage(project) ? openPackage(project) : selectProject(project.getId())"
         >
           <div class="project-header">
-            <h3 class="project-name">{{ project.name }}</h3>
+            <div class="flex items-center gap-2">
+              <h3 class="project-name">{{ project.name }}</h3>
+              <span 
+                [ngClass]="{
+                  'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300': isPackage(project),
+                  'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300': !isPackage(project)
+                }"
+                class="text-xs px-2 py-0.5 rounded-full"
+              >
+                {{ isPackage(project) ? 'Package' : 'Monolithic' }}
+              </span>
+              <span 
+                *ngIf="userRole === 'MANAGER' && isPackage(project)"
+                class="text-xs px-2 py-0.5 bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 rounded-full"
+              >
+                Contains Your Microservices
+              </span>
+            </div>
             <span class="text-gray-400 dark:text-gray-500">{{
               project.getId()
             }}</span>
@@ -205,8 +289,195 @@
       </div>
     </div>
 
+    <!-- Microservices View -->
+    <div *ngIf="isViewingPackage && !selectedMicroservice">
+      <!-- Package Header -->
+      <div class="flex justify-between items-center mb-6">
+        <div class="flex items-center gap-4">
+          <button
+            (click)="backToProjects()"
+            class="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+              {{ currentPackage?.name }} Microservices
+            </h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Manage issues across microservices in this package
+            </p>
+          </div>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="flex items-center gap-4">
+          <div class="relative">
+            <input
+              type="text"
+              [(ngModel)]="microserviceSearchQuery"
+              placeholder="Search microservices..."
+              class="pl-10 pr-4 py-2 border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700"
+            />
+            <mat-icon class="absolute left-3 top-2.5 text-gray-400">search</mat-icon>
+          </div>
+          <select
+            [(ngModel)]="microserviceFilter"
+            class="border rounded-lg px-4 py-2 bg-white dark:bg-gray-800 dark:border-gray-700"
+          >
+            <option value="all">All Microservices</option>
+            <option value="accessible">Accessible Only</option>
+            <option value="restricted">Restricted Only</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Loading Microservices -->
+      <div
+        *ngIf="loadingMicroservices"
+        class="flex justify-center items-center p-8"
+      >
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-4 border-amber-500 border-t-transparent"
+        ></div>
+      </div>
+
+      <!-- No Microservices State -->
+      <div
+        *ngIf="!loadingMicroservices && allMicroservices.length === 0"
+        class="empty-state"
+      >
+        <mat-icon class="empty-state-icon text-amber-500">apps</mat-icon>
+        <h3 class="empty-state-title">No Microservices Found</h3>
+        <p class="empty-state-desc">
+          This package doesn't have any microservices yet.
+        </p>
+      </div>
+
+      <!-- Microservices Table -->
+      <div *ngIf="!loadingMicroservices && allMicroservices.length > 0" 
+           class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-700">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Name & Description
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Issues
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                High Priority
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Medium Priority
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Low Priority
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Status
+              </th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tr *ngFor="let microservice of filteredMicroservices" 
+                [class.opacity-75]="!isMemberOfMicroservice(microservice)"
+                class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <td class="px-6 py-4">
+                <div class="flex items-start gap-4">
+                  <div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">
+                      {{ microservice.name }}
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      {{ microservice.description }}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <mat-icon class="text-gray-400">bug_report</mat-icon>
+                  <span class="text-sm font-medium">
+                    {{ getIssueCountForProject(microservice.getId()) }}
+                  </span>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <mat-icon class="text-red-500">priority_high</mat-icon>
+                  <span class="text-sm font-medium">
+                    {{ getIssueCountByPriority(microservice.getId(), "HIGH") }}
+                  </span>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <mat-icon class="text-yellow-500">flag</mat-icon>
+                  <span class="text-sm font-medium">
+                    {{ getIssueCountByPriority(microservice.getId(), "MEDIUM") }}
+                  </span>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <mat-icon class="text-green-500">flag</mat-icon>
+                  <span class="text-sm font-medium">
+                    {{ getIssueCountByPriority(microservice.getId(), "LOW") }}
+                  </span>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <span
+                  [ngClass]="{
+                    'bg-gray-100 text-gray-600': !isMemberOfMicroservice(microservice),
+                    'bg-indigo-100 text-indigo-800': isMemberOfMicroservice(microservice)
+                  }"
+                  class="px-2 py-1 text-xs rounded-full"
+                >
+                  {{ isMemberOfMicroservice(microservice) ? 'Accessible' : 'Restricted' }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <button
+                  *ngIf="isMemberOfMicroservice(microservice)"
+                  (click)="selectMicroservice(microservice)"
+                  class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium text-sm inline-flex items-center gap-1"
+                >
+                  View Issues
+                  <mat-icon class="text-base">arrow_forward</mat-icon>
+                </button>
+                <span
+                  *ngIf="!isMemberOfMicroservice(microservice)"
+                  class="text-gray-400 text-sm inline-flex items-center gap-1"
+                >
+                  <mat-icon class="text-sm">info</mat-icon>
+                  Not a member
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- Issues View -->
     <div *ngIf="selectedView === 'logs'" class="issues-list">
+      <!-- Back to Microservices button when viewing from package -->
+      <div *ngIf="isViewingPackage" class="mb-6">
+        <button
+          (click)="backToMicroservicesList()"
+          class="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 flex items-center gap-2"
+        >
+          <mat-icon>arrow_back</mat-icon>
+          <span>Back to {{ currentPackage?.name }} Microservices</span>
+        </button>
+      </div>
+
       <!-- No Project Selected State -->
       <div *ngIf="!selectedProjectId" class="empty-state">
         <mat-icon class="empty-state-icon">source</mat-icon>
@@ -232,125 +503,221 @@
         </p>
       </div>
 
-      <!-- Issues List with enhanced counts -->
+      <!-- Issues List  -->
       <ng-container *ngIf="selectedProjectId && filteredLogs.length > 0">
-        <!-- Issues Header with detailed counts -->
-        <div class="issues-header">
-          <div>
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-              {{ getProjectName() }} Issues
-              <span
-                *ngIf="isDeveloper"
-                class="text-sm font-normal text-gray-600 dark:text-gray-400 ml-2"
-              >
-                (Assigned to you)
-              </span>
-            </h2>
-            <div
-              class="flex items-center gap-4 mt-1 text-sm text-gray-500 dark:text-gray-400"
-            >
-              <span class="flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full bg-gray-400"></span>
-                Total: {{ filteredLogs.length }}
-              </span>
-              <span class="flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                High: {{ getHighPriorityFilteredCount() }}
-              </span>
-              <span class="flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
-                Medium: {{ getMediumPriorityFilteredCount() }}
-              </span>
-              <span class="flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                Low: {{ getLowPriorityFilteredCount() }}
-              </span>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <ng-icon
-              name="letsAddSquare"
-              class="text-xl text-blue-600 dark:text-blue-500 cursor-pointer"
-            ></ng-icon>
-          </div>
-        </div>
-
-        <!-- Filters -->
-        <div class="filters">
-          <div class="filter-group">
-            <span class="filter-label">Priority:</span>
-            <select
-              [(ngModel)]="priorityFilter"
-              (change)="applyFilters()"
-              class="filter-select"
-            >
-              <option value="">All Priorities</option>
-              <option value="HIGH">High</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="LOW">Low</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Issues Items -->
-        <div class="divide-y divide-gray-100 dark:divide-gray-800">
-          <div *ngFor="let issue of filteredLogs" class="issue-item">
-            <div class="flex flex-col items-start gap-4">
-              <span class="text-sm text-red-500 font-bold">{{
-                issue.type
-              }}</span>
-              <div
-                [ngClass]="{
-                  'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400':
-                    issue.severity === 'HIGH',
-                  'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400':
-                    issue.severity === 'MEDIUM',
-                  'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400':
-                    issue.severity === 'LOW'
-                }"
-                class="priority-badge"
-              >
-                <mat-icon class="text-sm">flag</mat-icon>
-                {{ issue.severity }}
-              </div>
-            </div>
-
-            <div class="issue-info">
-              <h4 class="issue-title">{{ issue.description }}</h4>
-              <p class="issue-desc">{{ issue.type }} - {{ issue.errorCode }}</p>
-
-              <div class="issue-meta">
-                <div class="meta-item">
-                  <mat-icon class="text-sm">access_time</mat-icon>
-                  {{ issue.timestamp | date : "medium" }}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div class="px-4 py-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                Issues
+              </h2>
+              <div class="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400 space-x-4">
+                <div class="flex items-center">
+                  <span class="inline-block w-2 h-2 mr-1.5 rounded-full bg-gray-400"></span>
+                  <span>Total: {{ filteredLogs.length }}</span>
                 </div>
-                <div class="meta-item">
-                  <mat-icon class="text-sm">person</mat-icon>
-                  {{ issue.source }}
+                <div class="flex items-center">
+                  <span class="inline-block w-2 h-2 mr-1.5 rounded-full bg-red-500"></span>
+                  <span>High: {{ getIssueCountByPriority(getProjectIdAsNumber(), 'HIGH') }}</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="inline-block w-2 h-2 mr-1.5 rounded-full bg-yellow-500"></span>
+                  <span>Medium: {{ getIssueCountByPriority(getProjectIdAsNumber(), 'MEDIUM') }}</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="inline-block w-2 h-2 mr-1.5 rounded-full bg-green-500"></span>
+                  <span>Low: {{ getIssueCountByPriority(getProjectIdAsNumber(), 'LOW') }}</span>
+                </div>
+                <!-- Add handled status indicator -->
+                <div *ngIf="handledFilter !== 'all'" class="flex items-center ml-2 border-l border-gray-200 dark:border-gray-700 pl-2">
+                  <span class="inline-block w-2 h-2 mr-1.5 rounded-full" 
+                        [ngClass]="{'bg-green-400': handledFilter === 'handled', 'bg-gray-400': handledFilter === 'notHandled'}"></span>
+                  <span>
+                    <span class="font-medium">Filtered: </span>
+                    {{ handledFilter === 'handled' ? 'Handled' : 'Not Handled' }} ({{ filteredLogs.length }})
+                  </span>
                 </div>
               </div>
             </div>
-
-            <div class="issue-actions">
-              <button
-                class="action-button"
-                title="Change priority"
-                (click)="updatePriority(issue)"
-              >
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button
-                class="action-button"
-                title="View details"
-                (click)="onIssueClick(issue.id)"
-              >
-                <ng-icon name="letsView"></ng-icon>
-              </button>
+            <button (click)="toggleFilterDropdown()" class="relative text-blue-600 hover:bg-blue-50 rounded-full p-2">
+              <div class="flex items-center">
+                <mat-icon>filter_list</mat-icon>
+                <span class="ml-1 text-sm font-medium">Filter</span>
+                <span *ngIf="handledFilter !== 'all'" class="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                  {{ handledFilter === 'handled' ? 'Handled' : 'Not Handled' }}
+                </span>
+              </div>
+              
+              <!-- Dropdown menu -->
+              <div *ngIf="isFilterDropdownOpen" class="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md py-1 border border-gray-200 dark:border-gray-700 min-w-[160px] z-10">
+                <div class="px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
+                  Filter by Status
+                </div>
+                <div class="py-1">
+                  <button 
+                    (click)="applyHandledFilter('all')"
+                    class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                    [ngClass]="{'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300': handledFilter === 'all'}"
+                  >
+                    All Issues
+                  </button>
+                  <button 
+                    (click)="applyHandledFilter('handled')"
+                    class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                    [ngClass]="{'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300': handledFilter === 'handled'}"
+                  >
+                    Handled Only
+                  </button>
+                  <button 
+                    (click)="applyHandledFilter('notHandled')"
+                    class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                    [ngClass]="{'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300': handledFilter === 'notHandled'}"
+                  >
+                    Not Handled Only
+                  </button>
+                </div>
+              </div>
+            </button>
+          </div>
+      
+          <div class="divide-y divide-gray-200 dark:divide-gray-700">
+            <div *ngFor="let issue of filteredLogs" class="px-4 py-4 sm:px-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <div class="flex items-start justify-between">
+                <div class="flex-1 space-y-1">
+                  <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium uppercase 
+                      {{ issue.severity === 'HIGH' ? 'text-red-600' : 
+                         issue.severity === 'MEDIUM' ? 'text-yellow-600' : 
+                         'text-green-600' }}">
+                      {{ issue.type }}
+                    </span>
+                    <span class="
+                      px-2 py-0.5 rounded-full text-xs font-medium
+                      {{ issue.severity === 'HIGH' ? 'bg-red-100 text-red-800' : 
+                         issue.severity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' : 
+                         'bg-green-100 text-green-800' }}
+                      dark:{{ issue.severity === 'HIGH' ? 'bg-red-900/30 text-red-400' : 
+                             issue.severity === 'MEDIUM' ? 'bg-yellow-900/30 text-yellow-400' : 
+                             'bg-green-900/30 text-green-400' }}">
+                      {{ issue.severity }}
+                    </span>
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium"
+                      [ngClass]="{
+                        'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': isIssueHandled(issue.id),
+                        'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400': !isIssueHandled(issue.id)
+                      }">
+                      {{ isIssueHandled(issue.id) ? 'Handled' : 'Not Handled' }}
+                    </span>
+                  </div>
+      
+                  <div>
+                    <h3 class="text-sm font-medium text-gray-900 dark:text-white">
+                      {{ issue.description }}
+                    </h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                      {{ issue.type }} - {{ issue.errorCode }}
+                    </p>
+                  </div>
+      
+                  <div class="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                    <div class="flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                      </svg>
+                      {{ issue.timestamp | date:'medium' }}
+                    </div>
+                    <div class="flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                      </svg>
+                      {{ issue.source }}
+                    </div>
+                  </div>
+                </div>
+      
+                <div class="flex space-x-2">
+                  <button 
+                    (click)="updatePriority(issue)"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                    title="Change priority">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                      <path fill-rule="evenodd" d="M2 16a2 2 0 002 2h12a2 2 0 002-2v-5l-2-2H4a2 2 0 00-2 2v5z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                  <button 
+                    (click)="onIssueClick(issue.id)"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                    title="View details">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                      <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </ng-container>
     </div>
+
   </ng-container>
 </div>
+
+<style>
+.microservice-card {
+  @apply bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 transition-all duration-200;
+}
+
+.microservice-card-active {
+  @apply hover:shadow-lg cursor-pointer border-indigo-200 hover:border-indigo-300;
+}
+
+.microservice-card-disabled {
+  @apply opacity-75 border-gray-200 bg-gray-50;
+}
+
+.stat-box {
+  @apply flex flex-col items-center justify-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg;
+}
+
+.stat-value {
+  @apply text-xl font-semibold text-gray-900 dark:text-white;
+}
+
+.stat-label {
+  @apply text-xs text-gray-500 dark:text-gray-400;
+}
+
+.folder-card {
+  box-shadow: 0 4px 24px 0 rgba(255, 193, 7, 0.08);
+  border-width: 2px;
+  position: relative;
+}
+
+.folder-card .mat-icon {
+  color: #f59e42 !important;
+}
+
+/* Add table styles */
+table {
+  @apply w-full border-collapse;
+}
+
+th {
+  @apply font-semibold text-left;
+}
+
+td, th {
+  @apply px-4 py-2;
+}
+
+tr:hover {
+  @apply bg-gray-50 dark:bg-gray-700;
+}
+
+.table-container {
+  @apply overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700;
+}
+</style>

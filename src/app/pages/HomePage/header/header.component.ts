@@ -45,9 +45,7 @@ import { Router } from '@angular/router';
           </div>
           <a href="#" class="nav-link">PRICING</a>
           <a href="#" class="nav-link">DOCS</a>
-          <a href="#" class="nav-link">BLOG</a>
-          <a href="#" class="nav-link">SANDBOX</a>
-          <a href="#" class="nav-link">MERCH</a>
+          <a href="#" class="nav-link">BLOG</a>   
         </nav>
 
         <div class="flex items-center space-x-6">

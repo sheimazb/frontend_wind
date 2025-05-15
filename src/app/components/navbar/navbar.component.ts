@@ -77,7 +77,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     
     // Subscribe to profile changes
     this.profileSubscription = this.userService.profileChanges.subscribe(profile => {
-      if (profile) {
+      if (profile && profile.email === this.currentUser?.email) {
         this.profileData = {
           image: profile.image || '',
         };
@@ -187,15 +187,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const storedUser = localStorage.getItem('user'); 
     const userEmail = storedUser ? JSON.parse(storedUser).email : '';
     
-    // Set default profile image
-    this.profileImage = this.defaultProfileImage;
-    
     // Check if we already have the profile in the service
     const currentProfile = this.userService.getCurrentProfileValue();
     if (currentProfile && currentProfile.email === userEmail) {
       this.profileData = {
         image: currentProfile.image || '',
       };
+      // Only set default image if no image exists
       this.profileImage = currentProfile.image || this.defaultProfileImage;
       this.originalData = { ...this.profileData };
       this.isLoading = false;
@@ -216,9 +214,19 @@ export class NavbarComponent implements OnInit, OnDestroy {
           } as ProfileResponse);
         })
       ).subscribe({
+        next: (profile) => {
+          // Update profile image only if we get a valid response
+          this.profileImage = profile.image || this.defaultProfileImage;
+          this.profileData = {
+            image: profile.image || '',
+          };
+          this.originalData = { ...this.profileData };
+        },
         error: (error) => {
           this.errorMessage = 'Failed to load user profile. Please try again later.';
           console.error('Failed to load user profile:', error);
+          // Only set default image on error
+          this.profileImage = this.defaultProfileImage;
         },
         complete: () => {
           this.isLoading = false;
@@ -287,6 +295,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.notificationService.markAllAsRead();
       console.log('Marked all notifications as read for user:', this.currentUser.email);
     }
+  }
+
+  // Handle notification click and redirect
+  handleNotificationClick(notification: NotificationItem): void {
+    // Close the notifications dropdown
+    this.showNotifications = false;
+    
+    // Delegate to the notification service to handle the redirection
+    this.notificationService.handleNotificationClick(notification);
   }
 
   // Close notifications dropdown when clicking outside

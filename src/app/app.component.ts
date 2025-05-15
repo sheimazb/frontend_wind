@@ -77,7 +77,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
   
   private createBrowserNotification(notification: Notification) {
-    const title = notification.title || 'New Notification';
+    const title = notification.subject || 'New Notification';
     const options = {
       body: notification.message || 'You have a new notification',
       icon: '/assets/images/notification-icon.png', // Provide a path to your notification icon

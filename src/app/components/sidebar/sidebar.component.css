@@ -15,3 +15,26 @@
   .active-sidebar-btn ng-icon {
     @apply text-white;
   }
+
+/* Fixed sidebar styles */
+:host ::ng-deep #sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 990;
+  transition: transform 0.3s ease;
+  will-change: transform;
+}
+
+/* Ensure the inner content of sidebar is properly sized and scrollable if needed */
+:host ::ng-deep #sidebar .h-screen {
+  height: calc(100vh - 100px); /* Adjust based on padding */
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+/* Backdrop for mobile */
+:host ::ng-deep #sidebarBackdrop {
+  z-index: 980;
+}

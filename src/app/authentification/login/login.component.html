@@ -1,6 +1,10 @@
-<body class="bg-gradient-radial from-[#1d2038] via-[#111036] to-[#111036] min-h-screen">
+<!-- Loading Screen -->
+<app-loading-screen *ngIf="showLoadingScreen"></app-loading-screen>
+
+<!-- Login Page Content -->
+<body *ngIf="!showLoadingScreen" class="bg-gradient-radial from-[#1d2038] via-[#111036] to-[#111036] min-h-screen">
   <!-- ===== Page Wrapper Start ===== -->
-  <div class="relative flex h-screen w-full overflow-hidden">
+  <div class="relative flex h-screen w-full overflow-hidden" [@fadeSlide]="animationState">
     <div class="flex flex-1 flex-col p-6 sm:p-8">
       <div class="mx-auto w-full max-w-md pt-5 sm:py-10">
         <a routerLink="/" class="inline-flex cursor-pointer items-center text-sm text-white/70 transition-colors hover:text-white group">

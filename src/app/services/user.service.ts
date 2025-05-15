@@ -56,13 +56,7 @@ export class UserService {
   }
 
   getUserById(id: number): Observable<ProfileResponse> {
-    return this.http.get<ProfileResponse>(`${this.apiUrl}/id/${id}`)
-      .pipe(
-        tap(profileData => {
-          // Update the shared profile state
-          this.profileSubject.next(profileData);
-        })
-      );
+    return this.http.get<ProfileResponse>(`${this.apiUrl}/id/${id}`);
   }
 
   // Method to get the current profile value without making an API call

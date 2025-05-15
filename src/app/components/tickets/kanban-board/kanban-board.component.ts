@@ -20,6 +20,7 @@ import { UserService } from '../../../services/user.service';
 import { SolutionService, Solution, SolutionStatus, ComplexityLevel } from '../../../services/solution.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
+import { CommentService, CommentResponse, CommentRequest } from '../../../services/comment.service';
 
 // Define a type for tab names to avoid type errors
 type TabName = 'details' | 'activity' | 'solution' | 'comments';
@@ -149,6 +150,13 @@ export class KanbanBoardComponent implements OnInit {
   // Solution-related properties
   newSolutionContent: string = '';
   
+  // Comments related properties
+  comments: CommentResponse[] = [];
+  newCommentContent: string = '';
+  isLoadingComments: boolean = false;
+  // Cache for user emails
+  private userEmailCache: Map<number, string> = new Map();
+  
   constructor(
     private fullscreenService: FullscreenService,
     private ticketService: TicketService,
@@ -156,7 +164,8 @@ export class KanbanBoardComponent implements OnInit {
     private snackBar: MatSnackBar,
     private solutionService: SolutionService,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private commentService: CommentService
   ) {
     // Subscribe to fullscreen changes
     this.fullscreenService.fullscreen$.subscribe(isFullscreen => {
@@ -171,10 +180,7 @@ export class KanbanBoardComponent implements OnInit {
   ngOnInit(): void {
     this.loadTickets();
   }
-  
-  /**
-   * Fetch tickets from the service and distribute to columns
-   */
+
   loadTickets(): void {
     this.isLoading = true;
     
@@ -257,10 +263,7 @@ export class KanbanBoardComponent implements OnInit {
       }
     });
   }
-  
-  /**
-   * Convert a Ticket to a KanbanCard format
-   */
+
   private convertTicketToKanbanCard(ticket: Ticket): KanbanCard {
     // Check for assignedToUserId - this is the key to identifying assigned tickets
     const hasAssignee = !!ticket.assignedToUserId && ticket.assignedToUserId > 0;
@@ -280,10 +283,7 @@ export class KanbanBoardComponent implements OnInit {
       originalTicket: ticket
     };
   }
-  
-  /**
-   * Distribute cards to appropriate columns
-   */
+
   private distributeCardsToColumns(cards: KanbanCard[]): void {
     // First clear existing cards in all columns
     this.columns.forEach(column => column.cards = []);
@@ -346,10 +346,7 @@ export class KanbanBoardComponent implements OnInit {
       }
     });
   }
-  
-  /**
-   * Map ticket status to column ID
-   */
+ 
   private getColumnIdForTicketStatus(status: Status): string {
     const statusToColumnMap: Record<Status, string> = {
       [Status.TO_DO]: 'todo',
@@ -362,9 +359,6 @@ export class KanbanBoardComponent implements OnInit {
     return statusToColumnMap[status] || 'todo';
   }
   
-  /**
-   * Get user details by ID
-   */
   getUserDetails(userId: number): UserDetails | null {
     return this.userCache.get(userId) || null;
   }
@@ -372,9 +366,6 @@ export class KanbanBoardComponent implements OnInit {
     this.router.navigate(['/dashboard/issues-details', logId]);
   }
 
-  /**
-   * Get status for column ID (reverse mapping)
-   */
   private getStatusForColumnId(columnId: string): Status {
     const columnToStatusMap: Record<string, Status> = {
       'todo': Status.TO_DO,
@@ -386,10 +377,7 @@ export class KanbanBoardComponent implements OnInit {
     
     return columnToStatusMap[columnId] || Status.TO_DO;
   }
-  
-  /**
-   * Handle dropping a card into a new column
-   */
+
   onDrop(event: CdkDragDrop<KanbanCard[]>): void {
     // Add drop sound effect (optional)
     this.playDropSound();
@@ -440,12 +428,8 @@ export class KanbanBoardComponent implements OnInit {
       this.showNotification(`Moved card #${card.id} from ${fromColumn} to ${toColumn}`);
     }
   }
-  
-  /**
-   * Check if status transition is allowed based on user role
-   */
+
   private isStatusTransitionAllowed(currentStatus: Status, newStatus: Status): boolean {
-    // Don't allow moving to the same status
     if (currentStatus === newStatus) return false;
     
     switch (this.userRole) {
@@ -470,26 +454,102 @@ export class KanbanBoardComponent implements OnInit {
         return false;
     }
   }
-  
-  /**
-   * Update ticket status in the backend
-   */
+
   private updateTicketStatus(ticketId: number, newStatus: Status): void {
+    this.isLoading = true;
+    
     this.ticketService.updateTicketStatus(ticketId, newStatus).subscribe({
       next: (updatedTicket) => {
         console.log('Ticket status updated successfully:', updatedTicket);
+        
+        // Update the local card data
+        this.updateLocalCardData(updatedTicket);
+        
+        // Show success notification
+        this.showNotification(`Ticket #${ticketId} moved to ${newStatus}`);
+        
+        // Set loading state to false
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Failed to update ticket status:', error);
         this.showNotification('Failed to update ticket status. Please refresh and try again.', true);
-        // Could implement a rollback of the UI change here
+        // Refresh the entire board to get the current state
+        this.loadTickets();
       }
     });
   }
-  
+
   /**
-   * Get column name by ID for better user feedback
+   * Update local card data after a ticket update (status change, solution added, etc.)
    */
+  private updateLocalCardData(updatedTicket: Ticket): void {
+    // Find the card in all columns
+    let cardFound = false;
+    
+    for (const column of this.columns) {
+      const cardIndex = column.cards.findIndex(card => card.id === updatedTicket.id);
+      
+      if (cardIndex !== -1) {
+        cardFound = true;
+        
+        // Get the current card
+        const card = column.cards[cardIndex];
+        
+        // Update the card with the new ticket data
+        const updatedCard = this.convertTicketToKanbanCard(updatedTicket);
+        
+        // Determine if the card needs to move to a different column
+        const targetColumnId = this.getColumnIdForTicketStatus(updatedTicket.status);
+        const currentColumnId = column.id;
+        
+        if (targetColumnId !== currentColumnId) {
+          // Remove from current column
+          column.cards.splice(cardIndex, 1);
+          
+          // Add to target column
+          const targetColumn = this.columns.find(col => col.id === targetColumnId);
+          if (targetColumn) {
+            targetColumn.cards.push(updatedCard);
+          }
+        } else {
+          // Update in place
+          column.cards[cardIndex] = updatedCard;
+        }
+        
+        // If this is the selected card, update it
+        if (this.selectedCard && this.selectedCard.id === updatedTicket.id) {
+          this.selectedCard = updatedCard;
+          
+          // Reload solution data if needed
+          if (updatedTicket.hasSolution) {
+            this.loadSolutionForSelectedCard();
+          }
+        }
+        
+        break;
+      }
+    }
+    
+    // If card wasn't found in any column, it might be a new card
+    if (!cardFound) {
+      const newCard = this.convertTicketToKanbanCard(updatedTicket);
+      const targetColumnId = this.getColumnIdForTicketStatus(updatedTicket.status);
+      const targetColumn = this.columns.find(col => col.id === targetColumnId);
+      
+      if (targetColumn) {
+        targetColumn.cards.push(newCard);
+      }
+    }
+  }
+
+  /**
+   * Public method to refresh the board - can be called from other components
+   */
+  refreshBoard(): void {
+    this.loadTickets();
+  }
+
   private getColumnNameById(columnId: string): string {
     const column = this.columns.find(col => col.id === columnId);
     return column ? column.name : 'Unknown';
@@ -508,9 +568,7 @@ export class KanbanBoardComponent implements OnInit {
     console.log('Card dropped - sound effect would play here');
   }
   
-  /**
-   * Show a notification toast with optional error styling
-   */
+
   private showNotification(message: string, isError: boolean = false): void {
     this.snackBar.open(message, 'Close', {
       duration: isError ? 4000 : 3000,
@@ -519,37 +577,25 @@ export class KanbanBoardComponent implements OnInit {
       panelClass: isError ? ['error-snackbar'] : undefined
     });
   }
-  
-  /**
-   * Filter cards based on search query
-   */
+
   applySearchFilter(): void {
     // Reload tickets and then filter them
     this.loadTickets();
     // You could implement a more sophisticated filtering here
     // without reloading all tickets
   }
-  
-  /**
-   * Reset filters
-   */
+
   resetFilters(): void {
     this.searchQuery = '';
     this.loadTickets();
   }
-  
-  /**
-   * Get connected drop list IDs for a column
-   */
+
   getConnectedLists(columnId: string): string[] {
     return this.columns
       .map(col => col.id)
       .filter(id => id !== columnId);
   }
-  
-  /**
-   * Format date string for display
-   */
+
   formatDate(date: string): string {
     if (!date) return 'N/A';
     
@@ -564,10 +610,7 @@ export class KanbanBoardComponent implements OnInit {
     // Otherwise show short date
     return dateObj.toLocaleDateString();
   }
-  
-  /**
-   * Get CSS class for priority label
-   */
+
   getPriorityClass(priority: string): string {
     switch (priority) {
       case Priority.HIGH:
@@ -582,10 +625,7 @@ export class KanbanBoardComponent implements OnInit {
         return 'bg-gray-100 flex items-center justify-center text-gray-600 mr-1 text-xs';
     }
   }
-  
-  /**
-   * Get icon or letter for priority indicator
-   */
+
   getPriorityIcon(priority: string): string {
     switch (priority) {
       case Priority.HIGH:
@@ -600,25 +640,20 @@ export class KanbanBoardComponent implements OnInit {
         return '?';
     }
   }
-  
-  /**
-   * Select a card to view details
-   */
+
   viewCardDetails(card: KanbanCard): void {
     this.selectedCard = card;
     this.showCardDetails = true;
     this.activeTab = 'details';
     
-    // Load solution data if available
-    if (card.originalTicket?.id) {
-      this.loadSolutionForSelectedCard();
-    }
+    // Load solution when viewing card details
+    this.loadSolutionForSelectedCard();
+    
+    // Load comments when viewing card details
+    this.loadCommentsForSelectedCard();
   }
-  
-  /**
-   * Load solution data for the selected card's ticket
-   */
-  loadSolutionForSelectedCard(): void {
+
+  private loadSolutionForSelectedCard(): void {
     if (!this.selectedCard?.originalTicket?.id) return;
     
     const ticketId = this.selectedCard.originalTicket.id;
@@ -641,27 +676,84 @@ export class KanbanBoardComponent implements OnInit {
       }
     });
   }
-  
-  /**
-   * Check if the selected card has a solution
-   */
+
+  private loadCommentsForSelectedCard(): void {
+    if (!this.selectedCard?.originalTicket?.id) return;
+    
+    this.isLoadingComments = true;
+    this.comments = []; // Reset comments
+    
+    this.commentService.getCommentsByTicketId(this.selectedCard.originalTicket.id)
+      .subscribe({
+        next: (comments) => {
+          this.comments = comments;
+          this.isLoadingComments = false;
+        },
+        error: (error) => {
+          console.error('Error loading comments:', error);
+          this.isLoadingComments = false;
+          this.showNotification('Failed to load comments');
+        }
+      });
+  }
+    
+  // Get user email from cache or fetch it
+  getUserEmail(userId: number): string {
+    // First check the cache
+    if (this.userEmailCache.has(userId)) {
+      return this.userEmailCache.get(userId) || 'Unknown User';
+    }
+
+    // If not in cache, fetch it
+    this.userService.getUserById(userId).subscribe({
+      next: (user) => {
+        if (user?.email) {
+          this.userEmailCache.set(userId, user.email);
+          // Force change detection by creating a new array
+          this.comments = [...this.comments];
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching user email:', error);
+        this.userEmailCache.set(userId, 'Unknown User');
+      }
+    });
+
+    return 'Loading...';
+  }
+  addComment(): void {
+    if (!this.selectedCard?.originalTicket?.id || !this.newCommentContent.trim()) return;
+    
+    const ticketId = this.selectedCard.originalTicket.id;
+    const commentRequest: CommentRequest = {
+      ticketId: ticketId,
+      content: this.newCommentContent.trim()
+    };
+    
+    this.commentService.createComment(commentRequest).subscribe({
+      next: (response: CommentResponse) => {
+        this.comments.unshift(response);
+        this.newCommentContent = '';
+        this.showNotification('Comment added successfully');
+      },
+      error: (error: Error) => {
+        console.error('Error adding comment:', error);
+        this.showNotification('Failed to add comment');
+      }
+    });
+  }
+
   hasSolution(): boolean {
     return !!this.selectedCard?.originalTicket?.hasSolution;
   }
-  
-  /**
-   * Get the solution content from the selected card's ticket
-   */
+
   getSolutionContent(): string {
     if (!this.selectedCard?.originalTicket?.solution) return 'No solution available';
     
     const solution = this.selectedCard.originalTicket.solution as unknown as Solution;
     return solution.content || solution.title || 'No description available';
   }
-  
-  /**
-   * Get the solution complexity from the selected card's ticket
-   */
+
   getSolutionComplexity(): string {
     if (!this.selectedCard?.originalTicket?.solution) return 'Not specified';
     
@@ -669,9 +761,7 @@ export class KanbanBoardComponent implements OnInit {
     return solution.complexity || 'Not specified';
   }
   
-  /**
-   * Get CSS class for solution complexity level
-   */
+
   getComplexityClass(): any {
     if (!this.selectedCard?.originalTicket?.solution) return {};
     
@@ -685,30 +775,21 @@ export class KanbanBoardComponent implements OnInit {
       'text-red-600 dark:text-red-400': complexity === ComplexityLevel.VERY_HIGH
     };
   }
-  
-  /**
-   * Get the solution estimated time from the selected card's ticket
-   */
+ 
   getSolutionEstimatedTime(): string {
     if (!this.selectedCard?.originalTicket?.solution) return 'Not specified';
     
     const solution = this.selectedCard.originalTicket.solution as unknown as Solution;
     return solution.estimatedTime ? `${solution.estimatedTime} mins` : 'Not specified';
   }
-  
-  /**
-   * Get the solution status from the selected card's ticket
-   */
+
   getSolutionStatus(): string {
     if (!this.selectedCard?.originalTicket?.solution) return 'Not specified';
     
     const solution = this.selectedCard.originalTicket.solution as unknown as Solution;
     return solution.status || SolutionStatus.DRAFT;
   }
-  
-  /**
-   * Add to the existing solution or create a new one
-   */
+
   addToSolution(): void {
     if (!this.selectedCard?.originalTicket?.id || !this.newSolutionContent?.trim()) {
       this.snackBar.open('Please enter some content for the solution', 'Close', {
@@ -747,10 +828,7 @@ export class KanbanBoardComponent implements OnInit {
       }
     });
   }
-  
-  /**
-   * Edit the existing solution with a new complexity level
-   */
+
   updateSolutionComplexity(complexity: string): void {
     if (!this.selectedCard?.originalTicket?.id || !this.selectedCard?.originalTicket?.solution) return;
     
@@ -777,9 +855,7 @@ export class KanbanBoardComponent implements OnInit {
     });
   }
   
-  /**
-   * Update the estimated time for the solution
-   */
+ 
   updateSolutionEstimatedTime(estimatedTime: number): void {
     if (!this.selectedCard?.originalTicket?.id || !this.selectedCard?.originalTicket?.solution) return;
     

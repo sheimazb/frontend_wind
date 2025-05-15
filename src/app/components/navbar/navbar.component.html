@@ -1,7 +1,7 @@
 <nav class="fixed w-full z-50">
   <!-- Dynamic background with blur effect - ONLY for navbar -->
   <div
-    class="absolute inset-0  backdrop-blur-md transition-colors duration-300"
+    class="absolute inset-0  backdrop-blur-sm transition-colors duration-300"
   ></div>
   <div class="px-3 py-3 lg:px-10 lg:pl-9 relative">
     <div class="flex items-center justify-between">
@@ -176,46 +176,7 @@
               </span>
             </label>
           </div>
-          <!-- Message-->
-          <a
-            class="relative flex h-10 w-10 items-center justify-center rounded-full border-[0.5px] border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-[#202045] text-gray-700 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
-            href="#"
-          >
-            <span
-              :class="!notifying && 'hidden'"
-              class="absolute -right-0.5 -top-0.5 z-1 h-2 w-2 rounded-full bg-meta-1"
-            >
-              <span
-                class="absolute -z-1 inline-flex h-full w-full animate-ping rounded-full bg-meta-1 opacity-75"
-              ></span>
-            </span>
-
-            <svg
-              class="fill-current duration-300 ease-in-out"
-              width="18"
-              height="18"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M10.9688 1.57495H7.03135C3.43135 1.57495 0.506348 4.41558 0.506348 7.90308C0.506348 11.3906 2.75635 13.8375 8.26885 16.3125C8.40947 16.3687 8.52197 16.3968 8.6626 16.3968C8.85947 16.3968 9.02822 16.3406 9.19697 16.2281C9.47822 16.0593 9.64697 15.75 9.64697 15.4125V14.2031H10.9688C14.5688 14.2031 17.522 11.3625 17.522 7.87495C17.522 4.38745 14.5688 1.57495 10.9688 1.57495ZM10.9688 12.9937H9.3376C8.80322 12.9937 8.35322 13.4437 8.35322 13.9781V15.0187C3.6001 12.825 1.74385 10.8 1.74385 7.9312C1.74385 5.14683 4.10635 2.8687 7.03135 2.8687H10.9688C13.8657 2.8687 16.2563 5.14683 16.2563 7.9312C16.2563 10.7156 13.8657 12.9937 10.9688 12.9937Z"
-                fill=""
-              />
-              <path
-                d="M5.42812 7.28442C5.0625 7.28442 4.78125 7.56567 4.78125 7.9313C4.78125 8.29692 5.0625 8.57817 5.42812 8.57817C5.79375 8.57817 6.075 8.29692 6.075 7.9313C6.075 7.56567 5.79375 7.28442 5.42812 7.28442Z"
-                fill=""
-              />
-              <path
-                d="M9.00015 7.28442C8.63452 7.28442 8.35327 7.56567 8.35327 7.9313C8.35327 8.29692 8.63452 8.57817 9.00015 8.57817C9.33765 8.57817 9.64702 8.29692 9.64702 7.9313C9.64702 7.56567 9.33765 7.28442 9.00015 7.28442Z"
-                fill=""
-              />
-              <path
-                d="M12.5719 7.28442C12.2063 7.28442 11.925 7.56567 11.925 7.9313C11.925 8.29692 12.2063 8.57817 12.5719 8.57817C12.9375 8.57817 13.2188 8.29692 13.2188 7.9313C13.2188 7.56567 12.9094 7.28442 12.5719 7.28442Z"
-                fill=""
-              />
-            </svg>
-          </a>
+        
          <!-- Notification -->
           <a
             class="relative flex h-10 w-10 items-center justify-center rounded-full border-[0.5px] border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-[#202045] text-gray-700 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300 notification-icon"
@@ -312,38 +273,38 @@
                 <!-- Notification items - only show when not loading -->
                 <ng-container *ngIf="!isLoadingNotifications">
                   <ng-container *ngFor="let n of notifications; trackBy: trackById">
-                    <div class="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-150 border-l-4 relative"
+                    <div class="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-150 border-l-4 relative cursor-pointer"
                          [class.border-l-blue-500]="!n.read"
                          [class.border-l-transparent]="n.read"
                          [class.bg-blue-50]="!n.read" 
                          [class.dark:bg-blue-900]="!n.read"
-                         >
+                         (click)="handleNotificationClick(n); $event.stopPropagation()">
                       <!-- Unread indicator -->
                       <span *ngIf="!n.read" class="absolute right-2 top-2 h-2 w-2 rounded-full bg-blue-500"></span>
                       
                       <div class="flex items-start">
                         <div class="flex-shrink-0 mt-0.5">
                           <div class="h-8 w-8 rounded-full flex items-center justify-center"
-                               [class.bg-red-100]="n.type === 'error'"
-                               [class.bg-yellow-100]="n.type === 'warning'"
-                               [class.bg-blue-100]="n.type === 'info'"
-                               [class.bg-green-100]="n.type === 'success'">
+                               [class.bg-red-100]="n.sourceType === 'LOG'"
+                               [class.bg-blue-100]="n.sourceType === 'COMMENT'"
+                               [class.bg-yellow-100]="n.sourceType === 'SOLUTION'"
+                              >
                             
-                            <svg *ngIf="n.type === 'error'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 dark:text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                            </svg>
-                            
-                            <svg *ngIf="n.type === 'warning'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500 dark:text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                            </svg>
-                            
-                            <svg *ngIf="n.type === 'info'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 dark:text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                            </svg>
-                            
-                            <svg *ngIf="n.type === 'success'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 dark:text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
+                        <!-- LOG Icon -->
+<svg *ngIf="n.sourceType === 'LOG'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 dark:text-red-400" viewBox="0 0 20 20" fill="currentColor">
+  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+</svg>
+
+<!-- COMMENT Icon (Speech Bubble) -->
+<svg *ngIf="n.sourceType === 'COMMENT'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 dark:text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+  <path d="M2 5.75C2 4.784 2.784 4 3.75 4h16.5C21.216 4 22 4.784 22 5.75v9.5c0 .966-.784 1.75-1.75 1.75H6.914l-4.207 4.207A.75.75 0 012 20.25V5.75z" />
+</svg>
+
+<!-- SOLUTION Icon -->
+<svg *ngIf="n.sourceType === 'SOLUTION'"  xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500 dark:text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+  <path d="M10 2a6 6 0 00-6 6c0 2.114 1.18 3.943 2.915 5.006A1.993 1.993 0 007 15c0 .276.11.526.293.707.183.183.431.293.707.293h4a1 1 0 001-1c0-.552-.448-1-1-1a1.993 1.993 0 00.085-.006A6.002 6.002 0 0016 8a6 6 0 00-6-6zM8 17a2 2 0 104 0H8z" />
+</svg>
+                          
                           </div>
                         </div>
                         
@@ -354,11 +315,14 @@
                           </div>
                           <p class="text-xs text-gray-500 dark:text-gray-400">{{ n.message }}</p>
                           <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">{{ n.timeAgo }}</p>
+                          <p *ngIf="n.sourceType" class="text-xs text-gray-400 dark:text-gray-500">
+                            <span class="font-medium">{{ n.sourceType }}</span>
+                          </p>
                         </div>
                         
                         <button 
                           class="ml-2 flex flex-col items-center text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
-                          (click)="markAsRead(n.id)"
+                          (click)="markAsRead(n.id); $event.stopPropagation();"
                           title="Mark as read"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

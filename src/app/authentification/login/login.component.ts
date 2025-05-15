@@ -7,6 +7,8 @@ import { AuthService, LoginResponse } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ForgotPasswordComponent } from '../forgot-password/forgot-password.component';
+import { LoadingScreenComponent } from '../../components/loading-screen/loading-screen.component';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 
 @Component({
   selector: 'app-login',
@@ -16,10 +18,25 @@ import { ForgotPasswordComponent } from '../forgot-password/forgot-password.comp
     CommonModule,
     ReactiveFormsModule,
     HttpClientModule,
-    MatDialogModule
+    MatDialogModule,
+    LoadingScreenComponent
   ],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
+  animations: [
+    trigger('fadeSlide', [
+      state('in', style({
+        opacity: 1,
+        transform: 'translateY(0)'
+      })),
+      state('out', style({
+        opacity: 0,
+        transform: 'translateY(-30px)'
+      })),
+      transition('in => out', animate('500ms ease-out')),
+      transition('out => in', animate('500ms ease-in'))
+    ])
+  ]
 })
 
 export class LoginComponent {
@@ -27,6 +44,8 @@ export class LoginComponent {
   darkMode: boolean = false;
   loginForm: FormGroup;
   isLoading: boolean = false;
+  showLoadingScreen: boolean = false;
+  animationState: 'in' | 'out' = 'in';
 
   constructor(
     private router: Router,
@@ -107,10 +126,17 @@ export class LoginComponent {
        // 2. Call login API from auth service 
       this.authService.login(this.loginForm.value).subscribe({
         next: (response: LoginResponse) => {
-           // 3. Success: Store user data and redirect
+          // 3. Success: Store user data and show loading screen before redirect
           this.isLoading = false;
           this.toastService.showSuccess(`Welcome back, ${response.fullName}!`);
-          this.redirectBasedOnRole();
+          
+          // Start transition animation then show loading screen
+          this.animationState = 'out';
+          setTimeout(() => {
+            this.showLoadingScreen = true;
+          }, 400);
+
+          // Redirect will happen in the loading screen component
         },
         error: (error) => {
            // 4. Error: Show error message

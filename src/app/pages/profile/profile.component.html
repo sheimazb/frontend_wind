@@ -41,11 +41,14 @@
         <div class="relative h-32 bg-gradient-to-r from-blue-500 to-indigo-600">
           <div class="absolute -bottom-12 left-6">
             <div class="relative group">
-              <div class="w-24 h-24 rounded-xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-md">
-                <img [src]="profileImage" alt="Profile" class="w-full h-full object-cover"/>
+              <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-md">
+                <img [src]="profileImage || defaultProfileImage" 
+                     (error)="onImageError($event)"
+                     alt="Profile" 
+                     class="w-full h-full object-cover"/>
               </div>
               <div *ngIf="isEditing" 
-                class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-xl">
+                class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-full">
                 <input type="file" (change)="onImageChange($event)" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*"/>
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>

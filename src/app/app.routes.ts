@@ -5,6 +5,7 @@ import { UnauthorizedComponent } from './components/unauthorized/unauthorized.co
 import { DashboardLayoutComponent } from './layouts/dashboard-layout/dashboard-layout.component';
 import { TicketDetailsComponent } from './components/tickets/ticket-details/ticket-details.component';
 import { IssuePageComponent } from './pages/TesterPages/issue-page/issue-page.component';
+import { LoadingScreenComponent } from './components/loading-screen/loading-screen.component';
 
 export const routes: Routes = [
   // Public routes (no guards)
@@ -17,6 +18,10 @@ export const routes: Routes = [
   { 
     path: 'login', 
     loadComponent: () => import('./authentification/login/login.component').then(m => m.LoginComponent) 
+  },
+  { 
+    path: 'loading', 
+    component: LoadingScreenComponent
   },
   { 
     path: 'signup', 
