@@ -27,12 +27,7 @@
           </div>
           
           <div class="flex flex-wrap items-center gap-3">
-            <button type="button" class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-              </svg>
-              Share
-            </button>
+
             <button
             (click)="onEditButtonClick()"
             type="button" class="inline-flex items-center justify-center gap-2 rounded-md border border-transparent bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:bg-purple-700 dark:hover:bg-purple-800">
@@ -268,24 +263,50 @@
                     </div>
 
                     <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <div class="flex items-center justify-between mb-2">
+                      <div class="flex items-center justify-between mb-4">
                         <p class="text-sm font-medium text-gray-900 dark:text-white">Team Members</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{project.membersCount}}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{members.length}}</p>
                       </div>
-                      <div class="flex -space-x-2 overflow-hidden">
-                        <ng-container *ngFor="let projectUser of project.projectUsers?.slice(0, 5)">
-                          <img *ngIf="projectUser?.user"
-                               [src]="projectUser.user?.image || 'assets/images/default-avatar.png'"
-                               [alt]="(projectUser.user?.firstname || '') + ' ' + (projectUser.user?.lastname || '')"
-                               class="inline-block w-8 h-8 rounded-full ring-2 ring-white dark:ring-gray-800">
-                        </ng-container>
-                        <div *ngIf="project.projectUsers && project.projectUsers.length > 5"
-                             class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 ring-2 ring-white dark:ring-gray-800">
-                          <span class="text-xs font-medium text-gray-500 dark:text-gray-400">
-                            +{{project.projectUsers.length - 5}}
-                          </span>
+                      
+                      <!-- Team Members List -->
+                      <div class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                        <div *ngFor="let member of members" class="flex items-center justify-between bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+                          <div class="flex items-center gap-3">
+                            <img [src]="member.image || 'assets/images/default-avatar.png'" 
+                                 [alt]="member.firstname + ' ' + member.lastname"
+                                 class="w-8 h-8 rounded-full">
+                            <div>
+                              <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                {{member.firstname}} {{member.lastname}}
+                              </p>
+                              <span class="text-xs px-2 py-0.5 rounded-full"
+                                    [ngClass]="{
+                                      'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400': member.role === 'DEVELOPER',
+                                      'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400': member.role === 'MANAGER',
+                                      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400': member.role === 'TESTER',
+                                      'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400': !member.role
+                                    }">
+                                {{member.role || 'Not Assigned'}}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <!-- Empty state when no members -->
+                        <div *ngIf="members.length === 0" class="flex flex-col items-center justify-center py-4 text-center">
+                          <mat-icon class="text-gray-400 dark:text-gray-500 text-3xl mb-2">group_off</mat-icon>
+                          <p class="text-sm text-gray-500 dark:text-gray-400">No team members yet</p>
+                          <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Add members from the Team Members tab</p>
                         </div>
                       </div>
+                      
+                      <!-- View all button -->
+                      <button *ngIf="members.length > 0" 
+                              (click)="selectedTabIndex = 1" 
+                              class="mt-4 w-full flex items-center justify-center gap-1 text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 py-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/70 transition-colors">
+                        <mat-icon class="text-base">people</mat-icon>
+                        View All Team Members
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -589,11 +610,11 @@
               <mat-spinner diameter="40"></mat-spinner>
             </div>
 
-            <div *ngIf="!loading">
+            <div *ngIf="!loading" >
               <!-- Issues Header -->
-              <div class="issues-header mb-6">
+              <div class="issues-header  mb-6">
                 <div>
-                  <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                  <h2 class="text-xl font-semibold text-gray-900  dark:text-white">
                     Project Issues
                   </h2>
                   <div class="flex items-center gap-4 mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -640,7 +661,7 @@
                   <p class="empty-state-desc">This project doesn't have any reported issues yet. That's great news!</p>
                 </div>
 
-                <div *ngFor="let issue of filteredLogs" class="issue-item">
+                <div *ngFor="let issue of filteredLogs" class="issue-item  bg-white">
                   <div class="flex flex-col items-start gap-4">
                     <span class="text-sm text-red-500 font-bold">{{issue.type}}</span>
                     <div [ngClass]="{

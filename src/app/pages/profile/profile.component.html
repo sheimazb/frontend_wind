@@ -186,7 +186,7 @@
     <!-- Right Column - Activity & Stats -->
     <div class="lg:col-span-2 space-y-6">
       <!-- Stats Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div *ngIf="isAdmin()" class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
           <div class="flex items-center justify-between">
             <h3 class="text-slate-500 dark:text-slate-400">Total Projects</h3>
@@ -196,39 +196,36 @@
               </svg>
             </span>
           </div>
-          <p class="mt-2 text-3xl font-bold text-slate-900 dark:text-white">24</p>
-          <p class="mt-1 text-sm text-green-500">+2 this month</p>
+          <p class="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{{partnerStats.totalPartners}}</p>
         </div>
 
         <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
           <div class="flex items-center justify-between">
-            <h3 class="text-slate-500 dark:text-slate-400">Contributions</h3>
+            <h3 class="text-slate-500 dark:text-slate-400">Blocked Agencies</h3>
             <span class="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-lg">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
               </svg>
             </span>
           </div>
-          <p class="mt-2 text-3xl font-bold text-slate-900 dark:text-white">891</p>
-          <p class="mt-1 text-sm text-green-500">+156 this week</p>
+          <p class="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{{partnerStats.lockedPartners}}</p>
         </div>
 
         <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
           <div class="flex items-center justify-between">
-            <h3 class="text-slate-500 dark:text-slate-400">Staff Members</h3>
+            <h3 class="text-slate-500 dark:text-slate-400">Active Agencies</h3>
             <span class="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
               </svg>
             </span>
           </div>
-          <p class="mt-2 text-3xl font-bold text-slate-900 dark:text-white">15</p>
-          <p class="mt-1 text-sm text-green-500">+3 new members</p>
+          <p class="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{{partnerStats.activePartners}}</p>
         </div>
       </div>
 
       <!-- Activity Timeline -->
-      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <div *ngIf="isPartner() || isManager() || isDeveloper() || isTester()" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
         <div class="p-6">
           <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Recent Activity</h2>
           <div class="space-y-6">
@@ -275,11 +272,10 @@
         </div>
       </div>
 
-      <!-- GitHub-style Contribution Graph -->
-      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+      <!-- GitHub-style Contribution Graph 
+      <div *ngIf="isPartner() || isManager() || isDeveloper() || isTester()" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
           <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-0">Contribution Activity</h2>
-          <!-- Month Selector -->
           <div class="flex items-center space-x-2 text-sm overflow-x-auto pb-2 scrollbar-thin">
             <button *ngFor="let month of ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']"
               class="px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors whitespace-nowrap"
@@ -292,16 +288,13 @@
         </div>
 
         <div class="space-y-4">
-          <!-- Contribution Grid -->
           <div class="relative">
-            <!-- Days of Week Labels -->
             <div class="absolute -left-6 top-0 flex flex-col justify-between h-full text-xs text-slate-400 py-1">
               <span>Mon</span>
               <span>Wed</span>
               <span>Fri</span>
             </div>
 
-            <!-- Scrollable Container -->
             <div class="overflow-x-auto pl-6">
               <div class="inline-flex gap-1 min-w-fit">
                 <ng-container *ngFor="let week of weeks">
@@ -317,7 +310,6 @@
             </div>
           </div>
           
-          <!-- Contribution Legend -->
           <div class="flex flex-wrap items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
             <div class="flex items-center space-x-2 text-xs text-slate-600 dark:text-slate-400 mr-4">
               <span class="whitespace-nowrap">Less</span>
@@ -333,7 +325,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div>-->
     </div>
   </div>
 

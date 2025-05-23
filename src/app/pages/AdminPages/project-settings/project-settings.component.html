@@ -336,51 +336,7 @@
             </form>
           </div>
         </div>
-        <div
-          class="rounded-md border dark:border-gray-700 border-gray-300 bg-white shadow-md"
-        >
-          <div class="border-b dark:bg-gray-800 border-gray-300 px-6 py-2">
-            <h2
-              class="text-title-md2 flex flex-row items-center gap-2 m-0 font-bold dark:text-gray-200 text-gray-900"
-            >
-              Remove Project
-              <mat-icon
-                class="text-gray-400 cursor-help"
-                matTooltip="delete this project"
-                [matTooltipPosition]="'right'"
-                >help</mat-icon
-              >
-            </h2>
-          </div>
-
-          <div class="p-6 dark:bg-darkbackground">
-            <form>
-              <!-- Name Field -->
-              <div class="grid grid-cols-2 justify-between items-center gap-4">
-                <div>
-                  <label
-                    for="name"
-                    class="block text-sm font-medium dark:text-gray-300 text-gray-700"
-                  >
-                    Remove Project <span class="text-red-500">*</span>
-                  </label>
-                  <p class="text-sm dark:text-gray-400 text-gray-500">
-                    Removing this Project will delete all data including
-                    developers, testers and their associated events.
-                  </p>
-                </div>
-                <button
-                  (click)="onDeleteProjectClick(projectId)"
-                  type="button"
-                  class="h-fit border rounded-md flex justify-center items-center gap-2 p-2 text-white dark:border-gray-600 bg-red-600 sm:w-auto"
-                >
-                  <mat-icon>delete</mat-icon>
-                  <span class="text-sm md:text-base">Remove Project</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+       
       </div>
     </div>
     <!-- ====== Settings Section End -->

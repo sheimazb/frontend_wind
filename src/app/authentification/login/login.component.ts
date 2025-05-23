@@ -59,7 +59,6 @@ export class LoginComponent {
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
 
-    // Redirect if already logged in
     if (this.authService.isLoggedIn()) {
       this.redirectBasedOnRole();
     }
@@ -112,11 +111,6 @@ export class LoginComponent {
       position: { top: '100px' }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        // Handle successful password reset request if needed
-      }
-    });
   }
 
   // 1. User submits login form
@@ -130,13 +124,10 @@ export class LoginComponent {
           this.isLoading = false;
           this.toastService.showSuccess(`Welcome back, ${response.fullName}!`);
           
-          // Start transition animation then show loading screen
           this.animationState = 'out';
           setTimeout(() => {
             this.showLoadingScreen = true;
           }, 400);
-
-          // Redirect will happen in the loading screen component
         },
         error: (error) => {
            // 4. Error: Show error message

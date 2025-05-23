@@ -11,7 +11,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import ApexCharts from 'apexcharts';
 import { StatsService } from '../../../../services/stats.service';
-import { forkJoin } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { ProjectTypePipe } from './project-type.pipe';
 
@@ -47,11 +46,9 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
   searchQuery = '';
   tagSearchQuery = '';
   charts: { [key: string]: ApexCharts } = {};
-  projectLogStats: { [key: number]: any[] } = {};
-  projectActivityStats: { [key: number]: any[] } = {};
+  projectErrorStats: { [key: number]: any[] } = {};
+  projectTotalErrors: { [key: number]: number } = {};
   selectedDateRange: string = '7days';
-
-  // View mode property
   viewMode: 'grid' | 'list' = 'list'; // Default to list view
 
   @ViewChildren('chartContainer') chartContainers!: QueryList<ElementRef>;
@@ -63,17 +60,12 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
     { label: 'Last 20 days', value: '20days' }
   ];
 
-  // Add these properties to the class
   currentPackageId: number | null = null;
   isViewingPackage: boolean = false;
   microservicesInPackage: Project[] = [];
   currentPackage: Project | null = null;
   loadingMicroservices: boolean = false;
-
-  // New: Track selected microservice for details view
   selectedMicroservice: Project | null = null;
-
-  // Add this property for project type filtering
   projectTypeFilter: 'all' | 'package' | 'monolithic' = 'all';
 
   constructor(
@@ -85,17 +77,15 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    // Load saved view mode preference
     const savedViewMode = localStorage.getItem('projectViewMode');
     if (savedViewMode === 'grid' || savedViewMode === 'list') {
       this.viewMode = savedViewMode;
-    }
-    
+    } 
     this.loadProjects();
   }
 
   ngAfterViewInit(): void {
-    // Initial chart initialization will happen after projects are loaded
+   
   }
 
   loadProjects(): void {
@@ -108,11 +98,17 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
         this.filteredProjects = projects;
         this.isLoading = false;
         
-        // Initialize charts after view has been updated
+        this.projects.forEach(project => {
+          if (project.id) {
+            this.loadProjectErrorStats(project.id);
+            this.loadTotalErrorsForProject(project.id);
+          }
+        });
+        
         setTimeout(() => {
           this.initializeCharts();
           this.cdr.detectChanges();
-        });
+        }, 500);
       },
       error: (error) => {
         console.error('Error loading projects:', error);
@@ -125,46 +121,6 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
   onSearchProjects(event: any): void {
     this.searchQuery = event.target.value;
     this.applyFilters();
-    // Reinitialize charts after filtering
-    setTimeout(() => {
-      this.initializeCharts();
-    }, 0);
-  }
-
-  onSearchByTag() {
-    if (this.tagSearchQuery.trim()) {
-      this.projectService.searchProjectsByTag(this.tagSearchQuery.trim()).subscribe({
-        next: (projects) => {
-          this.filteredProjects = projects;
-          // Apply text search filter if exists
-          if (this.searchQuery.trim()) {
-            this.filteredProjects = this.filteredProjects.filter(project =>
-              project.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-              project.description.toLowerCase().includes(this.searchQuery.toLowerCase())
-            );
-          }
-          // Reinitialize charts after tag filtering
-          setTimeout(() => {
-            this.initializeCharts();
-          }, 0);
-        },
-        error: (error) => {
-          this.errorMessage = 'Failed to search projects by tag. Please try again.';
-        }
-      });
-    } else {
-      this.applyFilters();
-      // Reinitialize charts after clearing tag filter
-      setTimeout(() => {
-        this.initializeCharts();
-      }, 0);
-    }
-  }
-
-  clearTagSearch() {
-    this.tagSearchQuery = '';
-    this.applyFilters();
-    // Reinitialize charts after clearing tag search
     setTimeout(() => {
       this.initializeCharts();
     }, 0);
@@ -172,8 +128,6 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
 
   private applyFilters() {
     this.filteredProjects = [...this.projects];
-    
-    // Apply text search filter
     if (this.searchQuery.trim()) {
       this.filteredProjects = this.filteredProjects.filter(project =>
         project.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
@@ -199,408 +153,141 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
     // Wait for the next tick to ensure DOM is updated
     setTimeout(() => {
       this.filteredProjects.forEach(project => {
+        if (!project.id) return;
+        
         const chartId = `chart-${project.id}`;
         const chartElement = document.getElementById(chartId);
         
         if (chartElement) {
-          const chartOptions = {
-            series: [
-              {
-                name: "Activity",
-                data: [44, 55, 41, 67, 22, 43, 65],
-              },
-              {
-                name: "Errors",
-                data: [13, 23, 20, 8, 13, 27, 15],
-              },
-            ],
-            chart: {
-              type: "bar",
-              height: 200,
-              stacked: true,
-              toolbar: {
-                show: false,
-              },
-              zoom: {
-                enabled: false,
-              },
-              background: 'transparent',
-              foreColor: '#6B7280',
-              fontFamily: 'Inter, sans-serif',
-            },
-            colors: ["#3B82F6", "#E1567C"], // Activity (blue), Errors (red)
-            fill: {
-              type: 'solid',
-            },
-            plotOptions: {
-              bar: {
-                horizontal: false,
-                borderRadius: 6,
-                columnWidth: "40%",
-                borderRadiusApplication: "end",
-                borderRadiusWhenStacked: "last",
-              },
-            },
-            dataLabels: {
-              enabled: false,
-            },
-            xaxis: {
-              categories: ["M", "T", "W", "T", "F", "S", "S"],
-              axisBorder: {
-                show: false,
-              },
-              axisTicks: {
-                show: false,
-              },
-              labels: {
-                style: {
-                  colors: '#6B7280',
-                  fontSize: '12px',
-                  fontWeight: 500,
-                },
-              },
-            },
-            yaxis: {
-              show: true,
-              max: 100,
-              labels: {
-                style: {
-                  colors: '#6B7280',
-                  fontSize: '12px',
-                  fontWeight: 500,
-                },
-                formatter: function (value: number) {
-                  return value + '%';
-                },
-              },
-            },
-            grid: {
-              show: true,
-              borderColor: 'rgba(107, 114, 128, 0.1)',
-              strokeDashArray: 4,
-              position: 'back',
-              xaxis: {
-                lines: {
-                  show: false
-                }
-              },
-              yaxis: {
-                lines: {
-                  show: true
-                }
-              },
-              padding: {
-                top: 0,
-                right: 10,
-                bottom: 0,
-                left: 10
-              },
-            },
-            legend: {
-              position: 'top',
-              horizontalAlign: 'left',
-              offsetY: -8,
-              labels: {
-                colors: '#6B7280',
-              },
-              markers: {
-                radius: 4,
-                width: 16,
-                height: 16,
-              },
-              itemMargin: {
-                horizontal: 12
-              },
-            },
-            tooltip: {
-              theme: 'dark',
-              style: {
-                fontSize: '12px',
-                fontFamily: 'Inter, sans-serif',
-              },
-              y: {
-                formatter: function(value: number) {
-                  return value + '%';
-                }
-              },
-              marker: {
-                show: true,
-              },
-              custom: function({ series, seriesIndex, dataPointIndex, w }: any) {
-                return '<div class="p-2">' +
-                  '<div class="flex items-center gap-2">' +
-                  '<span class="w-3 h-3 rounded-full" style="background: ' + w.globals.colors[seriesIndex] + '"></span>' +
-                  '<span class="font-medium">' + w.globals.seriesNames[seriesIndex] + '</span>' +
-                  '</div>' +
-                  '<div class="text-2xl font-bold mt-1">' + series[seriesIndex][dataPointIndex] + '%</div>' +
-                  '</div>';
-              }
-            }
-          };
-
-          try {
-            const chart = new ApexCharts(chartElement, chartOptions);
-            this.charts[project.id!] = chart;
-            chart.render();
-          } catch (error) {
-            console.error(`Error creating chart for project ${project.id}:`, error);
-          }
+          this.createErrorChart(project.id, chartElement);
         }
       });
-    });
-  }
-  hasLogo(project: Project): boolean {
-    return Boolean(
-      project && 
-      project.logo && 
-      (
-        (typeof project.logo === 'string' && project.logo.trim() !== '') || 
-        project.logo instanceof File
-      )
-    );
+    }, 100);
   }
 
-  getLogoUrl(project: Project): string {
-    if (!this.hasLogo(project)) {
-      return ''; // Return empty if no logo
-    }
-    
-    // If logo is already a full URL, return it
-    if (typeof project.logo === 'string') {
-      if (project.logo.startsWith('http://') || project.logo.startsWith('https://')) {
-        return project.logo;
-      }
-      
-      // Otherwise, construct the URL to the server's static files
-      return `http://localhost:8222${project.logo}`;
-    }
-    
-    // If it's a File object, return an empty string
-    // (File objects can't be displayed directly)
-    return '';
-  }
-
-  onProjectSettingsClick(projectId: number) {
-    this.router.navigate(['/dashboard/project-settings', projectId]);
-  }
-
-  onAddProjectClick() {
-    this.router.navigate(['/dashboard/add-project']);
-  }
-
-  onProjectDetailsClick(projectId: number) {
-    this.router.navigate(['/dashboard/project-details/' + projectId]);
-  }
-
-  // Update toggleViewMode to reinitialize charts when switching to grid view
-  toggleViewMode() {
-    this.viewMode = this.viewMode === 'grid' ? 'list' : 'grid';
-    localStorage.setItem('projectViewMode', this.viewMode);
-    
-    // If switching to grid view, initialize charts after view update
-    if (this.viewMode === 'grid') {
-      setTimeout(() => {
-        this.initializeCharts();
-        this.cdr.detectChanges();
-      });
-    }
-  }
-
-  loadProjectStats(projectId: number): void {
+  loadProjectErrorStats(projectId: number): void {
     const dateRange = this.getSelectedDateRange();
     const startStr = dateRange.start.toISOString().split('T')[0];
     const endStr = dateRange.end.toISOString().split('T')[0];
     
-    console.log(`Loading stats for project ${projectId}`);
+    console.log(`Loading error stats for project ${projectId}`);
     console.log(`Date range: ${startStr} to ${endStr}`);
     
-    // Clear existing stats for this project
-    this.projectLogStats[projectId] = [];
-    this.projectActivityStats[projectId] = [];
+    // Show loading indicator for this specific chart
+    const chartElement = document.getElementById(`chart-${projectId}`);
+    if (chartElement) {
+      chartElement.innerHTML = '<div class="flex items-center justify-center h-full w-full"><div class="animate-spin rounded-full h-8 w-8 border-2 border-red-500 border-t-transparent"></div></div>';
+    }
     
-    // Show loading state
-    this.isLoading = true;
+    this.projectErrorStats[projectId] = [];
     
-    // Track completion of both requests
-    let errorStatsLoaded = false;
-    let activityStatsLoaded = false;
-    
-    // Get error stats
     this.statsService.getErrorsByDayForProject(projectId, startStr, endStr).subscribe({
       next: data => {
         console.log(`Received error stats for project ${projectId}:`, data);
-        this.projectLogStats[projectId] = data || [];
-        errorStatsLoaded = true;
-        if (errorStatsLoaded && activityStatsLoaded) {
-          this.updateChartAfterDataLoad(projectId);
+        this.projectErrorStats[projectId] = data || [];
+        
+        // Update chart if it exists
+        if (this.charts[projectId]) {
+          this.updateErrorChart(projectId);
+        } else {
+          // Try to create chart if it doesn't exist yet
+          setTimeout(() => {
+            const chartElement = document.getElementById(`chart-${projectId}`);
+            if (chartElement && this.viewMode === 'grid') {
+              this.createErrorChart(projectId, chartElement);
+            }
+          }, 100);
         }
       },
       error: err => {
         console.error(`Failed to load error stats for project ${projectId}:`, err);
-        this.projectLogStats[projectId] = [];
-        errorStatsLoaded = true;
-        if (errorStatsLoaded && activityStatsLoaded) {
-          this.updateChartAfterDataLoad(projectId);
-        }
-      }
-    });
-    
-    // Get activity stats
-    this.statsService.getActivitiesByDayForProject(projectId, startStr, endStr).subscribe({
-      next: data => {
-        console.log(`Received activity stats for project ${projectId}:`, data);
-        this.projectActivityStats[projectId] = data || [];
-        activityStatsLoaded = true;
-        if (errorStatsLoaded && activityStatsLoaded) {
-          this.updateChartAfterDataLoad(projectId);
-        }
-      },
-      error: err => {
-        console.error(`Failed to load activity stats for project ${projectId}:`, err);
-        this.projectActivityStats[projectId] = [];
-        activityStatsLoaded = true;
-        if (errorStatsLoaded && activityStatsLoaded) {
-          this.updateChartAfterDataLoad(projectId);
-        }
+        this.projectErrorStats[projectId] = [];
+        // Show a user-friendly toast notification
+        this.toastr.warning('Statistics service is currently unavailable. Charts may not display correctly.');
+        
+        // Still create/update the chart to show empty state
+        setTimeout(() => {
+          const chartElement = document.getElementById(`chart-${projectId}`);
+          if (chartElement && this.viewMode === 'grid') {
+            if (this.charts[projectId]) {
+              this.updateErrorChart(projectId);
+            } else {
+              this.createErrorChart(projectId, chartElement);
+            }
+          }
+        }, 100);
       }
     });
   }
 
-  private updateChartAfterDataLoad(projectId: number): void {
-    console.log(`Both stats loaded for project ${projectId}, updating chart`);
-    this.isLoading = false;
-    
-    // Ensure we're in the Angular zone when updating the chart
-    this.cdr.detectChanges();
-    
-    // Small delay to ensure the DOM is ready
-    setTimeout(() => {
-      const chartElement = document.getElementById(`chart-${projectId}`);
-      if (chartElement) {
-        if (this.charts[projectId]) {
-          this.updateChart(projectId);
-        } else {
-          this.initializeChartForProject(projectId, chartElement);
-        }
-      }
-    }, 100);
-  }
-
-  updateChart(projectId: number): void {
-    console.log(`Updating chart for project ${projectId}`);
-    
+  updateErrorChart(projectId: number): void {
     const chart = this.charts[projectId];
     if (!chart) {
-      console.warn(`No chart instance found for project ${projectId}, attempting to reinitialize`);
-      const chartElement = document.getElementById(`chart-${projectId}`);
-      if (chartElement) {
-        this.initializeChartForProject(projectId, chartElement);
-        return;
-      } else {
-        console.error(`Could not find chart element for project ${projectId}`);
-        return;
-      }
+      console.warn(`No chart instance found for project ${projectId}`);
+      return;
     }
     
     try {
       const dateRange = this.getDateRangeForProject(projectId);
-      console.log('Date range for chart:', dateRange);
+      const errorStats = this.projectErrorStats[projectId] || [];
+      const errorData = this.prepareChartData(errorStats, dateRange, 'count');
       
-      // Get log stats
-      const logStats = this.projectLogStats[projectId] || [];
-      console.log(`Log stats for project ${projectId}:`, logStats);
+      // Check if we have any non-zero data
+      const hasData = errorData.some(value => value > 0);
       
-      // Get activity stats
-      const activityStats = this.projectActivityStats[projectId] || [];
-      console.log(`Activity stats for project ${projectId}:`, activityStats);
-      
-      // Create series data for activities and errors
-      const activityData = this.prepareChartData(activityStats, dateRange, 'count');
-      const errorData = this.prepareChartData(logStats, dateRange, 'count');
-      
-      console.log(`Chart data for project ${projectId}:`, {
-        activityData,
-        errorData
-      });
-
-      // Update the series data
       chart.updateSeries([
-        {
-          name: "Activity",
-          data: activityData
-        },
         {
           name: "Errors",
           data: errorData
         }
       ]);
       
-      // Update x-axis categories
       chart.updateOptions({
         xaxis: {
-          originalCategories: dateRange,
           categories: dateRange.map(date => {
             const d = new Date(date);
-            return d.toLocaleDateString('en-US', { weekday: 'short' });
+            return dateRange.length > 10 
+              ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+              : d.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' });
           })
+        },
+        noData: {
+          text: hasData ? undefined : 'No error data available',
+          align: 'center',
+          verticalAlign: 'middle',
+          offsetX: 0,
+          offsetY: 0,
+          style: {
+            color: '#6B7280',
+            fontSize: '14px',
+            fontFamily: 'Inter, sans-serif'
+          }
         }
       });
-
-      // Force a redraw
-      chart.render();
-      
     } catch (error) {
       console.error(`Error updating chart for project ${projectId}:`, error);
-      // Try to recover by reinitializing the chart
-      this.destroyChart(projectId);
-      const chartElement = document.getElementById(`chart-${projectId}`);
-      if (chartElement) {
-        this.initializeChartForProject(projectId, chartElement);
-      }
     }
   }
 
-  private destroyChart(projectId: number): void {
-    try {
-      if (this.charts[projectId]) {
-        this.charts[projectId].destroy();
-        delete this.charts[projectId];
-      }
-    } catch (error) {
-      console.error(`Error destroying chart for project ${projectId}:`, error);
-    }
-  }
-
-  initializeChartForProject(projectId: number, chartElement: HTMLElement): void {
-    console.log(`Initializing chart for project ${projectId}`);
-    
-    // First destroy existing chart if any
-    this.destroyChart(projectId);
-    
+  createErrorChart(projectId: number, chartElement: HTMLElement): void {
+    // Get the date range and error stats
     const dateRange = this.getDateRangeForProject(projectId);
+    const errorStats = this.projectErrorStats[projectId] || [];
+    const errorData = this.prepareChartData(errorStats, dateRange, 'count');
     
-    // Get real data if available
-    const logStats = this.projectLogStats[projectId] || [];
-    const activityStats = this.projectActivityStats[projectId] || [];
-    
-    const activityData = this.prepareChartData(activityStats, dateRange, 'count');
-    const errorData = this.prepareChartData(logStats, dateRange, 'count');
+    // Check if we have any non-zero data
+    const hasData = errorData.some(value => value > 0);
     
     const chartOptions = {
       series: [
         {
-          name: "Activity",
-          data: activityData,
-        },
-        {
-          name: "Errors", 
+          name: "Errors",
           data: errorData,
-        },
+        }
       ],
       chart: {
-        type: "bar",
+        type: "line",
         height: 250,
-        stacked: true,
         toolbar: {
           show: false,
         },
@@ -611,25 +298,46 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
         foreColor: '#6B7280',
         fontFamily: 'Inter, sans-serif',
         animations: {
-          enabled: false,
+          enabled: true,
+          easing: 'easeinout',
+          speed: 800,
         },
         parentHeightOffset: 0
       },
-      colors: ["#4F46E5", "#DC2626"], // Changed colors: indigo-600 for Activity, red-600 for Errors
+      colors: ["#DC2626"], // Red color for errors
+      stroke: {
+        curve: 'smooth',
+        width: 3
+      },
       fill: {
-        opacity: 1 // Removed gradient, using solid colors
+        type: 'gradient',
+        gradient: {
+          shadeIntensity: 1,
+          opacityFrom: 0.7,
+          opacityTo: 0.2,
+          stops: [0, 90, 100],
+          colorStops: [
+            {
+              offset: 0,
+              color: "#DC2626",
+              opacity: 0.2
+            },
+            {
+              offset: 100,
+              color: "#DC2626",
+              opacity: 0
+            }
+          ]
+        }
       },
-      plotOptions: {
-        bar: {
-          horizontal: false,
-          borderRadius: 4,
-          columnWidth: dateRange.length > 10 ? "85%" : "60%",
-          borderRadiusApplication: "end",
-          borderRadiusWhenStacked: "last",
-        },
-      },
-      dataLabels: {
-        enabled: false,
+      markers: {
+        size: 4,
+        colors: ["#DC2626"],
+        strokeColors: "#fff",
+        strokeWidth: 2,
+        hover: {
+          size: 6,
+        }
       },
       xaxis: {
         categories: dateRange.map(date => {
@@ -652,9 +360,6 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
           },
           rotate: dateRange.length > 10 ? -45 : 0,
           offsetY: dateRange.length > 10 ? 5 : 0,
-        },
-        tooltip: {
-          enabled: true,
         }
       },
       yaxis: {
@@ -694,22 +399,7 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
           }
         }
       },
-      legend: {
-        position: 'top',
-        horizontalAlign: 'left',
-        offsetY: -8,
-        markers: {
-          radius: 4,
-          width: 16,
-          height: 16,
-        },
-        itemMargin: {
-          horizontal: 12
-        }
-      },
       tooltip: {
-        shared: true,
-        intersect: false,
         theme: 'dark',
         style: {
           fontSize: '12px',
@@ -724,95 +414,26 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
           show: true,
         }
       },
-      states: {
-        hover: {
-          filter: {
-            type: 'darken',
-            value: 0.1,
-          }
-        },
-        active: {
-          filter: {
-            type: 'darken',
-            value: 0.1,
-          }
+      noData: {
+        text: hasData ? undefined : 'No error data available',
+        align: 'center',
+        verticalAlign: 'middle',
+        offsetX: 0,
+        offsetY: 0,
+        style: {
+          color: '#6B7280',
+          fontSize: '14px',
+          fontFamily: 'Inter, sans-serif'
         }
       }
     };
 
     try {
-      console.log(`Creating new chart instance for project ${projectId}`);
       const chart = new ApexCharts(chartElement, chartOptions);
       this.charts[projectId] = chart;
       chart.render();
-      
-      // Re-enable animations after initial render
-      setTimeout(() => {
-        chart.updateOptions({
-          chart: {
-            animations: {
-              enabled: true,
-              easing: 'easeinout',
-              speed: 800,
-              animateGradually: {
-                enabled: true,
-                delay: 150
-              },
-              dynamicAnimation: {
-                enabled: true,
-                speed: 350
-              }
-            }
-          }
-        });
-      }, 500);
-      
     } catch (error) {
       console.error(`Error creating chart for project ${projectId}:`, error);
-    }
-  }
-
-  // 6. Helper to check if we have both stats and update the chart
-  checkAndUpdateChart(projectId: number): void {
-    console.log(`Checking and updating chart for project ${projectId}`);
-    
-    if (this.projectLogStats[projectId] !== undefined && this.projectActivityStats[projectId] !== undefined) {
-      console.log(`Data available for project ${projectId}, updating chart`);
-      
-      // If chart exists, update it
-      if (this.charts[projectId]) {
-        console.log(`Chart exists for project ${projectId}, updating it`);
-        this.updateChart(projectId);
-      }
-      // If we're in grid view but chart doesn't exist yet, try to create it
-      else if (this.viewMode === 'grid') {
-        console.log(`Chart doesn't exist for project ${projectId}, trying to create it`);
-        
-        // Wait a bit to ensure DOM is ready
-        setTimeout(() => {
-          const chartElement = document.getElementById(`chart-${projectId}`);
-          if (chartElement) {
-            console.log(`Found chart element for project ${projectId}, initializing chart`);
-            this.initializeChartForProject(projectId, chartElement);
-          } else {
-            console.warn(`Chart element not found for project ${projectId}`);
-            
-            // Try one more time with a longer delay
-            setTimeout(() => {
-              const retryChartElement = document.getElementById(`chart-${projectId}`);
-              if (retryChartElement) {
-                console.log(`Found chart element on retry for project ${projectId}`);
-                this.initializeChartForProject(projectId, retryChartElement);
-              }
-            }, 500);
-          }
-        }, 100);
-      }
-      
-      // Force change detection to update the UI
-      this.cdr.detectChanges();
-    } else {
-      console.log(`Waiting for complete data for project ${projectId}`);
     }
   }
 
@@ -821,23 +442,39 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
     this.selectedDateRange = range;
     
     // Clear existing stats
-    this.projectLogStats = {};
-    this.projectActivityStats = {};
+    this.projectErrorStats = {};
+    
+    // Destroy existing charts
+    Object.values(this.charts).forEach(chart => {
+      if (chart) {
+        chart.destroy();
+      }
+    });
+    this.charts = {};
     
     // Show loading state
     this.isLoading = true;
     
-    // Reload stats for all projects with new date range
-    this.projects.forEach(project => {
-      this.loadProjectStats(project.id!);
+    // Reload stats for all visible projects with new date range
+    this.filteredProjects.forEach(project => {
+      if (project.id) {
+        this.loadProjectErrorStats(project.id);
+      }
     });
     
-    // Reinitialize charts after a delay to ensure data is loaded
+    // Hide loading state after a delay
     setTimeout(() => {
-      console.log('Reinitializing charts after date range change');
-      this.initializeCharts();
+      this.isLoading = false;
+      
+      // Make sure we're in grid view to initialize charts
+      if (this.viewMode === 'grid') {
+        setTimeout(() => {
+          this.initializeCharts();
+        }, 100);
+      }
+      
       this.cdr.detectChanges();
-    }, 500);
+    }, 1000);
   }
 
   getSelectedDateRange(): { start: Date, end: Date } {
@@ -873,31 +510,32 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
     const dateRange: string[] = [];
     const currentDate = new Date(start);
     
-    console.log(`Generating date range for project ${projectId}`);
-    console.log(`Start date: ${start.toISOString()}`);
-    console.log(`End date: ${end.toISOString()}`);
-    
     while (currentDate <= end) {
       dateRange.push(currentDate.toISOString().split('T')[0]);
       currentDate.setDate(currentDate.getDate() + 1);
     }
     
-    console.log(`Generated date range:`, dateRange);
     return dateRange;
   }
 
   prepareChartData(stats: any[], dateRange: string[], field: string): number[] {
-    console.log('Preparing chart data from stats:', stats);
-    console.log('Date range:', dateRange);
-    
     // Initialize array with zeros for each date in range
     const data = new Array(dateRange.length).fill(0);
+    
+    if (!stats || stats.length === 0) {
+      console.log('No stats data available, returning zeros');
+      return data;
+    }
+    
+    console.log('Preparing chart data with stats:', stats);
+    console.log('For date range:', dateRange);
     
     // Create a map for quick lookup of stats by date
     const statsMap = new Map();
     stats.forEach(stat => {
       if (stat && stat.day) {
         statsMap.set(stat.day, stat[field] || 0);
+        console.log(`Mapped ${stat.day} to value ${stat[field] || 0}`);
       }
     });
     
@@ -905,17 +543,16 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
     dateRange.forEach((date, index) => {
       // Format the date to match the stats format (YYYY-MM-DD)
       const formattedDate = new Date(date).toISOString().split('T')[0];
-      console.log(`Checking data for date ${formattedDate}`);
       
       if (statsMap.has(formattedDate)) {
         data[index] = statsMap.get(formattedDate);
-        console.log(`Found data for ${formattedDate}: ${data[index]}`);
+        console.log(`Date ${formattedDate} has value ${data[index]}`);
       } else {
-        console.log(`No data found for ${formattedDate}`);
+        console.log(`No data for date ${formattedDate}, using 0`);
       }
     });
     
-    console.log('Final prepared data:', data);
+    console.log('Final data array:', data);
     return data;
   }
 
@@ -935,18 +572,78 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
     return `${formatDate(startDate)} - ${formatDate(endDate)}`;
   }
 
-  // Add this method to the class
+  hasLogo(project: Project): boolean {
+    return Boolean(
+      project && 
+      project.logo && 
+      (
+        (typeof project.logo === 'string' && project.logo.trim() !== '') || 
+        project.logo instanceof File
+      )
+    );
+  }
+
+  getLogoUrl(project: Project): string {
+    if (!this.hasLogo(project)) {
+      return '';
+    }
+    if (typeof project.logo === 'string') {
+      if (project.logo.startsWith('http://') || project.logo.startsWith('https://')) {
+        return project.logo;
+      }
+      return `http://localhost:8222${project.logo}`;
+    }
+    return '';
+  }
+
+  onProjectSettingsClick(projectId: number) {
+    this.router.navigate(['/dashboard/project-settings', projectId]);
+  }
+
+  onAddProjectClick() {
+    this.router.navigate(['/dashboard/add-project']);
+  }
+
+  onProjectDetailsClick(projectId: number) {
+    this.router.navigate(['/dashboard/project-details/' + projectId]);
+  }
+
+  toggleViewMode() {
+    this.viewMode = this.viewMode === 'grid' ? 'list' : 'grid';
+    localStorage.setItem('projectViewMode', this.viewMode);
+    if (this.viewMode === 'grid') {
+      setTimeout(() => {
+        this.initializeCharts();
+        this.cdr.detectChanges();
+      }, 100);
+    }
+  }
+
   openPackage(packageProject: Project): void {
     this.loadingMicroservices = true;
     this.currentPackageId = packageProject.getId();
     this.currentPackage = packageProject;
     this.isViewingPackage = true;
-    this.selectedMicroservice = null; // Reset selection when opening a package
-    // Fetch microservices in this package
+    this.selectedMicroservice = null; 
     this.projectService.getMicroservicesInPackage(packageProject.getId()).subscribe({
       next: (microservices) => {
         this.microservicesInPackage = microservices;
         this.loadingMicroservices = false;
+        
+        // Load stats for each microservice
+        microservices.forEach(microservice => {
+          if (microservice.id) {
+            this.loadProjectErrorStats(microservice.id);
+            this.loadTotalErrorsForProject(microservice.id);
+          }
+        });
+        
+        // Initialize charts for microservices if in grid view
+        if (this.viewMode === 'grid') {
+          setTimeout(() => {
+            this.initializeMicroserviceCharts();
+          }, 500);
+        }
       },
       error: (error) => {
         console.error('Error loading microservices:', error);
@@ -956,12 +653,10 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // New: Select a microservice to view its details
   selectMicroservice(microservice: Project): void {
     this.selectedMicroservice = microservice;
   }
 
-  // New: Go back to the microservices list in the package
   backToMicroservicesList(): void {
     this.selectedMicroservice = null;
   }
@@ -971,7 +666,7 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
     this.currentPackageId = null;
     this.currentPackage = null;
     this.microservicesInPackage = [];
-    this.selectedMicroservice = null; // Reset selection when leaving package view
+    this.selectedMicroservice = null;
   }
 
   isPackage(project: Project): boolean {
@@ -982,19 +677,82 @@ export class ContentProjectDashAdminComponent implements OnInit, AfterViewInit {
     return project.projectType === 'MICROSERVICES';
   }
 
-  // Add the method to redirect to the add-project page with the current package ID
   onAddMicroserviceClick() {
     if (this.currentPackageId) {
-      // Navigate to the add-project page with the selected package ID
       this.router.navigate(['/dashboard/add-project'], { 
         queryParams: { 
           mode: 'microservice', 
           packageId: this.currentPackageId,
-          step: '3'  // Go directly to the microservice creation step
+          step: '3'  
         } 
       });
     } else {
       this.toastr.error('Package ID not found. Please try again.');
     }
+  }
+
+  loadTotalErrorsForProject(projectId: number): void {
+    this.statsService.getTotalErrorsForProject(projectId).subscribe({
+      next: (totalErrors) => {
+        console.log(`Received total errors for project ${projectId}:`, totalErrors);
+        this.projectTotalErrors[projectId] = totalErrors;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error(`Failed to load total errors for project ${projectId}:`, err);
+        this.projectTotalErrors[projectId] = 0;
+        // Only show the toast once to avoid spamming the user with notifications
+        if (!this.hasShownServiceUnavailableToast) {
+          this.toastr.warning('Error statistics service is currently unavailable.');
+          this.hasShownServiceUnavailableToast = true;
+        }
+      }
+    });
+  }
+
+  // Add this property to track if we've shown the toast
+  private hasShownServiceUnavailableToast = false;
+
+  // Add this new method to initialize charts for microservices
+  initializeMicroserviceCharts(): void {
+    // Only proceed if we're in grid view and viewing a package
+    if (this.viewMode !== 'grid' || !this.isViewingPackage) {
+      return;
+    }
+
+    // Wait for the next tick to ensure DOM is updated
+    setTimeout(() => {
+      this.microservicesInPackage.forEach(microservice => {
+        if (!microservice.id) return;
+        
+        const chartId = `microservice-chart-${microservice.id}`;
+        const chartElement = document.getElementById(chartId);
+        
+        if (chartElement) {
+          this.createErrorChart(microservice.id, chartElement);
+        }
+      });
+    }, 100);
+  }
+
+  // Update this method to handle project type filter changes
+  onProjectTypeFilterChange(filter: 'all' | 'package' | 'monolithic'): void {
+    this.projectTypeFilter = filter;
+    
+    // Re-initialize charts after filter change with a small delay to allow DOM to update
+    if (this.viewMode === 'grid') {
+      setTimeout(() => {
+        this.initializeCharts();
+      }, 100);
+    }
+  }
+
+  // Helper method to get the maximum error count for a project
+  getMaxErrorCount(projectId: number | undefined): number {
+    if (!projectId || !this.projectErrorStats[projectId] || this.projectErrorStats[projectId].length === 0) {
+      return 1; // Return 1 to avoid division by zero
+    }
+    
+    return Math.max(...this.projectErrorStats[projectId].map(stat => stat.count || 0), 1);
   }
 }

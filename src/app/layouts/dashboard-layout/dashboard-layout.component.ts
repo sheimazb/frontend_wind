@@ -13,15 +13,15 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
   standalone: true,
   imports: [CommonModule, RouterModule, NavbarComponent, SidebarComponent, FooterComponent],
   template: `
-    <div [@fadeInAnimation]="animationState" class="dashboard-container fixed-layout">
+    <div [@fadeInAnimation]="animationState" class="dashboard-container dark:bg-slate-950 fixed-layout">
       <app-navbar></app-navbar>
 
-      <div class="flex overflow-hidden dark:bg-slate-950 bg-[#ECF8F6] pt-16 content-area">
+      <div class="flex overflow-hidden dark:bg-gradient-to-br dark:from-slate-950 dark:via-[#00091f] dark:to-[#121f38] bg-gradient-to-br from-[#bdecff] via-[#f1f5ff] to-[#d9e6ff] pt-16 content-area">
         <app-sidebar></app-sidebar>
 
         <div
           id="main-content"
-          class="h-full w-full dark:bg-slate-950 relative overflow-y-auto lg:ml-24"
+          class="h-full w-full relative overflow-y-hidden lg:ml-24"
         >
           <div class="flex flex-col min-h-screen">
             <main class="flex-grow">

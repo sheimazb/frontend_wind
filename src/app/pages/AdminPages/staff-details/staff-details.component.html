@@ -57,21 +57,7 @@
               <p class="text-purple-600 dark:text-purple-400 font-bree">{{staff.role}}</p>
             </div>
 
-            <!-- Stats -->
-            <div class="mt-6 grid grid-cols-3 gap-4 border-t border-gray-100 dark:border-gray-700 pt-6">
-              <div class="text-center">
-                <span class="block text-2xl font-bold text-gray-900 dark:text-white">{{staffProjects.length}}</span>
-                <span class="text-sm text-gray-500 dark:text-gray-400">Projects</span>
-              </div>
-              <div class="text-center">
-                <span class="block text-2xl font-bold text-gray-900 dark:text-white">5</span>
-                <span class="text-sm text-gray-500 dark:text-gray-400">Tickets</span>
-              </div>
-              <div class="text-center">
-                <span class="block text-2xl font-bold text-gray-900 dark:text-white">10%</span>
-                <span class="text-sm text-gray-500 dark:text-gray-400">Solutions</span>
-              </div>
-            </div>
+           
 
             <!-- Contact Info -->
             <div class="mt-6 space-y-4 border-t border-gray-100 dark:border-gray-700 pt-6">
@@ -222,7 +208,7 @@
             </div>
             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Projects Assigned</h3>
             <p class="text-gray-500 dark:text-gray-400">This staff member is not assigned to any projects yet.</p>
-            <button class="mt-4 inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">
+            <button (click)="openAddProjectDialog()" class="mt-4 inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">
               <mat-icon class="mr-2">add</mat-icon>
               <span>Assign First Project</span>
             </button>

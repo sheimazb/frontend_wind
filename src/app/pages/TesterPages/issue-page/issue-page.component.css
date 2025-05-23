@@ -231,3 +231,217 @@ h1, h3, h4{
     color: #60a5fa;
   }
 }
+
+/* Base styles for the issue page */
+.container {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Responsive styles for the kanban board */
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.kanban-column {
+  min-width: 280px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.column-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.ticket-card {
+  cursor: pointer;
+  border-left-width: 4px;
+}
+
+/* Comment section improvements */
+.comment-section {
+  width: 100%;
+}
+
+.comment-input {
+  width: 100%;
+}
+
+/* Solutions tab improvements */
+.solutions-tabs {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 640px) {
+  /* Container adjustments */
+  .container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  /* Kanban board for mobile */
+  .kanban-board {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 0 -0.5rem;
+  }
+  
+  .kanban-column {
+    width: 100%;
+    min-width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  /* Make sure tables are scrollable on mobile */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  /* Improve form elements on mobile */
+  textarea, select, input {
+    width: 100%;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+  
+  /* Comment section on mobile */
+  .comment-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  /* Better spacing for action buttons on mobile */
+  .action-buttons {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+  }
+  
+  /* Solutions tab on mobile */
+  .solutions-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Ticket cards in mobile view */
+  .ticket-card {
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Improve readability of metadata on mobile */
+  .metadata-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tablet-specific styles */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .kanban-board {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+  
+  .kanban-column {
+    min-width: 220px;
+  }
+}
+
+/* Dark mode styles */
+.dark .ticket-card {
+  background-color: #1e293b;
+  border-color: #475569;
+}
+
+.dark .kanban-column {
+  background-color: #0f172a;
+}
+
+.dark .column-header {
+  background-color: #1e293b;
+}
+
+/* Utility classes for mobile spacing */
+.mobile-p-0 {
+  padding: 0 !important;
+}
+
+.mobile-m-0 {
+  margin: 0 !important;
+}
+
+.mobile-full-width {
+  width: 100% !important;
+}
+
+/* Fix for hover states on mobile */
+@media (hover: none) {
+  .hover-card:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Improve scrolling experience */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Responsive typography */
+h1 {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+}
+
+h3 {
+  font-size: clamp(1.125rem, 4vw, 1.25rem);
+}
+
+p, span, div {
+  font-size: clamp(0.875rem, 3vw, 1rem);
+}
+
+/* Touch target size improvements for mobile */
+button, 
+a, 
+[role="button"],
+input[type="checkbox"],
+input[type="radio"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Fix for mobile dropdowns */
+.dropdown-menu {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Fix for mobile comment section */
+.comment-form {
+  position: sticky;
+  bottom: 0;
+  background-color: white;
+  padding: 1rem;
+  z-index: 10;
+}
+
+.dark .comment-form {
+  background-color: #0f172a;
+}

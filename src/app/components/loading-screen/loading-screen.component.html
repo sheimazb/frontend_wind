@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<body [@fadeInOut]="animationState">
+<body class="light-mode" [@fadeInOut]="animationState">
   <!-- Audio element for keyboard typing sound -->
   <audio id="typingSound" preload="auto">
     <source src="assets/sounds/typing.mp3" type="audio/mpeg">
   </audio>
+  
+  <!-- Theme toggle button -->
+  <button class="theme-toggle" (click)="toggleTheme()">
+    <span class="theme-toggle-icon"></span>
+    <span>{{isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}}</span>
+  </button>
   
   <!-- Background particles -->
   <div class="particles" id="particles"></div>
@@ -20,7 +26,7 @@
           <div class="terminal-control control-minimize"></div>
           <div class="terminal-control control-maximize"></div>
         </div>
-        <div class="terminal-title">windlogs-app.terminal</div>
+        <div class="terminal-title">windlogs-app.terminal {{isDarkMode ? '' : '(Light Mode)'}}</div>
         <div></div>
       </div>
       

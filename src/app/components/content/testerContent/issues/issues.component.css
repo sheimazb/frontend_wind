@@ -35,8 +35,28 @@ h3,h1{
 
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 640px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .content-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .projects-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
 }
 
 .project-card {
@@ -52,10 +72,28 @@ h3,h1{
   height: 100%;
 }
 
+/* Fix for dark mode selector */
 .dark .project-card {
-  background-color: #1e293b;
-  border-color: rgba(255, 255, 255, 0.05);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  background-color: #1e293b !important; /* Added !important to override inline styles */
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Additional dark mode fixes for nested elements */
+.dark .project-card .project-name {
+  color: #f3f4f6 !important;
+}
+
+.dark .project-card .project-description {
+  color: #9ca3af !important;
+}
+
+.dark .project-card .stat-label {
+  color: #9ca3af !important;
+}
+
+.dark .project-card .stat-value {
+  color: #f9fafb !important;
 }
 
 .project-card:hover {
@@ -65,14 +103,22 @@ h3,h1{
 }
 
 .dark .project-card:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 .project-header {
   display: flex;
   justify-content: space-between;
   margin-bottom: 1rem;
+}
+
+/* Make project header responsive */
+@media (max-width: 480px) {
+  .project-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }
 
 .project-name {
@@ -87,7 +133,7 @@ h3,h1{
 }
 
 .project-description {
-  color: #4b5563;
+  color: #717985;
   margin-bottom: 1.5rem;
   flex-grow: 1;
   font-size: 0.875rem;
@@ -107,6 +153,15 @@ h3,h1{
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+/* Make stat items responsive */
+@media (max-width: 380px) {
+  .stat-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
 }
 
 .stat-label {
@@ -157,6 +212,10 @@ h3,h1{
   overflow: hidden;
 }
 
+.dark .progress-container {
+  background-color: #374151;
+}
+
 .progress-bar {
   height: 100%;
   border-radius: 0.25rem;
@@ -182,6 +241,19 @@ h3,h1{
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* Make issues list responsive */
+@media (max-width: 640px) {
+  .issues-list {
+    padding: 1rem;
+  }
+  
+  /* Fix mobile spacing */
+  .flex.flex-col.max-w-screen-2xl.gap-6.p-4 {
+    gap: 0.75rem !important;
+    padding: 0.75rem !important;
+  }
+}
+
 .issues-header {
   display: flex;
   justify-content: space-between;
@@ -189,10 +261,27 @@ h3,h1{
   margin-bottom: 1.5rem;
 }
 
+/* Make issues header responsive */
+@media (max-width: 640px) {
+  .issues-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
 .filters {
   display: flex;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
+}
+
+/* Make filters responsive */
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }
 
 .filter-group {
@@ -216,6 +305,12 @@ h3,h1{
   color: #1f2937;
 }
 
+.dark .filter-select {
+  border-color: #4b5563;
+  background-color: #1f2937;
+  color: #f9fafb;
+}
+
 .issue-item {
   display: flex;
   justify-content: space-between;
@@ -223,6 +318,15 @@ h3,h1{
   padding: 1rem;
   border-bottom: 1px solid #f3f4f6;
   transition: background-color 0.2s ease;
+}
+
+/* Make issue item responsive */
+@media (max-width: 640px) {
+  .issue-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
 }
 
 .issue-item:hover {
@@ -256,6 +360,15 @@ h3,h1{
   gap: 1.5rem;
 }
 
+/* Make issue meta responsive */
+@media (max-width: 480px) {
+  .issue-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
 .meta-item {
   display: flex;
   align-items: center;
@@ -286,6 +399,10 @@ h3,h1{
   background-color: #f3f4f6;
 }
 
+.dark .action-button:hover {
+  background-color: #374151;
+}
+
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -307,6 +424,10 @@ h3,h1{
   font-size: 1.25rem;
   margin-bottom: 0.5rem;
   color: #4b5563;
+}
+
+.dark .empty-state-title {
+  color: #d1d5db;
 }
 
 .empty-state-desc {
@@ -333,93 +454,370 @@ h3,h1{
   background-color: #e5e7eb;
 }
 
-/* Dark mode support */
+.dark .refresh-button {
+  color: #d1d5db;
+  background-color: #374151;
+}
+
+.dark .refresh-button:hover {
+  background-color: #4b5563;
+}
+
+/* Fix for issues-list in dark mode */
+.dark .issues-list {
+  background-color: #1f2937;
+}
+
+/* Additional dark mode fixes for empty state */
+.dark .empty-state {
+  color: #9ca3af;
+}
+
+.dark .empty-state-icon {
+  color: #4b5563;
+}
+
+/* Mobile spacing fixes */
+@media (max-width: 640px) {
+  .flex.gap-4.mb-2 {
+    flex-direction: column;
+    gap: 0.75rem !important;
+  }
+  
+  .inline-flex.rounded-md.shadow-sm {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .relative.lg\\:w-full {
+    width: 100%;
+  }
+  
+  /* Fix project selection dropdown in mobile */
+  .flex.items-center.gap-3 {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+    width: 100%;
+  }
+  
+  .flex.items-center.gap-3 select {
+    width: 100%;
+  }
+  
+  .refresh-button.ml-auto {
+    margin-left: 0 !important;
+    margin-top: 0.5rem;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Override media query for dark mode */
 @media (prefers-color-scheme: dark) {
-  .view-toggle {
-    background-color: #374151;
-  }
-  
-  .view-toggle button.active {
-    background-color: #1f2937;
-  }
-  
   .project-card {
-    background-color: #1f2937;
-    border-color: rgba(255, 255, 255, 0.05);
+    background-color: #1f2937 !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
   }
   
   .project-name {
-    color: #f9fafb;
+    color: #f9fafb !important;
   }
   
   .project-description {
-    color: #9ca3af;
+    color: #9ca3af !important;
   }
   
   .stat-label {
-    color: #9ca3af;
+    color: #9ca3af !important;
   }
   
   .stat-value {
-    color: #f9fafb;
+    color: #f9fafb !important;
   }
   
   .progress-container {
-    background-color: #374151;
+    background-color: #374151 !important;
   }
   
   .issues-list {
-    background-color: #1f2937;
+    background-color: #1f2937 !important;
   }
   
   .filter-select {
-    border-color: #4b5563;
-    background-color: #1f2937;
-    color: #f9fafb;
+    border-color: #4b5563 !important;
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
   }
   
   .issue-item:hover {
-    background-color: #111827;
+    background-color: #111827 !important;
   }
   
   .issue-item {
-    border-bottom: 1px solid #374151;
+    border-bottom: 1px solid #374151 !important;
   }
   
   .issue-title {
-    color: #f9fafb;
+    color: #f9fafb !important;
   }
   
   .issue-desc {
-    color: #9ca3af;
+    color: #9ca3af !important;
   }
   
   .meta-item {
-    color: #9ca3af;
+    color: #9ca3af !important;
   }
   
   .action-button:hover {
-    background-color: #374151;
+    background-color: #374151 !important;
   }
   
   .empty-state {
-    color: #9ca3af;
+    color: #9ca3af !important;
   }
   
   .empty-state-icon {
-    color: #4b5563;
+    color: #4b5563 !important;
   }
   
   .empty-state-title {
-    color: #d1d5db;
+    color: #d1d5db !important;
   }
   
   .refresh-button {
-    color: #d1d5db;
-    background-color: #374151;
+    color: #d1d5db !important;
+    background-color: #374151 !important;
   }
   
   .refresh-button:hover {
-    background-color: #4b5563;
+    background-color: #4b5563 !important;
+  }
+}
+
+/* Additional mobile-specific styles for the issues list */
+@media (max-width: 640px) {
+  .issues-list {
+    padding: 0.75rem !important;
+    margin: 0 !important;
+    border-radius: 0.5rem;
+  }
+  
+  .filter-select {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    width: 100%;
+  }
+  
+  /* Improve spacing for issue items on mobile */
+  .divide-y > div {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  /* Better badge display on mobile */
+  .flex-wrap.items-center.gap-2 {
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Improve button layout on mobile */
+  .flex.sm\\:flex-col.gap-2.justify-end {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+  
+  /* Make buttons easier to tap on mobile */
+  .text-gray-400.hover\\:text-gray-600.p-2 {
+    padding: 0.5rem;
+  }
+}
+
+/* Dark mode fixes for issues list */
+.dark .issues-list {
+  background-color: #1e293b;
+  color: #f3f4f6;
+}
+
+.dark .bg-white.dark\\:bg-slate-900 {
+  background-color: #1e293b !important;
+}
+
+.dark .hover\\:bg-gray-50.dark\\:hover\\:bg-gray-800:hover {
+  background-color: #0f172a !important;
+}
+
+/* Make the filter-select more visible in dark mode */
+.dark .filter-select {
+  background-color: #1e293b;
+  color: #f3f4f6;
+  border-color: #475569;
+}
+
+/* Make the refresh button more visible in dark mode */
+.dark .refresh-button {
+  background-color: #334155;
+  color: #f3f4f6;
+}
+
+.dark .refresh-button:hover {
+  background-color: #475569;
+}
+
+/* Improve the empty state in dark mode */
+.dark .empty-state {
+  color: #94a3b8;
+}
+
+.dark .empty-state-icon {
+  color: #64748b;
+}
+
+.dark .empty-state-title {
+  color: #e2e8f0;
+}
+
+/* Make sure the issue timestamps are readable in dark mode */
+.dark .text-gray-500.dark\\:text-gray-400 {
+  color: #94a3b8 !important;
+}
+
+/* Ensure buttons have good contrast in dark mode */
+.dark .text-gray-400.hover\\:text-gray-600.dark\\:hover\\:text-gray-200:hover {
+  color: #e2e8f0 !important;
+}
+
+/* Fix left margin issue in mobile view */
+@media (max-width: 640px) {
+  .flex.flex-col.max-w-screen-2xl {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+  }
+  
+  .issues-list {
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0.75rem !important;
+  }
+  
+  .bg-white.dark\\:bg-slate-900.rounded-lg {
+    border-radius: 0.375rem !important;
+    border-width: 1px !important;
+  }
+  
+  /* Improve filter button position */
+  .filter-button {
+    align-self: flex-end !important;
+  }
+}
+
+/* Fix for mobile container to remove left space */
+.mobile-container {
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .mobile-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+  
+  .content-header {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.5rem;
+  }
+  
+  mat-divider {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+  }
+  
+  .flex.flex-col.sm\\:flex-row.gap-3.sm\\:gap-4.mb-2 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Project selection area */
+  .mb-2 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Issues list container */
+  .issues-list {
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+  
+  /* Issues card */
+  .bg-white.dark\\:bg-slate-900.rounded-lg {
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+  
+  /* Remove any horizontal scrolling */
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+}
+
+/* More aggressive fix for left margin issue */
+@media (max-width: 640px) {
+  body, html {
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+  }
+  
+  .mobile-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+  
+  .issues-list {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+  }
+  
+  /* Remove any potential padding from parent elements */
+  :host {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+  
+  /* Target any potential parent containers */
+  :host > * {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  
+  /* Fix for issue items */
+  .divide-y > div {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
   }
 }

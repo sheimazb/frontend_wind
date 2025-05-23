@@ -73,7 +73,7 @@
           </button>
         </ng-container>
 
-        <!-- Alert button - Partner & Admin -->
+        <!-- Alert button - Partner 
         <ng-container *ngIf="isPartner">
           <button
             class="sidebar-btn"
@@ -87,7 +87,7 @@
             ></ng-icon>
             <span class="sr-only">Alerts</span>
           </button>
-        </ng-container>
+        </ng-container>-->
 
         <!-- Project Management - Manager -->
         <ng-container *ngIf="isManager">
@@ -170,6 +170,7 @@
         </ng-container>
 -->
         <!-- Kanban Board - For all users -->
+        <ng-container *ngIf="isPartner || isManager || isDeveloper || isTester">
         <button
           class="sidebar-btn"
           [class.active-sidebar-btn]="activeMenu === 'kanban'"
@@ -183,7 +184,8 @@
           ></ng-icon>
           <span class="sr-only">Kanban Board</span>
         </button>
-
+        </ng-container>
+        
         <!-- Agencies button - Admin Only
         <ng-container *ngIf="isAdmin">
           <button 

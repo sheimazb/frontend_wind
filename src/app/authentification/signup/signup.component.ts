@@ -48,7 +48,6 @@ export class SignupComponent implements OnInit {
     });
   }
 
-  // Custom validator to check if password and confirm password match
   passwordMatchingValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('password');
     const confirmPassword = control.get('confirmPassword');
@@ -73,17 +72,6 @@ export class SignupComponent implements OnInit {
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
-  }
-
-  toggleDarkMode() {
-    this.darkMode = !this.darkMode;
-    localStorage.setItem('darkMode', this.darkMode.toString());
-    
-    if (this.darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
   }
 
   onSubmit() {

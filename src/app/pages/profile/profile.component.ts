@@ -5,7 +5,7 @@ import { DialogSettingsProfielComponent } from '../../components/dialog/dialog-s
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { catchError, of } from 'rxjs';
-
+import { StatsService, StatsResponse } from '../../services/stats.service';
 interface ProfileData {
   firstname: string;
   lastname: string;
@@ -60,14 +60,37 @@ export class ProfileComponent implements OnInit {
   weeks: ContributionDay[][] = [];
   private originalData: ProfileData = { ...this.profileData };
   private selectedImageFile: File | null = null;
-
-  constructor(private dialog: MatDialog, private userService: UserService) {
+  partnerStats: StatsResponse = {
+    totalPartners: 0,
+    activePartners: 0,
+    lockedPartners: 0
+  };
+  
+  constructor(private dialog: MatDialog, private userService: UserService, private partnerService: StatsService) {
     this.generateContributionData();
     this.calculateTotalContributions();
   }
 
+
   ngOnInit(): void {
     this.loadUserProfile();
+    this.loadPartnerStatistics();
+    console.log(this.partnerStats);
+  }
+  loadPartnerStatistics(): void {
+    this.isLoading = true;
+    
+    this.partnerService.getPartnerStats().subscribe({
+      next: (response: StatsResponse) => {
+        this.partnerStats = response;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Failed to load partner statistics', error);
+        this.isLoading = false;
+        // You might want to add error handling here
+      }
+    });
   }
 
   loadUserProfile(): void {
@@ -130,6 +153,48 @@ export class ProfileComponent implements OnInit {
       });
   }
 
+  isAdmin(): boolean {
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+      return false;
+    }
+    const userData = JSON.parse(storedUser);
+    return userData.role === 'ADMIN';
+  }
+  isPartner(): boolean {
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+      return false;
+    }
+    const userData = JSON.parse(storedUser);
+    return userData.role === 'PARTNER';
+  }
+
+  isManager(): boolean {
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+      return false;
+    }
+    const userData = JSON.parse(storedUser);
+    return userData.role === 'MANAGER'; 
+  }
+  isDeveloper(): boolean {
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+      return false;
+    }
+    const userData = JSON.parse(storedUser);  
+    return userData.role === 'DEVELOPER';
+  }
+  isTester(): boolean {
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+      return false;
+    }
+    const userData = JSON.parse(storedUser);
+    return userData.role === 'TESTER';
+  }
+  
   toggleEdit(): void {
     this.isEditing = !this.isEditing;
     if (!this.isEditing) {
@@ -148,22 +213,17 @@ export class ProfileComponent implements OnInit {
   saveProfile(): void {
     this.isLoading = true;
     this.errorMessage = '';
-
-    // Validate required fields
     if (!this.profileData.firstname || !this.profileData.lastname || !this.profileData.email) {
       this.errorMessage = 'First name, last name and email are required';
       this.isLoading = false;
       return;
     }
-
-    // Check if user has permission
     const storedUser = localStorage.getItem('user');
     if (!storedUser) {
       this.errorMessage = 'User session not found. Please log in again.';
       this.isLoading = false;
       return;
     }
-
     const userData = JSON.parse(storedUser);
     if (!userData.role) {
       this.errorMessage = 'User role not found. Please log in again.';
@@ -178,14 +238,14 @@ export class ProfileComponent implements OnInit {
       firstname: this.profileData.firstname.trim(),
       lastname: this.profileData.lastname.trim(),
       email: this.profileData.email.trim(),
-      role: userData.role || '', // Use the current user's role from localStorage
+      role: userData.role || '', 
       image: this.selectedImageFile,
       bio: this.profileData.bio?.trim() || '',
       phone: this.profileData.phone?.trim() || '',
       location: this.profileData.location?.trim() || '',
       company: this.profileData.company?.trim() || '',
       pronouns: this.profileData.pronouns || '',
-      lien: this.profileData.github || '', // Map github to lien
+      lien: this.profileData.github || '', 
     };
 
     console.log('Sending profile update:', profileRequest);
@@ -214,7 +274,7 @@ export class ProfileComponent implements OnInit {
   }
 
   private tryFallbackUpdate(profileRequest: ProfileRequest): void {
-    // Create a copy without the image
+ 
     const basicRequest = { ...profileRequest };
     delete (basicRequest as any).image;
 
@@ -226,7 +286,6 @@ export class ProfileComponent implements OnInit {
         error: (error) => {
           console.error('Fallback profile update error:', error);
           
-          // Provide detailed error message
           if (error.status === 403) {
             let detailedError = 'You do not have permission to update your profile.';
             if (error.error && typeof error.error === 'object') {
@@ -260,9 +319,6 @@ export class ProfileComponent implements OnInit {
     };
     this.profileImage = response.image || '';
     
-    // Note: The userService.profileChanges observable now handles 
-    // propagating this update to the navbar automatically!
-    
     this.isEditing = false;
     this.selectedImageFile = null;
     this.showSuccess = true;
@@ -270,7 +326,6 @@ export class ProfileComponent implements OnInit {
     this.originalData = { ...this.profileData };
     this.isLoading = false;
     
-    // Log the successful update for debugging
     console.log('Profile successfully updated and shared via UserService');
   }
 
@@ -279,13 +334,12 @@ export class ProfileComponent implements OnInit {
     const file = input.files?.[0];
 
     if (file) {
-      // Validate file type
+
       if (!file.type.startsWith('image/')) {
         this.errorMessage = 'Please select a valid image file';
         return;
       }
 
-      // Validate file size (max 5MB)
       const maxSize = 5 * 1024 * 1024; // 5MB in bytes
       if (file.size > maxSize) {
         this.errorMessage = 'Image size should be less than 5MB';
@@ -293,9 +347,9 @@ export class ProfileComponent implements OnInit {
       }
 
       this.selectedImageFile = file;
-      this.errorMessage = ''; // Clear any previous error
+      this.errorMessage = '';
 
-      // Preview the image
+      
       const reader = new FileReader();
       reader.onload = (e: ProgressEvent<FileReader>) => {
         const imageUrl = e.target?.result as string;
@@ -332,7 +386,7 @@ export class ProfileComponent implements OnInit {
 
   selectMonth(month: string): void {
     this.currentMonth = month;
-    // Here you can add logic to filter contributions by month
+  
   }
 
   private calculateTotalContributions(): void {

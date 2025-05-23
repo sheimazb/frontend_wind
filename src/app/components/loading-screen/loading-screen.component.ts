@@ -45,6 +45,7 @@ export class LoadingScreenComponent implements OnInit, OnDestroy {
   particleAnimationInterval: any;
   typingTimer: any;
   typingSound: HTMLAudioElement | null = null;
+  isDarkMode = false; // Default to light mode
 
   // Terminal lines to be typed out
   terminalLines: TerminalLine[] = [
@@ -68,6 +69,9 @@ export class LoadingScreenComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // Check for saved theme preference
+    this.loadThemePreference();
+    
     // Create floating particles
     this.createParticles();
     
@@ -361,5 +365,92 @@ export class LoadingScreenComponent implements OnInit, OnDestroy {
       // If user data isn't available, go to main dashboard
       this.router.navigate(['/dashboard']);
     }
+  }
+
+  // Load theme preference from localStorage
+  private loadThemePreference() {
+    const savedTheme = localStorage.getItem('windlogs-theme');
+    if (savedTheme) {
+      this.isDarkMode = savedTheme === 'dark';
+      
+      const body = document.querySelector('body');
+      if (body) {
+        if (this.isDarkMode) {
+          body.classList.remove('light-mode');
+          this.updateTerminalLinesForDarkMode();
+        } else {
+          body.classList.add('light-mode');
+          this.updateTerminalLinesForLightMode();
+        }
+      }
+    }
+  }
+
+  // Toggle between light and dark mode
+  toggleTheme() {
+    this.isDarkMode = !this.isDarkMode;
+    
+    // Save theme preference to localStorage
+    localStorage.setItem('windlogs-theme', this.isDarkMode ? 'dark' : 'light');
+    
+    const body = document.querySelector('body');
+    if (body) {
+      if (this.isDarkMode) {
+        body.classList.remove('light-mode');
+        this.updateTerminalLinesForDarkMode();
+      } else {
+        body.classList.add('light-mode');
+        this.updateTerminalLinesForLightMode();
+      }
+    }
+    
+    // Reset terminal and restart typing animation
+    this.resetTerminal();
+  }
+  
+  // Update terminal lines for dark mode
+  private updateTerminalLinesForDarkMode() {
+    this.terminalLines = [
+      { text: "[INFO] Starting WindLogs application...", class: "log-info" },
+      { text: "[DEBUG] Loading application context", class: "log-debug" },
+      { text: "[DEBUG] Prepering project data", class: "log-debug" },
+      { text: "[WARNING] Windlogs is loading", class: "log-warning" },
+      { text: "[DEBUG] Preparing user data", class: "log-debug" },
+      { text: "[INFO] Loading dashboard components", class: "log-info" },
+      { text: "[SUCCESS] Application started successfully", class: "log-success" }
+    ];
+  }
+  
+  // Update terminal lines for light mode
+  private updateTerminalLinesForLightMode() {
+    this.terminalLines = [
+      { text: "[INFO] Starting WindLogs application...", class: "log-info" },
+      { text: "[DEBUG] Loading application context", class: "log-debug" },
+      { text: "[DEBUG] Prepering project data", class: "log-debug" },
+      { text: "[WARNING] Windlogs is loading", class: "log-warning" },
+      { text: "[DEBUG] Preparing user data", class: "log-debug" },
+      { text: "[INFO] Loading dashboard components", class: "log-info" },
+      { text: "[SUCCESS] Application started successfully", class: "log-success" }
+    ];
+  }
+  
+  // Reset terminal and restart typing animation
+  private resetTerminal() {
+    const terminal = document.getElementById('terminal');
+    if (terminal) {
+      terminal.innerHTML = '';
+    }
+    
+    this.currentLineIndex = 0;
+    this.currentCharIndex = 0;
+    
+    // Stop typing sound
+    if (this.typingSound) {
+      this.typingSound.pause();
+      this.typingSound.currentTime = 0;
+    }
+    
+    // Start typing animation again
+    this.startTypingAnimation();
   }
 } 

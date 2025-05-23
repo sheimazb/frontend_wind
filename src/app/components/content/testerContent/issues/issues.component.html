@@ -1,4 +1,4 @@
-<div class="flex flex-col max-w-screen-2xl gap-6 p-4 sm:p-6 md:p-10 mx-auto">
+<div class="flex flex-col max-w-screen-2xl gap-4 sm:gap-6 pl-0 sm:p-6 md:p-10 mx-auto mobile-container">
   <!-- Header Section -->
   <div class="content-header">
     <div>
@@ -53,85 +53,86 @@
     </div>
   </div>
   <mat-divider class="dark:bg-gray-850"></mat-divider>
-<div class="flex gap-4 mb-2">
+<div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-2">
   <!-- Project Type Filter -->
-  <div *ngIf="selectedView === 'projects' && !isViewingPackage" class="flex justify-between items-center">
-    <div class="inline-flex rounded-md shadow-sm bg-white dark:bg-slate-900 p-1">
+  <div *ngIf="selectedView === 'projects' && !isViewingPackage" class="flex justify-between items-center w-full sm:w-auto">
+    <div class="inline-flex rounded-md shadow-sm bg-white dark:bg-slate-900 p-1 w-full sm:w-auto">
       <button 
         (click)="projectTypeFilter = 'all'" 
         [ngClass]="projectTypeFilter === 'all' ? 'bg-purple-500 text-white' : 'bg-transparent text-gray-700 dark:text-gray-200'" 
-        class="px-4 py-2 rounded-l-md font-medium focus:outline-none transition"
+        class="px-3 sm:px-4 py-2 rounded-l-md font-medium focus:outline-none transition flex-1 sm:flex-none"
       >
         All
       </button>
       <button 
         (click)="projectTypeFilter = 'package'" 
         [ngClass]="projectTypeFilter === 'package' ? 'bg-purple-500 text-white' : 'bg-transparent text-gray-700 dark:text-gray-200'" 
-        class="px-4 py-2 font-medium focus:outline-none transition"
+        class="px-3 sm:px-4 py-2 font-medium focus:outline-none transition flex-1 sm:flex-none"
       >
         Packages
       </button>
       <button 
         (click)="projectTypeFilter = 'monolithic'" 
         [ngClass]="projectTypeFilter === 'monolithic' ? 'bg-purple-500 text-white' : 'bg-transparent text-gray-700 dark:text-gray-200'" 
-        class="px-4 py-2 rounded-r-md font-medium focus:outline-none transition"
+        class="px-3 sm:px-4 py-2 rounded-r-md font-medium focus:outline-none transition flex-1 sm:flex-none"
       >
         Monolithic
       </button>
     </div>
   </div>
 
-        <div *ngIf="selectedView === 'projects' && !isViewingPackage"  class="relative lg:w-full">
-          <input
-            type="text"
-            (input)="onSearchProjects($event)"
-            [value]="searchQuery"
-            class="w-full pl-12 pr-4 py-3 rounded-md  shadow-sm  bg-white  dark:bg-slate-900 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-            placeholder="Search projects by name or description..."
-          />
-          <div
-            class="absolute inset-y-0 left-4 flex items-center pointer-events-none"
-          >
-            <svg
-              class="w-5 h-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0118 0z"
-              />
-            </svg>
-          </div>
-        </div>
-    
+  <div *ngIf="selectedView === 'projects' && !isViewingPackage" class="relative w-full">
+    <input
+      type="text"
+      (input)="onSearchProjects($event)"
+      [value]="searchQuery"
+      class="w-full pl-12 pr-4 py-2 sm:py-3 rounded-md shadow-sm bg-white dark:bg-slate-900 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+      placeholder="Search projects by name or description..."
+    />
+    <div
+      class="absolute inset-y-0 left-4 flex items-center pointer-events-none"
+    >
+      <svg
+        class="w-5 h-5 text-gray-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0118 0z"
+        />
+      </svg>
+    </div>
   </div>
+</div>
 
   <!-- Project Selection (only shown in issues view) -->
   <div *ngIf="selectedView === 'logs'" class="mb-2">
-    <div class="flex items-center gap-3">
-      <label
-        for="projectSelect"
-        class="font-medium text-gray-700 dark:text-gray-300"
-        >Project:</label
-      >
-      <select
-        id="projectSelect"
-        (change)="onProjectChange($event)"
-        class="filter-select flex-grow max-w-xs"
-      >
-        <option value="" disabled selected>Select a project</option>
-        <option *ngFor="let project of projects" [value]="project.id">
-          {{ project.name }}
-          <span *ngIf="isPackage(project)">(Package)</span>
-        </option>
-      </select>
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <label
+          for="projectSelect"
+          class="font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap"
+          >Project:</label
+        >
+        <select
+          id="projectSelect"
+          (change)="onProjectChange($event)"
+          class="filter-select w-full sm:w-auto sm:flex-grow sm:max-w-xs px-3 py-2 rounded-md dark:bg-slate-900 border border-gray-200 dark:border-gray-700"
+        >
+          <option value="" disabled selected>Select a project</option>
+          <option *ngFor="let project of projects" [value]="project.id">
+            {{ project.name }}
+            <span *ngIf="isPackage(project)">(Package)</span>
+          </option>
+        </select>
+      </div>
 
       <button
-        class="refresh-button ml-auto"
+        class="refresh-button w-full sm:w-auto sm:ml-auto flex items-center justify-center"
         (click)="refreshLogs()"
         title="Refresh issues"
       >
@@ -193,12 +194,12 @@
       <div *ngIf="projects.length > 0 && !isViewingPackage" class="projects-grid">
         <div
           *ngFor="let project of projects | projectType:projectTypeFilter"
-          class="project-card dark:bg-slate-900"
+          class="project-card dark:bg-slate-900 dark:border-gray-700"
           (click)="isPackage(project) ? openPackage(project) : selectProject(project.getId())"
         >
           <div class="project-header">
             <div class="flex items-center gap-2">
-              <h3 class="project-name">{{ project.name }}</h3>
+              <h3 class="project-name dark:text-gray-100">{{ project.name }}</h3>
               <span 
                 [ngClass]="{
                   'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300': isPackage(project),
@@ -220,31 +221,31 @@
             }}</span>
           </div>
 
-          <p class="project-description">{{ project.description }}</p>
+          <p class="project-description dark:text-gray-400">{{ project.description }}</p>
 
           <div class="project-stats">
             <div class="stat-item">
-              <span class="stat-label">
+              <span class="stat-label dark:text-gray-300">
                 <mat-icon class="text-gray-400 dark:text-gray-500"
                   >bug_report</mat-icon
                 >
                 Total Issues
               </span>
-              <span class="stat-value">{{
+              <span class="stat-value dark:text-gray-100">{{
                 getIssueCountForProject(project.getId())
               }}</span>
             </div>
 
             <div class="stat-item">
-              <span class="stat-label">
+              <span class="stat-label dark:text-gray-300">
                 <mat-icon class="text-red-500">priority_high</mat-icon>
                 High Priority
               </span>
-              <span class="stat-value">{{
+              <span class="stat-value dark:text-gray-100">{{
                 getIssueCountByPriority(project.getId(), "HIGH")
               }}</span>
             </div>
-            <div class="progress-container">
+            <div class="progress-container dark:bg-gray-700">
               <div
                 class="progress-bar progress-high"
                 [style.width.%]="getIssuePercentByPriority(project.getId(), 'HIGH')"
@@ -252,15 +253,15 @@
             </div>
 
             <div class="stat-item">
-              <span class="stat-label">
+              <span class="stat-label dark:text-gray-300">
                 <mat-icon class="text-yellow-500">flag</mat-icon>
                 Medium Priority
               </span>
-              <span class="stat-value">{{
+              <span class="stat-value dark:text-gray-100">{{
                 getIssueCountByPriority(project.getId(), "MEDIUM")
               }}</span>
             </div>
-            <div class="progress-container">
+            <div class="progress-container dark:bg-gray-700">
               <div
                 class="progress-bar progress-medium"
                 [style.width.%]="
@@ -270,15 +271,15 @@
             </div>
 
             <div class="stat-item">
-              <span class="stat-label">
+              <span class="stat-label dark:text-gray-300">
                 <mat-icon class="text-green-500">flag</mat-icon>
                 Low Priority
               </span>
-              <span class="stat-value">{{
+              <span class="stat-value dark:text-gray-100">{{
                 getIssueCountByPriority(project.getId(), "LOW")
               }}</span>
             </div>
-            <div class="progress-container">
+            <div class="progress-container dark:bg-gray-700">
               <div
                 class="progress-bar progress-low"
                 [style.width.%]="getIssuePercentByPriority(project.getId(), 'LOW')"
@@ -466,7 +467,7 @@
     </div>
 
     <!-- Issues View -->
-    <div *ngIf="selectedView === 'logs'" class="issues-list">
+    <div *ngIf="selectedView === 'logs'" class="issues-list dark:bg-slate-900">
       <!-- Back to Microservices button when viewing from package -->
       <div *ngIf="isViewingPackage" class="mb-6">
         <button
@@ -505,90 +506,92 @@
 
       <!-- Issues List  -->
       <ng-container *ngIf="selectedProjectId && filteredLogs.length > 0">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div class="px-4 py-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-            <div>
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                Issues
-              </h2>
-              <div class="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400 space-x-4">
-                <div class="flex items-center">
-                  <span class="inline-block w-2 h-2 mr-1.5 rounded-full bg-gray-400"></span>
-                  <span>Total: {{ filteredLogs.length }}</span>
+        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div class="px-3 py-3 sm:px-6 sm:py-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+              <div>
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                  Issues
+                </h2>
+                <div class="mt-1 flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-500 dark:text-gray-400">
+                  <div class="flex items-center">
+                    <span class="inline-block w-2 h-2 mr-1.5 rounded-full bg-gray-400"></span>
+                    <span>Total: {{ filteredLogs.length }}</span>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="inline-block w-2 h-2 mr-1.5 rounded-full bg-red-500"></span>
+                    <span>High: {{ getIssueCountByPriority(getProjectIdAsNumber(), 'HIGH') }}</span>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="inline-block w-2 h-2 mr-1.5 rounded-full bg-yellow-500"></span>
+                    <span>Medium: {{ getIssueCountByPriority(getProjectIdAsNumber(), 'MEDIUM') }}</span>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="inline-block w-2 h-2 mr-1.5 rounded-full bg-green-500"></span>
+                    <span>Low: {{ getIssueCountByPriority(getProjectIdAsNumber(), 'LOW') }}</span>
+                  </div>
+                  <!-- Add handled status indicator -->
+                  <div *ngIf="handledFilter !== 'all'" class="flex items-center sm:ml-2 sm:border-l sm:border-gray-200 sm:dark:border-gray-700 sm:pl-2">
+                    <span class="inline-block w-2 h-2 mr-1.5 rounded-full" 
+                          [ngClass]="{'bg-green-400': handledFilter === 'handled', 'bg-gray-400': handledFilter === 'notHandled'}"></span>
+                    <span>
+                      <span class="font-medium">Filtered: </span>
+                      {{ handledFilter === 'handled' ? 'Handled' : 'Not Handled' }} ({{ filteredLogs.length }})
+                    </span>
+                  </div>
                 </div>
+              </div>
+              <button (click)="toggleFilterDropdown()" class="relative text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full p-2 self-start sm:self-center mt-2 sm:mt-0">
                 <div class="flex items-center">
-                  <span class="inline-block w-2 h-2 mr-1.5 rounded-full bg-red-500"></span>
-                  <span>High: {{ getIssueCountByPriority(getProjectIdAsNumber(), 'HIGH') }}</span>
-                </div>
-                <div class="flex items-center">
-                  <span class="inline-block w-2 h-2 mr-1.5 rounded-full bg-yellow-500"></span>
-                  <span>Medium: {{ getIssueCountByPriority(getProjectIdAsNumber(), 'MEDIUM') }}</span>
-                </div>
-                <div class="flex items-center">
-                  <span class="inline-block w-2 h-2 mr-1.5 rounded-full bg-green-500"></span>
-                  <span>Low: {{ getIssueCountByPriority(getProjectIdAsNumber(), 'LOW') }}</span>
-                </div>
-                <!-- Add handled status indicator -->
-                <div *ngIf="handledFilter !== 'all'" class="flex items-center ml-2 border-l border-gray-200 dark:border-gray-700 pl-2">
-                  <span class="inline-block w-2 h-2 mr-1.5 rounded-full" 
-                        [ngClass]="{'bg-green-400': handledFilter === 'handled', 'bg-gray-400': handledFilter === 'notHandled'}"></span>
-                  <span>
-                    <span class="font-medium">Filtered: </span>
-                    {{ handledFilter === 'handled' ? 'Handled' : 'Not Handled' }} ({{ filteredLogs.length }})
+                  <mat-icon>filter_list</mat-icon>
+                  <span class="ml-1 text-sm font-medium">Filter</span>
+                  <span *ngIf="handledFilter !== 'all'" class="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                    {{ handledFilter === 'handled' ? 'Handled' : 'Not Handled' }}
                   </span>
                 </div>
-              </div>
+                
+                <!-- Dropdown menu -->
+                <div *ngIf="isFilterDropdownOpen" class="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md py-1 border border-gray-200 dark:border-gray-700 min-w-[160px] z-10">
+                  <div class="px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
+                    Filter by Status
+                  </div>
+                  <div class="py-1">
+                    <button 
+                      (click)="applyHandledFilter('all')"
+                      class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                      [ngClass]="{'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300': handledFilter === 'all'}"
+                    >
+                      All Issues
+                    </button>
+                    <button 
+                      (click)="applyHandledFilter('handled')"
+                      class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                      [ngClass]="{'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300': handledFilter === 'handled'}"
+                    >
+                      Handled Only
+                    </button>
+                    <button 
+                      (click)="applyHandledFilter('notHandled')"
+                      class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                      [ngClass]="{'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300': handledFilter === 'notHandled'}"
+                    >
+                      Not Handled Only
+                    </button>
+                  </div>
+                </div>
+              </button>
             </div>
-            <button (click)="toggleFilterDropdown()" class="relative text-blue-600 hover:bg-blue-50 rounded-full p-2">
-              <div class="flex items-center">
-                <mat-icon>filter_list</mat-icon>
-                <span class="ml-1 text-sm font-medium">Filter</span>
-                <span *ngIf="handledFilter !== 'all'" class="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                  {{ handledFilter === 'handled' ? 'Handled' : 'Not Handled' }}
-                </span>
-              </div>
-              
-              <!-- Dropdown menu -->
-              <div *ngIf="isFilterDropdownOpen" class="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md py-1 border border-gray-200 dark:border-gray-700 min-w-[160px] z-10">
-                <div class="px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
-                  Filter by Status
-                </div>
-                <div class="py-1">
-                  <button 
-                    (click)="applyHandledFilter('all')"
-                    class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-                    [ngClass]="{'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300': handledFilter === 'all'}"
-                  >
-                    All Issues
-                  </button>
-                  <button 
-                    (click)="applyHandledFilter('handled')"
-                    class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-                    [ngClass]="{'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300': handledFilter === 'handled'}"
-                  >
-                    Handled Only
-                  </button>
-                  <button 
-                    (click)="applyHandledFilter('notHandled')"
-                    class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-                    [ngClass]="{'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300': handledFilter === 'notHandled'}"
-                  >
-                    Not Handled Only
-                  </button>
-                </div>
-              </div>
-            </button>
           </div>
       
           <div class="divide-y divide-gray-200 dark:divide-gray-700">
-            <div *ngFor="let issue of filteredLogs" class="px-4 py-4 sm:px-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-              <div class="flex items-start justify-between">
-                <div class="flex-1 space-y-1">
-                  <div class="flex items-center space-x-2">
+            <div *ngFor="let issue of filteredLogs" class="px-3 py-3 sm:px-6 sm:py-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                <div class="flex-1 space-y-2">
+                  <div class="flex flex-wrap items-center gap-2">
                     <span class="text-sm font-medium uppercase 
-                      {{ issue.severity === 'HIGH' ? 'text-red-600' : 
-                         issue.severity === 'MEDIUM' ? 'text-yellow-600' : 
-                         'text-green-600' }}">
+                      {{ issue.severity === 'HIGH' ? 'text-red-600 dark:text-red-400' : 
+                         issue.severity === 'MEDIUM' ? 'text-yellow-600 dark:text-yellow-400' : 
+                         'text-green-600 dark:text-green-400' }}">
                       {{ issue.type }}
                     </span>
                     <span class="
@@ -619,7 +622,7 @@
                     </p>
                   </div>
       
-                  <div class="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                  <div class="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-500 dark:text-gray-400">
                     <div class="flex items-center">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
@@ -635,7 +638,7 @@
                   </div>
                 </div>
       
-                <div class="flex space-x-2">
+                <div class="flex sm:flex-col gap-2 justify-end">
                   <button 
                     (click)="updatePriority(issue)"
                     class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"

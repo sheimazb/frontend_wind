@@ -1,0 +1,54 @@
+ /* Particle effects */
+ .particles-container {
+    z-index: 1;
+  }
+  
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4F7CFF, #ad80fa);
+    opacity: 0.3;
+    animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+    animation-iteration-count: infinite;
+    filter: blur(8px);
+  }
+  
+  .particle-1 {
+    width: 200px;
+    height: 200px;
+    top: 10%;
+    left: 5%;
+    animation: float1 15s infinite;
+  }
+  
+  .particle-2 {
+    width: 150px;
+    height: 150px;
+    top: 60%;
+    right: 8%;
+    animation: float2 18s infinite;
+  }
+  
+  .particle-3 {
+    width: 100px;
+    height: 100px;
+    bottom: 20%;
+    left: 15%;
+    animation: float3 20s infinite;
+  }
+  
+  .particle-4 {
+    width: 80px;
+    height: 80px;
+    top: 30%;
+    right: 20%;
+    animation: float2 12s infinite;
+  }
+  
+  .particle-5 {
+    width: 120px;
+    height: 120px;
+    bottom: 10%;
+    right: 30%;
+    animation: float1 25s infinite;
+  }

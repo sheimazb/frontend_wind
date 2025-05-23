@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogStaffComponent } from '../../../dialog/dialog-staff/dialog-staff.component';
 import { StaffService } from '../../../../services/staff.service';
+import { StatsService } from '../../../../services/stats.service';
 import { User } from '../../../../models/user.model';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -9,6 +10,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { AuthService } from '../../../../services/auth.service';
+import { ProjectService } from '../../../../services/project.service';
+import { Project } from '../../../../models/project.model';
 
 @Component({
   selector: 'app-content-staff',
@@ -31,11 +37,18 @@ export class ContentStaffComponent implements OnInit {
   searchQuery = '';
   selectedRole: string = 'ALL';
   viewMode: 'grid' | 'list' = 'grid';
+  
+  // Map to store project counts for each user
+  userProjectsMap: Map<number, Project[]> = new Map();
+  loadingProjectsMap: Map<number, boolean> = new Map();
 
   constructor(
     private dialog: MatDialog,
     private staffService: StaffService,
-    private router: Router
+    private router: Router,
+    private statsService: StatsService,
+    private authService: AuthService,
+    private projectService: ProjectService
   ) {
     // Load saved view mode preference
     const savedViewMode = localStorage.getItem('staffViewMode');
@@ -57,8 +70,16 @@ export class ContentStaffComponent implements OnInit {
           // Assuming id is a number. If it's a string, use localeCompare
           return (b.id ?? 0) - (a.id ?? 0);
         });
+        
         this.applyFilters();
         this.isLoading = false;
+        
+        // Load project data for each staff member
+        this.staff.forEach(user => {
+          if (user.id) {
+            this.loadUserProjects(user.id);
+          }
+        });
       },
       error: (error) => {
         console.error('Error loading staff:', error);
@@ -66,6 +87,32 @@ export class ContentStaffComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  loadUserProjects(userId: number): void {
+    this.loadingProjectsMap.set(userId, true);
+    
+    this.projectService.getUserProjects(userId).pipe(
+      catchError(error => {
+        console.error(`Error fetching projects for user ${userId}:`, error);
+        return of([]);
+      })
+    ).subscribe(projects => {
+      this.userProjectsMap.set(userId, projects);
+      this.loadingProjectsMap.set(userId, false);
+    });
+  }
+  
+  // Helper methods to get project data for a user
+  isLoadingProjects(userId?: number): boolean {
+    if (!userId) return false;
+    return this.loadingProjectsMap.get(userId) || false;
+  }
+  
+  getProjectCount(userId?: number): number {
+    if (!userId) return 0;
+    const projects = this.userProjectsMap.get(userId);
+    return projects ? projects.length : 0;
   }
 
   openDialog(): void {

@@ -1,40 +1,40 @@
 .sidebar-btn, .sidebar-btn-b {
-    @apply p-3 rounded-full hover:bg-gray-300 transition-all duration-200;
-    @apply flex items-center justify-center;
-    width: 50px;
-    height: 50px;
-  }
-  
-  .active-sidebar-btn {
-    @apply  text-white bg-indigo-900;
-  }
-  .active-sidebar-btn:hover {
-    @apply bg-[#1b0e4f86] text-white;
-  }
-  
-  .active-sidebar-btn ng-icon {
-    @apply text-white;
-  }
+  @apply p-3 rounded-full hover:bg-gray-300 transition-all duration-200;
+  @apply flex items-center justify-center;
+  width: 50px;
+  height: 50px;
+}
+
+.active-sidebar-btn {
+  @apply  text-white bg-indigo-900;
+}
+.active-sidebar-btn:hover {
+  @apply bg-[#1b0e4f86] text-white;
+}
+
+.active-sidebar-btn ng-icon {
+  @apply text-white;
+}
 
 /* Fixed sidebar styles */
 :host ::ng-deep #sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  z-index: 990;
-  transition: transform 0.3s ease;
-  will-change: transform;
+position: fixed;
+top: 0;
+left: 0;
+height: 100vh;
+z-index: 990;
+transition: transform 0.3s ease;
+will-change: transform;
 }
 
 /* Ensure the inner content of sidebar is properly sized and scrollable if needed */
 :host ::ng-deep #sidebar .h-screen {
-  height: calc(100vh - 100px); /* Adjust based on padding */
-  overflow-y: auto;
-  scrollbar-width: thin;
+height: calc(100vh - 100px); /* Adjust based on padding */
+overflow-y: auto;
+scrollbar-width: thin;
 }
 
 /* Backdrop for mobile */
 :host ::ng-deep #sidebarBackdrop {
-  z-index: 980;
+z-index: 980;
 }

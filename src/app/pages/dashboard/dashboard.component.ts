@@ -12,7 +12,7 @@ import { Role } from '../../models/role.enum';
     RouterModule
   ],
   template: `
-    <div class="container mx-auto px-4 py-6">
+    <div class="container dark:bg-slate-950 mx-auto px-4 py-6">
       <h1 class="text-2xl font-bold mb-6 dark:text-white">Dashboard</h1>
       
       <!-- Role-specific welcome message -->

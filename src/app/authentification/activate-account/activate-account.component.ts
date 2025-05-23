@@ -18,10 +18,10 @@ import { ValidationAccountComponent } from '../validation-account/validation-acc
     FormsModule
   ],
   template: `
-    <div class="relative bg-[#362C45] text-white rounded-lg overflow-visible">
+    <div class="relative bg-[#ffffff] text-white rounded-lg overflow-visible">
       <!-- Icon Container - Positioned above the dialog -->
       <div class="absolute left-1/2 -translate-x-1/2 -top-20">
-        <div class="w-24 h-24 rounded-full bg-gradient-to-r from-[#E1567C] to-[#9F3996] flex items-center justify-center shadow-lg">
+        <div class="w-24 h-24 rounded-full bg-gradient-to-r from-[#4F7CFF] to-[#4F7CFF] flex items-center justify-center shadow-lg">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
           </svg>
@@ -31,13 +31,13 @@ import { ValidationAccountComponent } from '../validation-account/validation-acc
       <!-- Content Container with proper spacing for the icon -->
       <div class="pt-16 px-8 pb-8">
         <!-- Title -->
-        <h2 class="text-2xl font-semibold text-white text-center mb-2">Activate Your Account</h2>
-        <p class="text-white/70 text-center text-sm mb-8">Please enter the activation code sent to your email</p>
+        <h2 class="text-2xl font-semibold text-[#2B3674] text-center mb-2">Activate Your Account</h2>
+        <p class="text-[#2B3674]/70 text-center text-sm mb-8">Please enter the activation code sent to your email</p>
 
         <!-- Form -->
         <form class="space-y-6">
           <div>
-            <label for="activationCode" class="block text-sm font-medium text-white/90 mb-2">
+            <label for="activationCode" class="block text-sm font-medium text-[#2B3674]/90 mb-2">
               Activation Code
             </label>
             <input
@@ -46,7 +46,7 @@ import { ValidationAccountComponent } from '../validation-account/validation-acc
               name="activationCode"
               [(ngModel)]="activationCode"
               placeholder="Enter your activation code"
-              class="w-full h-12 px-4 rounded-lg bg-[#111036]/50 border border-white/10 text-white placeholder:text-white/30 focus:border-[#E1567C] focus:outline-none focus:ring-2 focus:ring-[#E1567C]/20 transition-all text-sm"
+              class="w-full h-12 px-4 rounded-lg   bg-[#dff1fd] border border-[#9ed8ff] text-blue-700 placeholder:text-blue-700/50 focus:border-[#56c0e1] focus:outline-none focus:ring-2 focus:ring-[#E1567C]/20 transition-all text-sm"
             />
           </div>
 
@@ -66,7 +66,7 @@ import { ValidationAccountComponent } from '../validation-account/validation-acc
               (click)="activateAccount()"
               type="button"
               [disabled]="!activationCode || isLoading"
-              class="w-full h-12 bg-gradient-to-r from-[#E1567C] to-[#9F3996] text-white text-sm font-medium rounded-lg hover:opacity-90 transition-all disabled:opacity-50"
+              class="w-full h-12 bg-gradient-to-r from-[#4F7CFF] to-[#4F7CFF] text-white text-sm font-medium rounded-lg hover:opacity-90 transition-all disabled:opacity-50"
             >
               Activate Account
             </button>
@@ -74,7 +74,7 @@ import { ValidationAccountComponent } from '../validation-account/validation-acc
             <button
               (click)="onCancel()"
               type="button"
-              class="block w-full text-sm text-white/70 hover:text-white transition-colors text-center py-2"
+              class="block w-full text-sm text-[#4F7CFF]/70 hover:text-[#3053bd] transition-colors text-center py-2"
             >
               Back to Sign Up
             </button>

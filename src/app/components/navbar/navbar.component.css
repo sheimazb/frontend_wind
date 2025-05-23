@@ -1,36 +1,36 @@
 .triangle-shape {
-    width: 0;
-    height: 0;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-bottom: 35px solid #0f073d; /* Using your theme color */
-   /*  border-bottom: 35px solid wheat; Using your theme color */
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 35px solid #0f073d; /* Using your theme color */
+ /*  border-bottom: 35px solid wheat; Using your theme color */
 
-  }
+}
 
 /* Fixed navbar styling */
 :host ::ng-deep nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  z-index: 1000;
-  
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+width: 100%;
+z-index: 1000;
+
 backdrop-filter: blur(3px);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0);
+box-shadow: 0 2px 10px rgba(0, 0, 0, 0);
 }
 
 /* Ensure the navbar's background spans the full width */
 :host ::ng-deep nav .absolute.inset-0 {
-  background-color: rgba(255, 255, 255, 0);
+background-color: rgba(255, 255, 255, 0);
 }
 
 :host ::ng-deep nav.dark .absolute.inset-0 {
-  background-color: rgba(26, 32, 44, 0);
+background-color: rgba(26, 32, 44, 0);
 }
 
 /* Ensure dropdown menus appear above other elements */
 :host ::ng-deep .dropdown-menu {
-  z-index: 1050;
+z-index: 1050;
 }

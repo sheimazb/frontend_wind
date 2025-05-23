@@ -10,7 +10,7 @@ import { bootstrapApplication } from '@angular/platform-browser';
   standalone: true,
   imports: [HeaderComponent, HeroComponent, FooterComponent],
   template: `
-    <div class="min-h-screen flex flex-col">
+    <div class="min-h-screen flex flex-col hide-scrollbar">
       <app-header></app-header>
       <app-hero></app-hero>
       <app-footer></app-footer>

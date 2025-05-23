@@ -380,19 +380,10 @@
                 >
               </span>
 
-              <span
-                *ngIf="isAdmin"
-                class="h-12 w-14 rounded-full flex items-center"
-              >
-                <img
-                  src="https://cdn3d.iconscout.com/3d/premium/thumb/administrator-3d-icon-download-in-png-blend-fbx-gltf-file-formats--male-management-employee-supervisor-administration-avatar-pack-people-icons-4741054.png"
-                  alt="Admin Profile"
-                  class="rounded-full h-12 w-12 object-cover ring-2 ring-gray-200 dark:ring-gray-600"
-                />
-              </span>
+             
 
               <span
-                *ngIf="!isAdmin"
+               
                 class="h-12 w-14 rounded-full flex items-center"
               >
                 <img
@@ -423,14 +414,14 @@
 
             <!-- Dropdown menu -->
             <div
-              class="absolute p-4 right-0 mt-4 bg-[#161639] flex w-62.5 flex-col rounded-sm border border-gray-700 shadow-default"
+              class="absolute p-4 right-0 mt-4 bg-[#a6d3fd] flex w-62.5 flex-col rounded-sm border border-[#a6d3fd] shadow-default"
               [class.hidden]="!dropdownOpen"
             >
               <ul class="flex flex-col gap-5 px-6 py-7.5">
                 <li>
                   <a
                     href="/dashboard/profile"
-                    class="flex text-white hover:text-blue-400 items-center gap-3.5 text-sm font-medium duration-300 ease-in-out lg:text-base"
+                    class="flex text-blue-900 hover:text-blue-500 items-center gap-3.5 text-sm font-medium duration-300 ease-in-out lg:text-base"
                   >
                     <svg
                       class="fill-current"
@@ -449,13 +440,13 @@
                         fill=""
                       />
                     </svg>
-                    Mon Profile
+                    Profile
                   </a>
                 </li>
                 <li>
                   <button
                     (click)="logout()"
-                    class="flex w-full text-white hover:text-blue-400 items-center gap-3.5 text-sm font-medium duration-300 ease-in-out lg:text-base"
+                    class="flex w-full text-blue-900 hover:text-blue-500 items-center gap-3.5 text-sm font-medium duration-300 ease-in-out lg:text-base"
                   >
                     <svg
                       class="fill-current"
@@ -474,7 +465,7 @@
                         fill=""
                       />
                     </svg>
-                    Déconnexion
+                    Logout
                   </button>
                 </li>
               </ul>

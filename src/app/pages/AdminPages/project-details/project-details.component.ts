@@ -96,8 +96,12 @@ export class ProjectDetailsComponent implements OnInit {
 
   onTabChange(event: MatTabChangeEvent) {
     this.selectedTabIndex = event.index;
-    if (this.selectedTabIndex === 1) { // Team Members tab
-      this.loadProjectMembers(this.project.getId());
+    const projectId = this.project.getId();
+    
+    if (this.selectedTabIndex === 0) { // Overview tab
+      this.loadProjectMembers(projectId);
+    } else if (this.selectedTabIndex === 1) { // Team Members tab
+      this.loadProjectMembers(projectId);
       this.loadAvailableStaff();
     } else if (this.selectedTabIndex === 2) { // Logs tab
       this.loadProjectLogs();

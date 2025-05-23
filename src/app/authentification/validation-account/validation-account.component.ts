@@ -10,10 +10,10 @@ import { trigger, transition, style, animate } from '@angular/animations';
   standalone: true,
   imports: [RouterModule, CommonModule, MatDialogModule, MatButtonModule],
   template: `
-    <div class="relative bg-[#362C45] text-white rounded-lg overflow-visible">
+    <div class="relative bg-[#ffffff] text-white rounded-lg overflow-visible">
       <!-- Icon Container - Positioned above the dialog -->
       <div class="absolute left-1/2 -translate-x-1/2 -top-20">
-        <div class="w-24 h-24 rounded-full bg-gradient-to-r from-[#E1567C] to-[#9F3996] flex items-center justify-center shadow-lg">
+        <div class="w-24 h-24 rounded-full bg-gradient-to-r from-[#4F7CFF] to-[#4F7CFF] flex items-center justify-center shadow-lg">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
           </svg>
@@ -23,17 +23,17 @@ import { trigger, transition, style, animate } from '@angular/animations';
       <!-- Content Container with proper spacing for the icon -->
       <div class="pt-16 px-8 pb-8">
         <!-- Title -->
-        <h2 class="text-2xl font-semibold text-white text-center mb-2">Account Validated!</h2>
+        <h2 class="text-2xl font-semibold text-[#2B3674] text-center mb-2">Account Validated!</h2>
         <div class="space-y-2">
-          <p class="text-white/90 text-center">Your account has been successfully validated.</p>
-          <p class="text-white/70 text-center text-sm">Please wait for admin approval to access your account.</p>
+          <p class="text-[#2B3674]/90 text-center">Your account has been successfully created.</p>
+          <p class="text-[#2B3674]/70 text-center text-sm">Please wait for admin approval to access your account.</p>
         </div>
 
         <!-- Action Button -->
         <div class="mt-8">
           <button 
             (click)="returnToLogin()"
-            class="w-full h-12 bg-gradient-to-r from-[#E1567C] to-[#9F3996] text-white text-sm font-medium rounded-lg hover:opacity-90 transition-all"
+            class="w-full h-12 bg-gradient-to-r from-[#4F7CFF] to-[#4F7CFF] text-white text-sm font-medium rounded-lg hover:opacity-90 transition-all"
           >
             Return to Login
           </button>
