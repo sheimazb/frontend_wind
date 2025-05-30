@@ -7,6 +7,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const token = localStorage.getItem('token');
 
+  // Skip Stack Exchange API requests
+  if (req.url.includes('api.stackexchange.com')) {
+    return next(req);
+  }
+
   // Public routes that don't need authentication
   const publicRoutes = [
     'auth/authenticate',

@@ -17,7 +17,7 @@
             (click)="onAdminClick()"
           >
             <ng-icon
-              class="text-gray-600"
+              class="text-gray-700 dark:text-gray-300 transition-colors duration-200"
               size="25"
               name="letsFolderOpen"
             ></ng-icon>
@@ -33,7 +33,7 @@
             (click)="onDashboardClick()"
           >
             <ng-icon
-              class="text-gray-600"
+              class="text-gray-700 dark:text-gray-300 transition-colors duration-200"
               size="25"
               name="letsFolderOpen"
             ></ng-icon>
@@ -49,7 +49,7 @@
             (click)="onStaffClick()"
           >
             <ng-icon
-              class="text-gray-600 hover:text-gray-300"
+              class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
               size="25"
               name="letsUser"
             ></ng-icon>
@@ -65,7 +65,7 @@
             (click)="onStatsClick()"
           >
             <ng-icon
-              class="text-gray-600 hover:text-gray-300"
+              class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
               size="25"
               name="letsStat"
             ></ng-icon>
@@ -97,7 +97,7 @@
             (click)="onProjectManagementClick()"
           >
             <ng-icon
-              class="text-gray-500 hover:text-gray-300"
+              class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
               size="25"
               name="lets3dBox"
             ></ng-icon>
@@ -113,7 +113,7 @@
             (click)="onIssuesClick()"
           >
             <ng-icon
-              class="text-gray-500 hover:text-gray-300"
+              class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
               size="25"
               name="letsArhivesAlt"
             ></ng-icon>
@@ -129,7 +129,7 @@
             (click)="onTasksClick()"
           >
             <ng-icon
-              class="text-gray-500 hover:text-gray-300"
+              class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
               size="25"
               name="saxNotificationBingOutline"
             ></ng-icon>
@@ -145,7 +145,7 @@
             (click)="onTechnicalResourcesClick()"
           >
             <ng-icon
-              class="text-gray-500 hover:text-gray-300"
+              class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
               size="25"
               name="letsFileDock"
             ></ng-icon>
@@ -178,14 +178,30 @@
           title="Kanban Board"
         >
           <ng-icon
-            class="text-gray-500 hover:text-gray-300"
+            class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
             size="25"
             name="letsBoxes"
           ></ng-icon>
           <span class="sr-only">Kanban Board</span>
         </button>
         </ng-container>
-        
+      
+        <ng-container *ngIf="isPartner || isManager || isDeveloper || isTester">
+          <button
+            class="sidebar-btn"
+            [class.active-sidebar-btn]="activeMenu === 'search'"
+            (click)="onSearchClick()"
+            title="Search"
+          >
+            <ng-icon
+              class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
+              size="25"
+              name="letsSearch"
+            ></ng-icon>
+            <span class="sr-only">Search</span>
+          </button>
+        </ng-container>
+
         <!-- Agencies button - Admin Only
         <ng-container *ngIf="isAdmin">
           <button 
@@ -204,7 +220,7 @@
         <!-- Home button -->
         <button class="sidebar-btn-b" (click)="onHomeClick()">
           <ng-icon
-            class="text-gray-700 hover:text-gray-300"
+            class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
             size="25"
             name="letsHomeDuotone"
           ></ng-icon>
@@ -214,7 +230,7 @@
         <!-- Logout button -->
         <button class="sidebar-btn-b" (click)="onLogoutClick()">
           <ng-icon
-            class="text-gray-700 hover:text-gray-300"
+            class="text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-colors duration-200"
             size="25"
             name="saxLogoutBulk"
           ></ng-icon>

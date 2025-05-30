@@ -4,339 +4,108 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 
-interface TerminalLine {
-  text: string;
-  class: string;
-}
-
 @Component({
   selector: 'app-loading-screen',
   standalone: true,
-  imports: [
-    CommonModule
-  ],
+  imports: [CommonModule],
   templateUrl: './loading-screen.component.html',
   styleUrls: ['./loading-screen.component.css'],
   animations: [
     trigger('fadeInOut', [
-      state('void', style({
-        opacity: 0
-      })),
-      transition('void <=> *', animate('800ms ease-in-out')),
+      state('in', style({ opacity: 1 })),
+      state('out', style({ opacity: 0 })),
+      transition('in => out', animate('500ms ease-in-out')),
+      transition('out => in', animate('500ms ease-in-out'))
     ]),
-    trigger('slideUpDown', [
+    trigger('slideUp', [
       state('void', style({
-        transform: 'translateY(20px)',
+        transform: 'translateY(30px)',
         opacity: 0
       })),
-      transition('void => *', animate('600ms 300ms ease-out')),
-      transition('* => void', animate('300ms ease-in'))
+      transition('void => *', animate('600ms ease-out'))
     ])
   ]
 })
 export class LoadingScreenComponent implements OnInit, OnDestroy {
   progress = 0;
-  status = 'Initializing...';
-  timeElapsed = '00:00:00';
-  startTime: number;
-  timeInterval: any;
-  redirectTimer: any;
+  currentStep = 0;
   animationState = 'in';
-  particleAnimationInterval: any;
-  typingTimer: any;
-  typingSound: HTMLAudioElement | null = null;
-  isDarkMode = false; // Default to light mode
-
-  // Terminal lines to be typed out
-  terminalLines: TerminalLine[] = [
-    { text: "[INFO] Starting WindLogs application...", class: "log-info" },
-    { text: "[DEBUG] Loading application context", class: "log-debug" },
-    { text: "[DEBUG] Prepering project data", class: "log-debug" },
-    { text: "[WARNING] Windlogs is loading", class: "log-warning" },
-    { text: "[DEBUG] Preparing user data", class: "log-debug" },
-    { text: "[INFO] Loading dashboard components", class: "log-info" },
-    { text: "[SUCCESS] Application started successfully", class: "log-success" }
+  isDarkMode = false;
+  
+  loadingSteps = [
+    'Initializing WindLogs',
+    'Loading user data',
+    'Preparing dashboard',
+    'Almost ready...'
   ];
 
-  currentLineIndex = 0;
-  currentCharIndex = 0;
+  private progressInterval: any;
+  private redirectTimer: any;
 
   constructor(
     private router: Router,
     private authService: AuthService
-  ) {
-    this.startTime = Date.now();
-  }
+  ) {}
 
   ngOnInit() {
-    // Check for saved theme preference
     this.loadThemePreference();
+    this.startLoading();
     
-    // Create floating particles
-    this.createParticles();
-    
-    // Animate particles
-    this.animateParticles();
-    
-    // Load typing sound
-    this.loadTypingSound();
-    
-    // Start typing animation
-    this.startTypingAnimation();
-    
-    // Start progress animation
-    this.animateProgress();
-    
-    // Start time counter
-    this.timeInterval = setInterval(() => {
-      this.updateTime();
-    }, 1000);
-    
-    // Set a timer to redirect after loading completes (adjust time as needed)
+    // Auto redirect after loading completes
     this.redirectTimer = setTimeout(() => {
-      this.prepareRedirect();
-    }, 18000); 
+      this.completeLoading();
+    }, 8000);
   }
 
   ngOnDestroy() {
-    // Clear intervals and timers
-    if (this.timeInterval) {
-      clearInterval(this.timeInterval);
+    if (this.progressInterval) {
+      clearInterval(this.progressInterval);
     }
     if (this.redirectTimer) {
       clearTimeout(this.redirectTimer);
     }
-    if (this.particleAnimationInterval) {
-      clearInterval(this.particleAnimationInterval);
-    }
-    if (this.typingTimer) {
-      clearTimeout(this.typingTimer);
-    }
-    // Stop sound
-    if (this.typingSound) {
-      this.typingSound.pause();
-      this.typingSound.currentTime = 0;
-    }
   }
 
-  private loadTypingSound() {
-    // Initialize the typing sound
-    this.typingSound = document.getElementById('typingSound') as HTMLAudioElement;
-    if (this.typingSound) {
-      this.typingSound.volume = 0.3; // Set volume to 30%
-      this.typingSound.loop = true;
-    }
-  }
-
-  private startTypingAnimation() {
-    // Add cursor to the terminal
-    this.addCursorToTerminal();
+  private startLoading() {
+    let currentProgress = 0;
     
-    // Start typing the first line
-    this.typeNextCharacter();
+    this.progressInterval = setInterval(() => {
+      // Smooth progress increment
+      currentProgress += Math.random() * 3 + 1;
+      this.progress = Math.min(currentProgress, 100);
+      
+      // Update current step based on progress
+      if (this.progress < 25) {
+        this.currentStep = 0;
+      } else if (this.progress < 50) {
+        this.currentStep = 1;
+      } else if (this.progress < 75) {
+        this.currentStep = 2;
+      } else {
+        this.currentStep = 3;
+      }
+      
+      if (this.progress >= 100) {
+        clearInterval(this.progressInterval);
+      }
+    }, 100);
   }
 
-  private addCursorToTerminal() {
-    const terminal = document.getElementById('terminal');
-    if (terminal) {
-      const cursorElement = document.createElement('span');
-      cursorElement.className = 'cursor';
-      terminal.appendChild(cursorElement);
-    }
-  }
-
-  private typeNextCharacter() {
-    // Get current line and check if we're done with all lines
-    if (this.currentLineIndex >= this.terminalLines.length) {
-      // Stop typing sound
-      if (this.typingSound) {
-        this.typingSound.pause();
-        this.typingSound.currentTime = 0;
-      }
-      return;
-    }
-
-    const terminal = document.getElementById('terminal');
-    if (!terminal) return;
-
-    const currentLine = this.terminalLines[this.currentLineIndex];
-    
-    // Start typing sound at the beginning of a new line
-    if (this.currentCharIndex === 0 && this.typingSound) {
-      this.typingSound.play().catch(error => console.error('Error playing sound:', error));
-    }
-
-    // Create line element with appropriate class if starting a new line
-    if (this.currentCharIndex === 0) {
-      // Remove cursor from previous line if exists
-      const cursor = terminal.querySelector('.cursor');
-      if (cursor) {
-        cursor.remove();
-      }
-      
-      // Create new line element
-      const lineElement = document.createElement('div');
-      lineElement.className = currentLine.class;
-      lineElement.id = `line-${this.currentLineIndex}`;
-      terminal.appendChild(lineElement);
-      
-      // Add cursor to the new line
-      const cursorElement = document.createElement('span');
-      cursorElement.className = 'cursor';
-      lineElement.appendChild(cursorElement);
-    }
-
-    const lineElement = document.getElementById(`line-${this.currentLineIndex}`);
-    if (!lineElement) return;
-
-    // If we haven't typed all characters of the current line
-    if (this.currentCharIndex < currentLine.text.length) {
-      // Remove cursor
-      const cursor = lineElement.querySelector('.cursor');
-      if (cursor) {
-        cursor.remove();
-      }
-      
-      // Add next character
-      lineElement.textContent = currentLine.text.substring(0, this.currentCharIndex + 1);
-      
-      // Add cursor back
-      const cursorElement = document.createElement('span');
-      cursorElement.className = 'cursor';
-      lineElement.appendChild(cursorElement);
-      
-      // Increment character index
-      this.currentCharIndex++;
-      
-      // Schedule typing of next character with random delay
-      const typingSpeed = Math.random() * 60 + 20; // 20-80ms
-      this.typingTimer = setTimeout(() => {
-        this.typeNextCharacter();
-      }, typingSpeed);
-    } else {
-      // Move cursor to next line
-      const cursor = lineElement.querySelector('.cursor');
-      if (cursor) {
-        cursor.remove();
-      }
-      
-      // Move to next line
-      this.currentLineIndex++;
-      this.currentCharIndex = 0;
-      
-      // Pause typing sound briefly between lines
-      if (this.typingSound) {
-        this.typingSound.pause();
-        this.typingSound.currentTime = 0;
-      }
-      
-      // Wait a bit longer between lines
-      this.typingTimer = setTimeout(() => {
-        this.typeNextCharacter();
-      }, 300);
-    }
-    
-    // Auto-scroll the terminal
-    terminal.scrollTop = terminal.scrollHeight;
-  }
-
-  private prepareRedirect() {
-    // Trigger fade out animation
-    this.animationState = 'void';
+  private completeLoading() {
+    this.animationState = 'out';
     setTimeout(() => {
       this.redirectBasedOnRole();
-    }, 500); // Short delay for animation to complete
+    }, 500);
   }
 
-  private createParticles() {
-    setTimeout(() => {
-      const particlesContainer = document.getElementById('particles');
-      if (particlesContainer) {
-        for (let i = 0; i < 50; i++) {
-          const particle = document.createElement('div');
-          particle.classList.add('particle');
-          
-          // Random position
-          particle.style.left = `${Math.random() * 100}%`;
-          particle.style.top = `${Math.random() * 100}%`;
-          
-          // Random size
-          const size = Math.random() * 3 + 1;
-          particle.style.width = `${size}px`;
-          particle.style.height = `${size}px`;
-          
-          // Random opacity
-          particle.style.opacity = (Math.random() * 0.5 + 0.3).toString();
-          
-          // Add custom animation duration
-          const animationDuration = Math.random() * 10 + 10;
-          particle.style.animation = `float ${animationDuration}s linear infinite`;
-          
-          particlesContainer.appendChild(particle);
-        }
-      }
-    }, 0);
+  private loadThemePreference() {
+    const savedTheme = localStorage.getItem('windlogs-theme');
+    this.isDarkMode = savedTheme === 'dark';
   }
 
-  private animateParticles() {
-    this.particleAnimationInterval = setInterval(() => {
-      const particles = document.querySelectorAll('.particle');
-      particles.forEach((element: Element) => {
-        const particle = element as HTMLElement;
-        // Small random movement
-        const currentTop = parseFloat(particle.style.top);
-        const currentLeft = parseFloat(particle.style.left);
-        
-        // Add subtle movement
-        const newTop = currentTop + (Math.random() * 0.5 - 0.25);
-        const newLeft = currentLeft + (Math.random() * 0.5 - 0.25);
-        
-        // Keep within bounds
-        particle.style.top = `${Math.max(0, Math.min(100, newTop))}%`;
-        particle.style.left = `${Math.max(0, Math.min(100, newLeft))}%`;
-        
-        // Random opacity change
-        const currentOpacity = parseFloat(particle.style.opacity || '0.3');
-        const newOpacity = currentOpacity + (Math.random() * 0.05 - 0.025);
-        particle.style.opacity = Math.max(0.2, Math.min(0.8, newOpacity)).toString();
-      });
-    }, 200);
-  }
-
-  private animateProgress() {
-    let currentProgress = 0;
-    const interval = setInterval(() => {
-      currentProgress += 1;
-      this.progress = currentProgress;
-      
-      // Update status message based on progress
-      if (currentProgress < 20) {
-        this.status = 'Initializing...';
-      } else if (currentProgress < 40) {
-        this.status = 'Loading application context...';
-      } else if (currentProgress < 60) {
-        this.status = 'Preparing dashboard...';
-      } else if (currentProgress < 80) {
-        this.status = 'Loading user data...';
-      } else if (currentProgress < 95) {
-        this.status = 'Finalizing...';
-      } else {
-        this.status = 'Complete';
-      }
-      
-      // Stop when progress reaches 100%
-      if (currentProgress >= 100) {
-        clearInterval(interval);
-      }
-    }, 120); // Slowed down slightly to match the typing
-  }
-
-  private updateTime() {
-    const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
-    const hours = Math.floor(elapsed / 3600).toString().padStart(2, '0');
-    const minutes = Math.floor((elapsed % 3600) / 60).toString().padStart(2, '0');
-    const seconds = (elapsed % 60).toString().padStart(2, '0');
-    this.timeElapsed = `${hours}:${minutes}:${seconds}`;
+  toggleTheme() {
+    this.isDarkMode = !this.isDarkMode;
+    localStorage.setItem('windlogs-theme', this.isDarkMode ? 'dark' : 'light');
   }
 
   private redirectBasedOnRole() {
@@ -362,95 +131,7 @@ export class LoadingScreenComponent implements OnInit, OnDestroy {
           this.router.navigate(['/dashboard']);
       }
     } else {
-      // If user data isn't available, go to main dashboard
       this.router.navigate(['/dashboard']);
     }
   }
-
-  // Load theme preference from localStorage
-  private loadThemePreference() {
-    const savedTheme = localStorage.getItem('windlogs-theme');
-    if (savedTheme) {
-      this.isDarkMode = savedTheme === 'dark';
-      
-      const body = document.querySelector('body');
-      if (body) {
-        if (this.isDarkMode) {
-          body.classList.remove('light-mode');
-          this.updateTerminalLinesForDarkMode();
-        } else {
-          body.classList.add('light-mode');
-          this.updateTerminalLinesForLightMode();
-        }
-      }
-    }
-  }
-
-  // Toggle between light and dark mode
-  toggleTheme() {
-    this.isDarkMode = !this.isDarkMode;
-    
-    // Save theme preference to localStorage
-    localStorage.setItem('windlogs-theme', this.isDarkMode ? 'dark' : 'light');
-    
-    const body = document.querySelector('body');
-    if (body) {
-      if (this.isDarkMode) {
-        body.classList.remove('light-mode');
-        this.updateTerminalLinesForDarkMode();
-      } else {
-        body.classList.add('light-mode');
-        this.updateTerminalLinesForLightMode();
-      }
-    }
-    
-    // Reset terminal and restart typing animation
-    this.resetTerminal();
-  }
-  
-  // Update terminal lines for dark mode
-  private updateTerminalLinesForDarkMode() {
-    this.terminalLines = [
-      { text: "[INFO] Starting WindLogs application...", class: "log-info" },
-      { text: "[DEBUG] Loading application context", class: "log-debug" },
-      { text: "[DEBUG] Prepering project data", class: "log-debug" },
-      { text: "[WARNING] Windlogs is loading", class: "log-warning" },
-      { text: "[DEBUG] Preparing user data", class: "log-debug" },
-      { text: "[INFO] Loading dashboard components", class: "log-info" },
-      { text: "[SUCCESS] Application started successfully", class: "log-success" }
-    ];
-  }
-  
-  // Update terminal lines for light mode
-  private updateTerminalLinesForLightMode() {
-    this.terminalLines = [
-      { text: "[INFO] Starting WindLogs application...", class: "log-info" },
-      { text: "[DEBUG] Loading application context", class: "log-debug" },
-      { text: "[DEBUG] Prepering project data", class: "log-debug" },
-      { text: "[WARNING] Windlogs is loading", class: "log-warning" },
-      { text: "[DEBUG] Preparing user data", class: "log-debug" },
-      { text: "[INFO] Loading dashboard components", class: "log-info" },
-      { text: "[SUCCESS] Application started successfully", class: "log-success" }
-    ];
-  }
-  
-  // Reset terminal and restart typing animation
-  private resetTerminal() {
-    const terminal = document.getElementById('terminal');
-    if (terminal) {
-      terminal.innerHTML = '';
-    }
-    
-    this.currentLineIndex = 0;
-    this.currentCharIndex = 0;
-    
-    // Stop typing sound
-    if (this.typingSound) {
-      this.typingSound.pause();
-      this.typingSound.currentTime = 0;
-    }
-    
-    // Start typing animation again
-    this.startTypingAnimation();
-  }
-} 
+}

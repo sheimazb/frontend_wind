@@ -1,0 +1,97 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Cursor AI Assistant Rules
+
+## General Architecture & Design
+- Follow SOLID principles and clean architecture patterns
+- Separate concerns - keep business logic separate from UI
+- Use composition over inheritance
+- Implement proper error handling and logging
+- Write testable code with dependency injection
+- Optimize for readability first, performance second
+- Avoid premature optimization
+
+## Code Quality & Standards
+- Write clean, readable code with meaningful variable and function names
+- Add comments for complex logic and business rules
+- Follow consistent indentation and formatting
+- Prefer explicit over implicit code
+- Keep line length under 120 characters
+
+## JavaScript/TypeScript
+- Use modern ES6+ features (arrow functions, destructuring, async/await)
+- Prefer const/let over var
+- Use async/await over .then() chains for better readability
+- Implement proper error boundaries in React
+- Use TypeScript when possible for better type safety
+- Prefer meaningful variable names over abbreviations
+
+## Python
+- Follow PEP 8 style guidelines
+- Use type hints for function parameters and return values
+- Prefer list/dict comprehensions when they improve readability
+- Use context managers for resource handling (with statements)
+- Use f-strings for string formatting
+
+## Java General
+- Follow Oracle Java Code Conventions and Google Java Style Guide
+- Use camelCase for variables and methods, PascalCase for classes
+- Use UPPER_SNAKE_CASE for constants
+- Use 4 spaces for indentation, no tabs
+- Use Java 17+ features when available (records, switch expressions, text blocks)
+- Prefer streams and lambda expressions for collection operations
+- Use Optional instead of returning null
+- Implement equals(), hashCode(), and toString() consistently
+- Use StringBuilder for string concatenation in loops
+- Use try-with-resources for AutoCloseable resources
+- Prefer record classes for DTOs and data holders
+
+## Spring Boot
+- Use @SpringBootApplication on main class only
+- Prefer constructor injection over @Autowired field injection
+- Use @Service, @Repository, @Component annotations appropriately
+- Keep @Configuration classes separate from business logic
+- Use @RestController for API endpoints
+- Follow RESTful naming: GET /users, POST /users, PUT /users/{id}
+- Return ResponseEntity<T> for proper HTTP status codes
+- Use @Valid for request validation with proper error handling
+- Use @Transactional on service methods for database operations
+- Use application.yml over application.properties for configuration
+- Create @ControllerAdvice for global exception handling
+- Use @MockBean for testing external dependencies
+
+## Security
+- Sanitize user inputs and validate data
+- Use environment variables for sensitive configuration
+- Implement proper authentication and authorization
+- Use @PreAuthorize for method-level security in Spring
+- Configure CORS properly for frontend integration
+- Use JWT tokens for stateless authentication
+- Never log sensitive information
+
+## Project Organization
+- Organize files in logical folder structures
+- Use consistent naming conventions for files and folders
+- Keep configuration files at project root
+- Separate source code from build artifacts
+- Group related functionality in packages/modules
+
+## Testing
+- Write comprehensive unit tests for core business logic
+- Use descriptive test method names
+- Follow AAA pattern (Arrange, Act, Assert)
+- Mock external dependencies appropriately
+- Write integration tests for critical paths
+- Use @SpringBootTest for integration tests
+- Use @WebMvcTest for controller testing
+- Use @DataJpaTest for repository testing
+
+## Documentation
+- Write comprehensive docstrings/JSDoc/Javadoc for public APIs
+- Include usage examples in documentation
+- Keep README files up to date with setup instructions
+
+- Document complex algorithms and business rules

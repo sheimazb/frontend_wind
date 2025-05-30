@@ -38,8 +38,8 @@
       </div>
 
       <!-- Search Bar - Center -->
-      <div class="hidden lg:flex flex-1  justify-center mx-4">
-        <form action="#" method="GET" class="w-full max-w-lg">
+      <div class="hidden lg:flex flex-1 justify-center mx-4 relative search-container">
+        <form action="#" method="GET" class="w-full max-w-lg" (submit)="$event.preventDefault()">
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg
@@ -59,9 +59,39 @@
               type="text"
               name="search"
               id="topbar-search"
+              [(ngModel)]="searchQuery"
+              (input)="onSearchInput($event)"
               class="bg-white dark:bg-slate-900 dark:text-gray-200 shadow-lg dark:border-none text-gray-700 sm:text-sm rounded-full focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 transition-colors duration-300"
-              placeholder="Rechercher"
+              placeholder="Search pages..."
+              autocomplete="off"
             />
+
+            <!-- Search Suggestions Dropdown -->
+            <div *ngIf="showSuggestions && suggestions.length > 0"
+                 class="absolute mt-1 w-full bg-white dark:bg-slate-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 max-h-[400px] overflow-y-auto">
+              <div class="p-2">
+                <div *ngFor="let suggestion of suggestions"
+                     (click)="onSuggestionClick(suggestion)"
+                     class="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer rounded-md transition-colors duration-150">
+                  <div class="flex items-center gap-3">
+                    <span class="material-icons text-gray-500 dark:text-gray-400">
+                      {{suggestion.icon}}
+                    </span>
+                    <div class="flex-1">
+                      <div class="text-sm font-medium text-gray-800 dark:text-gray-200">
+                        {{suggestion.label}}
+                      </div>
+                      <div class="text-xs text-gray-500 dark:text-gray-400">
+                        {{suggestion.description}}
+                      </div>
+                    </div>
+                    <span class="material-icons text-gray-400 dark:text-gray-500 text-sm">
+                      arrow_forward
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </form>
       </div>

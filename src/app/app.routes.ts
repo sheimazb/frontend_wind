@@ -190,6 +190,12 @@ export const routes: Routes = [
         loadComponent: () => import('./components/tickets/kanban-board/kanban-board.component')
           .then(m => m.KanbanBoardComponent)
       },
+      //Search route
+      {
+        path: 'search',
+        loadComponent: () => import('./components/content/search-component/search-component.component')
+          .then(m => m.SearchComponentComponent)
+      },
          // ticket list route (available to technical team)
          {
           path: 'ticket-list',

@@ -1,56 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<body class="light-mode" [@fadeInOut]="animationState">
-  <!-- Audio element for keyboard typing sound -->
-  <audio id="typingSound" preload="auto">
-    <source src="assets/sounds/typing.mp3" type="audio/mpeg">
-  </audio>
+<div class="loading-container" [class.dark-mode]="isDarkMode" [@fadeInOut]="animationState">
   
-  <!-- Theme toggle button -->
-  <button class="theme-toggle" (click)="toggleTheme()">
-    <span class="theme-toggle-icon"></span>
-    <span>{{isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}}</span>
+  <!-- Theme toggle -->
+  <button class="theme-toggle" (click)="toggleTheme()" [@slideUp]>
+    <svg *ngIf="!isDarkMode" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21.64 13a1 1 0 0 0-1.05-.14 8.05 8.05 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05Zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.79 9.79 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32Z" fill="currentColor"/>
+    </svg>
+    <svg *ngIf="isDarkMode" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g>
+        <circle cx="12" cy="12" r="5" fill="currentColor"/>
+        <path d="m12 1-3 6 3-6zm0 18-3 6 3-6zm11-7-6 3 6-3zM1 12l6 3-6-3zm15.5-6.5-2.12 2.12 2.12-2.12zm-11 11-2.12 2.12 2.12-2.12zm11 0-2.12-2.12 2.12 2.12zm-11-11-2.12-2.12 2.12 2.12z" fill="currentColor"/>
+      </g>
+    </svg>
   </button>
-  
-  <!-- Background particles -->
-  <div class="particles" id="particles"></div>
-  
-  <!-- Main container -->
-  <div class="container">
-    <!-- Terminal Window -->
-    <div class="terminal-window" [@slideUpDown]="animationState">
-      <!-- Terminal Header with controls -->
-      <div class="terminal-header">
-        <div class="terminal-controls">
-          <div class="terminal-control control-close"></div>
-          <div class="terminal-control control-minimize"></div>
-          <div class="terminal-control control-maximize"></div>
-        </div>
-        <div class="terminal-title">windlogs-app.terminal {{isDarkMode ? '' : '(Light Mode)'}}</div>
-        <div></div>
+
+  <!-- Main content -->
+  <div class="content" [@slideUp]>
+    
+    <!-- Logo/Brand -->
+    <div class="brand">
+      <div class="logo">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1 class="brand-name">WindLogs</h1>
+    </div>
+
+    <!-- Loading indicator -->
+    <div class="loading-section">
+      <div class="spinner">
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
       </div>
       
-      <!-- Terminal content area with dynamic text -->
-      <div class="terminal-body">
-        <div id="terminal">
-          <!-- Terminal lines will be added dynamically via JavaScript -->
-        </div>
-      </div>
-      
-      <!-- Progress bar area -->
+      <!-- Progress bar -->
       <div class="progress-container">
         <div class="progress-bar">
           <div class="progress-fill" [style.width.%]="progress"></div>
         </div>
-        <div class="progress-percent">{{progress}}%</div>
+        <div class="progress-text">{{progress.toFixed(0)}}%</div>
       </div>
       
-      <!-- Status bar with info -->
-      <div class="status-bar">
-        <span id="status">{{status}}</span>
-        <span id="time">{{timeElapsed}}</span>
+      <!-- Loading step -->
+      <div class="loading-step">
+        {{loadingSteps[currentStep]}}
       </div>
     </div>
+
   </div>
-</body>
-</html> 
+
+  <!-- Background decoration -->
+  <div class="bg-decoration">
+    <div class="floating-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+      <div class="shape shape-4"></div>
+      <div class="shape shape-5"></div>
+    </div>
+  </div>
+
+</div>

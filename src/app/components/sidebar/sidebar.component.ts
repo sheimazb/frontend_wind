@@ -12,7 +12,8 @@ import {
    letsFileDock,
   letsTicket,
   letsBoxes,
-  letsTicketAlt
+  letsTicketAlt,
+  letsSearch
  } from '@ng-icons/lets-icons/regular';
 import { letsHomeDuotone } from '@ng-icons/lets-icons/duotone';
 import { saxNotificationBingOutline } from '@ng-icons/iconsax/outline';
@@ -30,7 +31,7 @@ import { Role } from '../../models/role.enum';
   styleUrl: './sidebar.component.css',
   viewProviders: [provideIcons({
     letsFolderOpen, letsUser, letsStat, letsHomeDuotone, letsArhivesAlt,lets3dBox,letsFileDock,
-    saxNotificationBingOutline, saxLogoutBulk,letsTicket,letsBoxes,letsTicketAlt
+    saxNotificationBingOutline, saxLogoutBulk,letsTicket,letsBoxes,letsTicketAlt, letsSearch
   })]
 })
 export class SidebarComponent implements OnInit, OnDestroy {
@@ -54,7 +55,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
     technicalResources: '/dashboard/technical-resources',
     admin: '/dashboard/admin',
     ticketList: '/dashboard/ticket-list',
-    kanban: '/dashboard/kanban'
+    kanban: '/dashboard/kanban',
+    search: '/dashboard/search'
   };
 
   constructor(
@@ -80,19 +82,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
     const currentUser = this.authService.getCurrentUser();
     this.userRole = currentUser?.role as Role || null;
 
-    // Subscribe to sidebar visibility changes
     this.sidebarSubscription = this.sidebarService.sidebarVisibility$.subscribe(
       isVisible => {
         this.isSidebarVisible = isVisible;
         this.updateSidebarVisibility();
       }
     );
-
-    // Initialize sidebar visibility based on screen size
-    this.isSidebarVisible = window.innerWidth >= 1024; // 1024px is the lg breakpoint in Tailwind
+    this.isSidebarVisible = window.innerWidth >= 1024; 
     this.updateSidebarVisibility();
     
-    // Set active menu based on current route
+  
     this.setActiveMenuFromUrl(this.router.url);
     
     // Subscribe to route changes to update active menu
@@ -157,6 +156,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
       this.activeMenu = 'kanban';
     } else if (url.includes('/ticket-list')) {
       this.activeMenu = 'ticket-list';
+    } else if (url.includes('/search')) {
+      this.activeMenu = 'search';
     } else if (url === '/dashboard') {
       this.activeMenu = 'dashboard';
     }
@@ -207,6 +208,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   onStatsClick() {
     this.router.navigate([this.routes.stats]);
+    this.closeSidebarOnMobile();
+  }
+
+  onSearchClick() {
+    this.router.navigate([this.routes.search]);
     this.closeSidebarOnMobile();
   }
 

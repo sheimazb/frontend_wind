@@ -9,6 +9,8 @@ import { catchError, of, Subscription } from 'rxjs';
 import { NotificationService, NotificationItem } from '../../services/notification.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { environment } from '../../../environments/environment';
+import { SearchService, SearchSuggestion } from '../../services/search.service';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 // Define interfaces for types
 interface ProfileData {
@@ -59,13 +61,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
   // Add environment variable to make it available in the template
   environment = environment;
 
+  searchQuery: string = '';
+  suggestions: SearchSuggestion[] = [];
+  showSuggestions: boolean = false;
+  private searchSubject = new Subject<string>();
+  private searchSubscription?: Subscription;
+
   constructor(
     private authService: AuthService,
     private router: Router,
     private sidebarService: SidebarService,
     private userService: UserService,
     private notificationService: NotificationService,
-    private websocketService: WebsocketService
+    private websocketService: WebsocketService,
+    private searchService: SearchService
   ) {
     this.originalData = { image: '' };
   }
@@ -150,6 +159,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
     window.addEventListener('resize', () => {
       this.isLargeScreen = window.innerWidth >= 1024;
     });
+
+    this.searchSubscription = this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(query => {
+      this.suggestions = this.searchService.getSuggestions(query);
+      this.showSuggestions = this.suggestions.length > 0;
+    });
   }
 
   ngOnDestroy() {
@@ -169,6 +186,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
     
     // Disconnect from the notification service
     this.websocketService.disconnect();
+
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
   }
 
   isLoading=false;
@@ -494,5 +515,29 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.refreshNotifications();
       }
     }, 1000);
+  }
+
+  onSearchInput(event: any) {
+    const query = event.target.value;
+    this.searchQuery = query;
+    this.searchSubject.next(query);
+  }
+
+  onSuggestionClick(suggestion: SearchSuggestion) {
+    this.searchService.navigateToSuggestion(suggestion);
+    this.resetSearch();
+  }
+
+  resetSearch() {
+    this.searchQuery = '';
+    this.suggestions = [];
+    this.showSuggestions = false;
+  }
+
+  // Close suggestions when clicking outside
+  onClickOutside(event: MouseEvent) {
+    if (!(event.target as HTMLElement).closest('.search-container')) {
+      this.showSuggestions = false;
+    }
   }
 }
