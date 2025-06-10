@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white text-gray-800 font-sans">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="mx-auto flex items-center justify-between px-6 py-4">
+            <a href="#" class="flex items-center gap-3 text-xl font-semibold text-gray-900 no-underline">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-700 to-slate-950 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                    W
+                </div>
+                WindLogs Docs
+            </a>
+            
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="/" class="text-gray-600 hover:text-blue-600 font-medium no-underline transition-colors">Home</a>
+                <a href="#getting-started" class="text-gray-600 hover:text-blue-600 font-medium no-underline transition-colors">Get Started</a>
+            </nav>
+            
+            <div class="relative w-72 hidden sm:block">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span class="text-gray-400 text-base">🔍</span>
+                </div>
+                <input type="text" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all" placeholder="Search docs..." id="searchBox">
+            </div>
+        </div>
+    </header>
+
+    <div class=" mx-auto flex min-h-screen">
+        <!-- Sidebar -->
+        <nav class="w-72 bg-gray-50 border-r border-gray-200 py-8 overflow-y-auto hidden lg:block">
+            <div class="px-6">
+                <div class="mb-8">
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">Getting Started</div>
+                    <a href="#" class="block px-4 py-2 text-gray-700 bg-indigo-600 text-white rounded-md mb-1 font-medium no-underline transition-colors" onclick="showSection('getting-started')">Quick Start</a>
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-md mb-1 font-medium no-underline transition-colors" onclick="showSection('installation')">Installation</a>
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-md mb-1 font-medium no-underline transition-colors" onclick="showSection('configuration')">Configuration</a>
+                </div>
+                
+                <div class="mb-8">
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">Features</div>
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-md mb-1 font-medium no-underline transition-colors" onclick="showSection('features')">Core Features</a>
+                </div>
+                
+                <div class="mb-8">
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">Guides</div>
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-md mb-1 font-medium no-underline transition-colors" onclick="showSection('tutorials')">Tutorials</a>
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-md mb-1 font-medium no-underline transition-colors" onclick="showSection('best-practices')">Best Practices</a>
+                </div>
+                
+                <div class="mb-8">
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">Reference</div>
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-md mb-1 font-medium no-underline transition-colors" onclick="showSection('api')">API Reference</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 py-8 px-6 lg:px-12 max-w-4xl">
+            <!-- Getting Started Section -->
+            <div id="getting-started" class="content-section">
+                <div class="flex items-center gap-2 text-sm text-gray-600 mb-6">
+                    <a href="/" class="text-indigo-600 hover:underline">Home</a> 
+                    <span>/</span> 
+                    <span>Getting Started</span>
+                </div>
+                
+                <h1 class="text-4xl font-bold text-gray-900 mb-4 leading-tight">Quick Start Guide</h1>
+                <p class="text-lg text-gray-600 mb-12 leading-relaxed">Get up and running with your WindLogs application application in minutes.</p>
+                
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
+                    <h4 class="text-base font-semibold text-gray-900 mb-4">On this page</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#overview" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Overview</a></li>
+                        <li><a href="#first-steps" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">First Steps</a></li>
+                        <li><a href="#requirements" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">System Requirements</a></li>
+                    </ul>
+                </div>
+
+                <section class="mb-12" id="overview">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Overview</h2>
+                    <p class="text-gray-600 mb-4 leading-relaxed">Welcome to the WindLogs application documentation. This guide will help you get started with our platform and make the most of its features. WindLogs leverages the power of Fluentd, Fluent Bit, and AI to deliver a seamless user experience. It empowers your teams to efficiently parse logs, monitor them, and quickly identify solutions using an advanced control system.</p>
+  
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                        <p class="text-blue-800"><strong>💡 Quick Tip:</strong> Bookmark this page for easy access to documentation while using the application.</p>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="first-steps">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">First Steps</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Follow these steps to get started with your application:</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">1</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Create your account</div>
+                                <div class="text-gray-600">Create your account and then wait for the approval from the admin. you can contact the admin to get access to the application.</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">2</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Configure Your Profile</div>
+                                <div class="text-gray-600">Once your account is set up, we recommend completing your profile information in the settings panel.</div>
+                            </div>
+                            
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">3</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Explore Dashboard</div>
+                                <div class="text-gray-600">Familiarize yourself with the main dashboard and navigation.</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">4</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Try Key Features</div>
+                                <div class="text-gray-600">Start with basic operations to get comfortable with the interface like adding your staff members and creating your first project.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="requirements">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">System Requirements</h2>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Browser Compatibility</h3>
+                    <ul class="list-disc pl-6 space-y-2 text-gray-600">
+                        <li>Chrome 90+ (Recommended)</li>
+                        <li>Firefox 88+</li>
+                        <li>Safari 14+</li>
+                        <li>Edge 90+</li>
+                    </ul>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Backend Requirements</h3>
+                    <p class="mb-4 text-gray-500">WindLogs relies on log data ingestion and processing through Fluentd and Fluent Bit, as well as AI-based insights. Ensure your infrastructure meets the following requirements:</p>
+                    <ul class="list-disc pl-6 space-y-2 text-gray-600">
+                        <li>Fluentd: v1.14 or higher</li>
+                        <li>Fluent Bit: v1.9 or higher</li>
+                        <li>Internet Access: Required for AI services and API calls</li>
+                      
+                    </ul>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Recommended System Resources</h3>
+                    <p class="mb-4 text-gray-500"> For optimal performance when handling large log volumes:</p>
+                    <ul class="list-disc pl-6 space-y-2 text-gray-600">
+                        <li>CPU: 4 cores or higher</li>
+                        <li>Memory: 8 GB RAM or more</li>
+                        <li>Disk Space: At least 20 GB (more for high-volume log storage)</li>
+                        <li>Network: Stable connection with low latency for AI services and data pipelines</li>
+                    </ul>
+                    
+                   
+                </section>
+            </div>
+
+            <!--Installation Section-->
+            <div id="installation" class="content-section hidden">
+                <div class="flex items-center gap-2 text-sm text-gray-600 mb-6">
+                    <a href="#" class="text-indigo-600 hover:underline">Home</a> 
+                    <span>/</span> 
+                    <span>Installation</span>
+                </div>
+
+                <h1 class="text-4xl font-bold text-gray-900 mb-4 leading-tight">Installation Guide</h1>
+                <p class="text-lg text-gray-600 mb-12 leading-relaxed">Learn how to install and set up Fluentd and Fluent Bit for your logging infrastructure.</p>
+
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
+                    <h4 class="text-base font-semibold text-gray-900 mb-4">On this page</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#fluentd-installation" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Fluentd Installation</a></li>
+                        <li><a href="#fluent-bit-installation" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Fluent Bit Installation</a></li>
+                        <li><a href="#docker-installation" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Docker-based Installation</a></li>
+                        <li><a href="#verification" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Verification Steps</a></li>
+                    </ul>
+                </div>
+
+                <section class="mb-12" id="fluentd-installation">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Fluentd Installation</h2>
+                    <p class="text-gray-600 mb-4 leading-relaxed">Fluentd is a data collector for unified logging layer. Here's how to install it on different platforms:</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Using Ruby Gem (recommended for development)</h3>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre># Install Ruby first if not installed
+gem install fluentd --no-doc
+
+# Initialize a configuration file
+fluentd --setup ./fluent
+
+# Start fluentd with the configuration
+fluentd -c ./fluent/fluent.conf -vv</pre>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Using td-agent (recommended for production)</h3>
+                    <p class="text-gray-600 mb-4">For production environments, it's recommended to use the stable distribution package called td-agent:</p>
+                    
+                    <p class="text-gray-600 mb-2"><strong>For Ubuntu/Debian:</strong></p>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre># Add the repository
+curl -fsSL https://toolbelt.treasuredata.com/sh/install-ubuntu-focal-td-agent4.sh | sh
+
+# Start the service
+sudo systemctl start td-agent
+sudo systemctl enable td-agent</pre>
+                    </div>
+
+                    <p class="text-gray-600 mb-2"><strong>For CentOS/RHEL:</strong></p>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre># Add the repository
+curl -fsSL https://toolbelt.treasuredata.com/sh/install-redhat-td-agent4.sh | sh
+
+# Start the service
+sudo systemctl start td-agent
+sudo systemctl enable td-agent</pre>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Installing Plugins</h3>
+                    <p class="text-gray-600 mb-4">Fluentd has a flexible plugin system. Install plugins as needed:</p>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre># For td-agent
+sudo td-agent-gem install fluent-plugin-elasticsearch
+
+# For Ruby Gem based installation
+gem install fluent-plugin-elasticsearch</pre>
+                    </div>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded mb-6">
+                        <p class="text-blue-800"><strong>💡 Essential Plugins:</strong> For our system, you'll need these plugins:</p>
+                        <ul class="list-disc pl-6 text-blue-700 mt-2">
+                            <li>fluent-plugin-elasticsearch - For sending logs to Elasticsearch</li>
+                            <li>fluent-plugin-record-modifier - For modifying log records</li>
+                            <li>fluent-plugin-rewrite-tag-filter - For rewriting tags based on content</li>
+                            <li>fluent-plugin-multi-format-parser - For handling multiple log formats</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="fluent-bit-installation">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Fluent Bit Installation</h2>
+                    <p class="text-gray-600 mb-4 leading-relaxed">Fluent Bit is a lightweight log processor and forwarder that complements Fluentd.</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Linux Installation</h3>
+                    <p class="text-gray-600 mb-2"><strong>For Ubuntu/Debian:</strong></p>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre>wget -qO - https://packages.fluentbit.io/fluentbit.key | sudo apt-key add -
+echo "deb https://packages.fluentbit.io/ubuntu/focal focal main" | sudo tee /etc/apt/sources.list.d/fluentbit.list
+sudo apt-get update
+sudo apt-get install fluent-bit</pre>
+                    </div>
+
+                    <p class="text-gray-600 mb-2"><strong>For CentOS/RHEL:</strong></p>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre>curl https://packages.fluentbit.io/centos/8/fluentbit.repo | sudo tee /etc/yum.repos.d/fluentbit.repo
+sudo yum install fluent-bit</pre>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Windows Installation</h3>
+                    <p class="text-gray-600 mb-4">For Windows environments, download the installer from the official website:</p>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre># Download from https://fluentbit.io/download/
+# Run the installer and follow the instructions
+# Start the service
+sc start fluent-bit</pre>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="docker-installation">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Docker-based Installation</h2>
+                    <p class="text-gray-600 mb-4 leading-relaxed">Using Docker is the easiest way to get started with both Fluentd and Fluent Bit.</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Fluentd Docker Image</h3>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre># Pull the official image
+docker pull fluent/fluentd:v1.14-1
+
+# Run with a custom config
+docker run -d -p 24224:24224 -v /path/to/conf:/fluentd/etc fluent/fluentd:v1.14-1</pre>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Custom Fluentd Dockerfile</h3>
+                    <p class="text-gray-600 mb-4">Create a custom Dockerfile to include additional plugins:</p>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre>FROM fluent/fluentd:v1.14-1
+
+# Use root account to use apk
+USER root
+
+# Install plugins
+RUN apk add --no-cache --update --virtual .build-deps \
+    sudo build-base ruby-dev \
+ && sudo gem install fluent-plugin-elasticsearch \
+ && sudo gem install fluent-plugin-record-modifier \
+ && sudo gem sources --clear-all \
+ && apk del .build-deps \
+ && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
+
+# Switch back to fluent user
+USER fluent</pre>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Fluent Bit Docker Image</h3>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre># Pull the official image
+docker pull fluent/fluent-bit:2.1
+
+# Run with a custom config
+docker run -d -p 24224:24224 -v /path/to/config:/fluent-bit/etc fluent/fluent-bit:2.1</pre>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="verification">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Verification Steps</h2>
+                    <p class="text-gray-600 mb-4 leading-relaxed">After installation, verify that your components are working correctly:</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Verify Fluentd</h3>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre># Check the process
+ps aux | grep fluentd
+
+# Check the logs
+sudo tail -f /var/log/td-agent/td-agent.log
+
+# Test the HTTP input plugin (if configured)
+curl -X POST -d 'json={"message":"hello world"}' http://localhost:8888/test.tag</pre>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Verify Fluent Bit</h3>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre># Check the process
+ps aux | grep fluent-bit
+
+# Test configuration
+fluent-bit -c /path/to/fluent-bit.conf -t
+
+# Check HTTP health endpoint (if enabled)
+curl http://localhost:2020/api/v1/health</pre>
+                    </div>
+
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded mt-6">
+                        <p class="text-yellow-800"><strong>⚠️ Important:</strong> Always validate your configuration files before deploying to production. Both Fluentd and Fluent Bit provide configuration testing options.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Configuration Section -->
+            <div id="configuration" class="content-section hidden">
+                <div class="flex items-center gap-2 text-sm text-gray-600 mb-6">
+                    <a href="#" class="text-indigo-600 hover:underline">Home</a> 
+                    <span>/</span> 
+                    <span>Configuration</span>
+                </div>
+
+                <h1 class="text-4xl font-bold text-gray-900 mb-4 leading-tight">Advanced Configuration Guide</h1>
+                <p class="text-lg text-gray-600 mb-12 leading-relaxed">Learn how to configure Fluentd and Fluent Bit for optimal log processing.</p>
+
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
+                    <h4 class="text-base font-semibold text-gray-900 mb-4">On this page</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#config-structure" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Configuration Structure</a></li>
+                        <li><a href="#parsing-strategies" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Log Parsing Strategies</a></li>
+                        <li><a href="#regex-patterns" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Regular Expression Patterns</a></li>
+                        <li><a href="#multiline-handling" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Multiline Log Handling</a></li>
+                        <li><a href="#performance-tuning" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Performance Tuning</a></li>
+                    </ul>
+                </div>
+
+                <section class="mb-12" id="config-structure">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Configuration Structure</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Understanding the structure of Fluentd and Fluent Bit configurations is essential for effective log management.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Fluentd Configuration Structure</h3>
+                            <p class="text-gray-600 mb-4">Fluentd uses a hierarchical configuration format with the following key sections:</p>
+                            <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-4">
+<pre># System-wide configuration
+&lt;system&gt;
+  workers 4
+  log_level info
+&lt;/system&gt;
+
+# Input sources
+&lt;source&gt;
+  @type forward
+  port 24224
+&lt;/source&gt;
+
+# Processing filters
+&lt;filter pattern&gt;
+  @type parser
+  # filter configuration
+&lt;/filter&gt;
+
+# Output destinations
+&lt;match pattern&gt;
+  @type elasticsearch
+  # output configuration
+&lt;/match&gt;
+
+# Label for routing
+&lt;label @ROUTING_LABEL&gt;
+  # nested directives
+&lt;/label&gt;</pre>
+                            </div>
+                            <p class="text-gray-600 mb-4">Key components:</p>
+                            <ul class="list-disc pl-6 space-y-2 text-gray-600">
+                                <li><strong>&lt;source&gt;</strong> - Defines input plugins</li>
+                                <li><strong>&lt;filter&gt;</strong> - Processes and modifies events</li>
+                                <li><strong>&lt;match&gt;</strong> - Routes events to outputs</li>
+                                <li><strong>&lt;label&gt;</strong> - Groups directives for better organization</li>
+                                <li><strong>&lt;system&gt;</strong> - Global settings</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Fluent Bit Configuration Structure</h3>
+                            <p class="text-gray-600 mb-4">Fluent Bit uses a simpler INI-style format with sections:</p>
+                            <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-4">
+<pre>[SERVICE]
+    # Global settings
+    flush           5
+    log_level       info
+    parsers_file    parsers.conf
+
+[INPUT]
+    # Input plugin configuration
+    name              tail
+    path              /var/log/containers/*.log
+    refresh_interval  10
+    skip_long_lines   on
+    buffer_chunk_size 32k
+    buffer_max_size   64k
+    mem_buf_limit     5MB
+
+[FILTER]
+    # Filter plugin configuration
+    name              multiline
+    match             *
+    multiline.key_content log
+    multiline.parser  multiline-regex-test
+
+[OUTPUT]
+    # Output plugin configuration
+    name               forward
+    match              *
+    host               fluentd
+    port               24224
+    compress           gzip
+    retry_limit        5
+    net.keepalive      on
+    net.keepalive_idle_timeout 30</pre>
+                            </div>
+                            <p class="text-gray-600 mb-4">Key components:</p>
+                            <ul class="list-disc pl-6 space-y-2 text-gray-600">
+                                <li><strong>[SERVICE]</strong> - Global settings</li>
+                                <li><strong>[INPUT]</strong> - Input plugin configuration</li>
+                                <li><strong>[FILTER]</strong> - Processing filters</li>
+                                <li><strong>[OUTPUT]</strong> - Output destinations</li>
+                                <li><strong>[PARSER]</strong> - Parser definitions (in parsers.conf)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded mt-6">
+                        <p class="text-blue-800"><strong>💡 Best Practice:</strong> Keep related configurations together using labels in Fluentd. For Fluent Bit, use clear section names with comments to maintain readability.</p>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="parsing-strategies">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Log Parsing Strategies</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Effective log parsing is crucial for extracting meaningful data from raw logs. Here are the main strategies:</p>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">JSON Parsing</h3>
+                            <p class="text-gray-600 mb-4">For applications that output JSON-formatted logs:</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed">
+<pre># Fluentd JSON parsing
+&lt;filter app.**&gt;
+  @type parser
+  key_name log
+  reserve_data true
+  &lt;parse&gt;
+    @type json
+  &lt;/parse&gt;
+&lt;/filter&gt;</pre>
+                                </div>
+                                <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed">
+<pre># Fluent Bit JSON parsing
+[FILTER]
+    name   parser
+    match  *
+    key_name  log
+    parser    json
+    reserve_data  On</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Regular Expression Parsing</h3>
+                            <p class="text-gray-600 mb-4">For structured logs with consistent patterns:</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed">
+<pre># Fluentd regex parsing
+&lt;filter app.**&gt;
+  @type parser
+  key_name log
+  reserve_data true
+  &lt;parse&gt;
+    @type regexp
+    expression /^(?&lt;time&gt;.+) (?&lt;level&gt;\w+) (?&lt;message&gt;.*)$/
+    time_format %Y-%m-%d %H:%M:%S
+  &lt;/parse&gt;
+&lt;/filter&gt;</pre>
+                                </div>
+                                <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed">
+<pre># Fluent Bit regex parsing
+[PARSER]
+    name   custom_parser
+    format regex
+    regex  ^(?&lt;time&gt;.+) (?&lt;level&gt;\w+) (?&lt;message&gt;.*)$
+    time_key time
+    time_format %Y-%m-%d %H:%M:%S
+
+[FILTER]
+    name   parser
+    match  *
+    key_name  log
+    parser    custom_parser</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Multi-Format Parsing</h3>
+                            <p class="text-gray-600 mb-4">For handling logs with different formats:</p>
+                            <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed">
+<pre># Fluentd multi-format parsing
+&lt;filter app.**&gt;
+  @type parser
+  key_name log
+  reserve_data true
+  &lt;parse&gt;
+    @type multi_format
+    &lt;pattern&gt;
+      format json
+    &lt;/pattern&gt;
+    &lt;pattern&gt;
+      format regexp
+      expression /^(?&lt;time&gt;.+) (?&lt;level&gt;\w+) (?&lt;message&gt;.*)$/
+      time_format %Y-%m-%d %H:%M:%S
+    &lt;/pattern&gt;
+  &lt;/parse&gt;
+&lt;/filter&gt;</pre>
+                            </div>
+                            <p class="text-gray-600 mt-4">In Fluent Bit, you can achieve similar functionality by chaining multiple parser filters.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded mt-6">
+                        <p class="text-yellow-800"><strong>⚠️ Important:</strong> Always test your parsing configurations with sample logs to ensure they correctly extract all fields. Incorrect parsing can lead to data loss or misinterpretation.</p>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="regex-patterns">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Regular Expression Patterns</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Here are some useful regex patterns for common log formats:</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Spring Boot Log Pattern</h3>
+                    <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre>^(?&lt;time&gt;\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)\s+(?&lt;level&gt;[A-Z]+)\s+(?&lt;pid&gt;\d+)\s+---\s+\[(?&lt;thread&gt;[^\]]+)\]\s+(?&lt;class&gt;[^\s:]+)\s*:\s+(?&lt;message&gt;.*)$</pre>
+                    </div>
+                    <p class="text-gray-600 mb-6">This pattern captures the standard Spring Boot log format with timestamp, log level, PID, thread name, class, and message.</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">.NET Log Pattern</h3>
+                    <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre>^(?&lt;time&gt;\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})\s+\[(?&lt;level&gt;[^\]]+)\]\s+(?&lt;logger&gt;[^\s]+)\s+-\s+(?&lt;message&gt;.*)$</pre>
+                    </div>
+                    <p class="text-gray-600 mb-6">This pattern works with standard .NET log formats that include timestamp, log level, logger name, and message.</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Apache/Nginx Access Log Pattern</h3>
+                    <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre>^(?&lt;host&gt;[^ ]*) [^ ]* (?&lt;user&gt;[^ ]*) \[(?&lt;time&gt;[^\]]*)\] "(?&lt;method&gt;\S+)(?: +(?&lt;path&gt;[^ ]*) +\S*)?" (?&lt;code&gt;[^ ]*) (?&lt;size&gt;[^ ]*)(?: "(?&lt;referer&gt;[^\"]*)" "(?&lt;agent&gt;[^\"]*)")?$</pre>
+                    </div>
+                    <p class="text-gray-600 mb-6">This pattern captures the common fields in Apache and Nginx access logs.</p>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                        <p class="text-blue-800"><strong>💡 Tip:</strong> Use online regex testers like <a href="https://regex101.com/" class="text-blue-600 hover:underline">regex101.com</a> to develop and test your patterns with sample logs before implementing them in your configuration.</p>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="multiline-handling">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Multiline Log Handling</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Stack traces and other multiline logs require special handling to be processed correctly:</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Fluentd Multiline Handling</h3>
+                            <p class="text-gray-600 mb-4">Using the multiline parser plugin:</p>
+                            <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed">
+<pre>&lt;source&gt;
+  @type tail
+  path /var/log/app/*.log
+  tag app.logs
+  &lt;parse&gt;
+    @type multiline
+    format_firstline /^\d{4}-\d{2}-\d{2}/
+    format1 /^(?&lt;time&gt;\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \[(?&lt;level&gt;[^\]]+)\] (?&lt;message&gt;.*)/
+    format_multiline /^(?&lt;message&gt;(?!^\d{4}-\d{2}-\d{2}).+)$/
+    time_format %Y-%m-%d %H:%M:%S
+  &lt;/parse&gt;
+&lt;/source&gt;</pre>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Fluent Bit Multiline Handling</h3>
+                            <p class="text-gray-600 mb-4">Using the multiline filter:</p>
+                            <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed">
+<pre>[MULTILINE_PARSER]
+    name          multiline-regex-test
+    type          regex
+    flush_timeout 1000
+    
+    # Start of a log entry is a date
+    rule          "start_state"   "^\d{4}-\d{2}-\d{2}"  "cont"
+    
+    # Lines beginning with whitespace are continuations
+    rule          "cont"          "^[^\d\s]"            "cont"
+
+[FILTER]
+    name          multiline
+    match         *
+    multiline.key_content log
+    multiline.parser multiline-regex-test</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Stack Trace Handling</h3>
+                    <p class="text-gray-600 mb-4">Special configuration for Java stack traces:</p>
+                    <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed">
+<pre>[MULTILINE_PARSER]
+    name          java_multiline
+    type          regex
+    flush_timeout 5000
+    
+    # Rule 1: Log start with timestamp and ERROR level
+    rule         "start_state"   "^\d{4}-\d{2}-\d{2}.*?(ERROR|SEVERE|FATAL)"  "cont"
+    
+    # Rule 2: Stack trace lines starting with "at"
+    rule         "cont"          "^\s+at\s+"  "cont"
+    
+    # Rule 3: Caused by exceptions
+    rule         "cont"          "^Caused by:"  "cont"
+    
+    # Rule 4: More exceptions that might occur
+    rule         "cont"          "^Exception in thread"  "cont"
+    
+    # Rule 5: Nested exceptions
+    rule         "cont"          "^\s+... \d+ more$"  "cont"</pre>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="performance-tuning">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Performance Tuning</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Optimize your logging infrastructure for high throughput and reliability:</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Fluentd Performance Tuning</h3>
+                    <div class="space-y-4">
+                        <div class="bg-white border border-gray-200 rounded-xl p-4">
+                            <h4 class="font-semibold text-gray-900 mb-2">Buffer Configuration</h4>
+                            <div class="bg-gray-900 text-gray-100 p-3 rounded-lg overflow-x-auto font-mono text-xs leading-relaxed">
+<pre>&lt;buffer&gt;
+  @type file
+  path /var/log/fluentd/buffers
+  flush_mode interval
+  flush_interval 5s
+  flush_thread_count 4
+  chunk_limit_size 16M
+  total_limit_size 4G
+  overflow_action block
+&lt;/buffer&gt;</pre>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-xl p-4">
+                            <h4 class="font-semibold text-gray-900 mb-2">Worker Configuration</h4>
+                            <div class="bg-gray-900 text-gray-100 p-3 rounded-lg overflow-x-auto font-mono text-xs leading-relaxed">
+<pre>&lt;system&gt;
+  workers 4
+  root_dir /var/log/fluentd
+  log_level info
+&lt;/system&gt;</pre>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-xl p-4">
+                            <h4 class="font-semibold text-gray-900 mb-2">Input Optimization</h4>
+                            <div class="bg-gray-900 text-gray-100 p-3 rounded-lg overflow-x-auto font-mono text-xs leading-relaxed">
+<pre>&lt;source&gt;
+  @type forward
+  port 24224
+  bind 0.0.0.0
+  chunk_size_limit 2M
+  chunk_size_warn_limit 1M
+  &lt;transport tls&gt;
+    cert_path /etc/fluentd/certs/server.crt
+    private_key_path /etc/fluentd/certs/server.key
+  &lt;/transport&gt;
+&lt;/source&gt;</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Fluent Bit Performance Tuning</h3>
+                    <div class="space-y-4">
+                        <div class="bg-white border border-gray-200 rounded-xl p-4">
+                            <h4 class="font-semibold text-gray-900 mb-2">Service Configuration</h4>
+                            <div class="bg-gray-900 text-gray-100 p-3 rounded-lg overflow-x-auto font-mono text-xs leading-relaxed">
+<pre>[SERVICE]
+    flush           5
+    daemon          off
+    log_level       info
+    storage.metrics on
+    http_server     on
+    http_listen     0.0.0.0
+    http_port       2020</pre>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-xl p-4">
+                            <h4 class="font-semibold text-gray-900 mb-2">Input Optimization</h4>
+                            <div class="bg-gray-900 text-gray-100 p-3 rounded-lg overflow-x-auto font-mono text-xs leading-relaxed">
+<pre>[INPUT]
+    name              tail
+    path              /var/log/containers/*.log
+    refresh_interval  10
+    skip_long_lines   on
+    buffer_chunk_size 32k
+    buffer_max_size   64k
+    mem_buf_limit     5MB</pre>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-xl p-4">
+                            <h4 class="font-semibold text-gray-900 mb-2">Output Optimization</h4>
+                            <div class="bg-gray-900 text-gray-100 p-3 rounded-lg overflow-x-auto font-mono text-xs leading-relaxed">
+<pre>[OUTPUT]
+    name               forward
+    match              *
+    host               fluentd
+    port               24224
+    compress           gzip
+    retry_limit        5
+    net.keepalive      on
+    net.keepalive_idle_timeout 30</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded mt-6">
+                        <p class="text-blue-800"><strong>💡 Performance Tips:</strong></p>
+                        <ul class="list-disc pl-6 text-blue-700 mt-2">
+                            <li>Use file buffers instead of memory for large volumes of logs</li>
+                            <li>Increase worker count based on available CPU cores</li>
+                            <li>Enable compression for network transfers</li>
+                            <li>Use tag-based routing to optimize event flow</li>
+                            <li>Monitor memory usage and adjust buffer limits accordingly</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Features Section -->
+            <div id="features" class="content-section hidden">
+                <div class="flex items-center gap-2 text-sm text-gray-600 mb-6">
+                    <a href="#" class="text-indigo-600 hover:underline">Home</a> 
+                    <span>/</span> 
+                    <span>Features</span>
+                </div>
+                
+                <h1 class="text-4xl font-bold text-gray-900 mb-4 leading-tight">Logging Infrastructure Features</h1>
+                <p class="text-lg text-gray-600 mb-12 leading-relaxed">Explore the powerful features of Fluentd and Fluent Bit for comprehensive log management.</p>
+
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
+                    <h4 class="text-base font-semibold text-gray-900 mb-4">On this page</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#fluentd-features" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Fluentd Features</a></li>
+                        <li><a href="#fluent-bit-features" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Fluent Bit Features</a></li>
+                        <li><a href="#integration-features" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Integration Capabilities</a></li>
+                        <li><a href="#framework-support" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Framework Support</a></li>
+                    </ul>
+                </div>
+
+                <section class="mb-12" id="fluentd-features">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-6">Fluentd Features</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Fluentd serves as the central log aggregator with these powerful capabilities:</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-white border border-gray-200 rounded-xl p-6 hover:border-gray-300 hover:shadow-md transition-all">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                <span>🔄</span> Unified Logging Layer
+                            </h4>
+                            <p class="text-gray-600 leading-relaxed">Collects events from various sources, processes them into a unified format, and routes them to multiple destinations.</p>
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-xl p-6 hover:border-gray-300 hover:shadow-md transition-all">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                <span>🧩</span> Plugin Ecosystem
+                            </h4>
+                            <p class="text-gray-600 leading-relaxed">Over 500 community-contributed plugins for inputs, outputs, filters, and parsers to extend functionality.</p>
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-xl p-6 hover:border-gray-300 hover:shadow-md transition-all">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                <span>⚡</span> High Performance
+                            </h4>
+                            <p class="text-gray-600 leading-relaxed">Written in Ruby with performance-critical parts in C, handling over 10,000 events per second per core.</p>
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-xl p-6 hover:border-gray-300 hover:shadow-md transition-all">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                <span>🛡️</span> Reliability
+                            </h4>
+                            <p class="text-gray-600 leading-relaxed">Built-in reliability with buffering, retries, and failover capabilities to prevent data loss.</p>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Advanced Fluentd Features</h3>
+                    <ul class="list-disc pl-6 space-y-2 text-gray-600 mb-6">
+                        <li><strong>Label Routing:</strong> Efficiently route events using @label directives for cleaner configuration</li>
+                        <li><strong>Buffer Control:</strong> Fine-grained control over buffering with memory/file buffers and customizable flush parameters</li>
+                        <li><strong>Multi-Process Workers:</strong> Scale horizontally with multiple worker processes on multi-core systems</li>
+                        <li><strong>Monitoring Agent:</strong> Built-in HTTP server for monitoring Fluentd's internal metrics</li>
+                        <li><strong>Hot Reload:</strong> Apply configuration changes without restarting the service</li>
+                    </ul>
+                </section>
+
+                <section class="mb-12" id="fluent-bit-features">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-6">Fluent Bit Features</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Fluent Bit is a lightweight log processor and forwarder that complements Fluentd.</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Linux Installation</h3>
+                    <p class="text-gray-600 mb-2"><strong>For Ubuntu/Debian:</strong></p>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre>wget -qO - https://packages.fluentbit.io/fluentbit.key | sudo apt-key add -
+echo "deb https://packages.fluentbit.io/ubuntu/focal focal main" | sudo tee /etc/apt/sources.list.d/fluentbit.list
+sudo apt-get update
+sudo apt-get install fluent-bit</pre>
+                    </div>
+
+                    <p class="text-gray-600 mb-2"><strong>For CentOS/RHEL:</strong></p>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre>curl https://packages.fluentbit.io/centos/8/fluentbit.repo | sudo tee /etc/yum.repos.d/fluentbit.repo
+sudo yum install fluent-bit</pre>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Windows Installation</h3>
+                    <p class="text-gray-600 mb-4">For Windows environments, download the installer from the official website:</p>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre># Download from https://fluentbit.io/download/
+# Run the installer and follow the instructions
+# Start the service
+sc start fluent-bit</pre>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="docker-installation">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Docker-based Installation</h2>
+                    <p class="text-gray-600 mb-4 leading-relaxed">Using Docker is the easiest way to get started with both Fluentd and Fluent Bit.</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Fluentd Docker Image</h3>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre># Pull the official image
+docker pull fluent/fluentd:v1.14-1
+
+# Run with a custom config
+docker run -d -p 24224:24224 -v /path/to/conf:/fluentd/etc fluent/fluentd:v1.14-1</pre>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Custom Fluentd Dockerfile</h3>
+                    <p class="text-gray-600 mb-4">Create a custom Dockerfile to include additional plugins:</p>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre>FROM fluent/fluentd:v1.14-1
+
+# Use root account to use apk
+USER root
+
+# Install plugins
+RUN apk add --no-cache --update --virtual .build-deps \
+    sudo build-base ruby-dev \
+ && sudo gem install fluent-plugin-elasticsearch \
+ && sudo gem install fluent-plugin-record-modifier \
+ && sudo gem sources --clear-all \
+ && apk del .build-deps \
+ && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
+
+# Switch back to fluent user
+USER fluent</pre>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Fluent Bit Docker Image</h3>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre># Pull the official image
+docker pull fluent/fluent-bit:2.1
+
+# Run with a custom config
+docker run -d -p 24224:24224 -v /path/to/config:/fluent-bit/etc fluent/fluent-bit:2.1</pre>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="verification">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Verification Steps</h2>
+                    <p class="text-gray-600 mb-4 leading-relaxed">After installation, verify that your components are working correctly:</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Verify Fluentd</h3>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre># Check the process
+ps aux | grep fluentd
+
+# Check the logs
+sudo tail -f /var/log/td-agent/td-agent.log
+
+# Test the HTTP input plugin (if configured)
+curl -X POST -d 'json={"message":"hello world"}' http://localhost:8888/test.tag</pre>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Verify Fluent Bit</h3>
+                    <div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-6">
+<pre># Check the process
+ps aux | grep fluent-bit
+
+# Test configuration
+fluent-bit -c /path/to/fluent-bit.conf -t
+
+# Check HTTP health endpoint (if enabled)
+curl http://localhost:2020/api/v1/health</pre>
+                    </div>
+
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded mt-6">
+                        <p class="text-yellow-800"><strong>⚠️ Important:</strong> Always validate your configuration files before deploying to production. Both Fluentd and Fluent Bit provide configuration testing options.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Tutorials Section -->
+            <div id="tutorials" class="content-section hidden">
+                <div class="flex items-center gap-2 text-sm text-gray-600 mb-6">
+                    <a href="#" class="text-indigo-600 hover:underline">Home</a> 
+                    <span>/</span> 
+                    <span>Guides</span> 
+                    <span>/</span> 
+                    <span>Tutorials</span>
+                </div>
+                
+                <h1 class="text-4xl font-bold text-gray-900 mb-4 leading-tight">Logging Tutorials</h1>
+                <p class="text-lg text-gray-600 mb-12 leading-relaxed">Learn how to use WindLogs for various logging scenarios.</p>
+
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
+                    <h4 class="text-base font-semibold text-gray-900 mb-4">On this page</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#basic-setup" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Basic Setup</a></li>
+                        <li><a href="#advanced-use" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Advanced Use</a></li>
+                        <li><a href="#custom-integration" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Custom Integration</a></li>
+                    </ul>
+                </div>
+
+                <section class="mb-12" id="basic-setup">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Basic Setup</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Learn the basics of setting up WindLogs for your logging infrastructure.</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">1</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Install WindLogs</div>
+                                <div class="text-gray-600">Follow the installation guide to set up WindLogs on your platform.</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">2</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Configure Fluentd</div>
+                                <div class="text-gray-600">Learn how to configure Fluentd for optimal log processing.</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">3</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Set Up Fluent Bit</div>
+                                <div class="text-gray-600">Install and configure Fluent Bit for log collection.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="advanced-use">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Advanced Use</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Explore more advanced features and capabilities of WindLogs.</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">1</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Integrate with AI</div>
+                                <div class="text-gray-600">Learn how to integrate WindLogs with AI for enhanced log analysis.</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">2</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Custom Integration</div>
+                                <div class="text-gray-600">Discover how to integrate WindLogs with other systems and services.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="custom-integration">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Custom Integration</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Learn how to integrate WindLogs with your existing infrastructure.</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">1</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">API Integration</div>
+                                <div class="text-gray-600">Learn how to use WindLogs' API for programmatic access.</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">2</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Custom Scripting</div>
+                                <div class="text-gray-600">Use WindLogs with custom scripting languages and tools.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Best Practices Section -->
+            <div id="best-practices" class="content-section hidden">
+                <div class="flex items-center gap-2 text-sm text-gray-600 mb-6">
+                    <a href="#" class="text-indigo-600 hover:underline">Home</a> 
+                    <span>/</span> 
+                    <span>Guides</span> 
+                    <span>/</span> 
+                    <span>Best Practices</span>
+                </div>
+                
+                <h1 class="text-4xl font-bold text-gray-900 mb-4 leading-tight">Logging Best Practices</h1>
+                <p class="text-lg text-gray-600 mb-12 leading-relaxed">Follow these best practices for effective log management with Fluentd and Fluent Bit.</p>
+
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
+                    <h4 class="text-base font-semibold text-gray-900 mb-4">On this page</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#architecture-best-practices" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Architecture Best Practices</a></li>
+                        <li><a href="#configuration-best-practices" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Configuration Best Practices</a></li>
+                        <li><a href="#security-best-practices" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Security Best Practices</a></li>
+                        <li><a href="#performance-best-practices" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Performance Best Practices</a></li>
+                        <li><a href="#monitoring-best-practices" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Monitoring Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <section class="mb-12" id="architecture-best-practices">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Architecture Best Practices</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Design your logging infrastructure for scalability, reliability, and maintainability.</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">1</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Use Fluent Bit as Edge Agents</div>
+                                <div class="text-gray-600">Deploy Fluent Bit as lightweight agents on each node or container to collect logs at the source. This minimizes resource usage on application hosts.</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">2</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Use Fluentd as Aggregators</div>
+                                <div class="text-gray-600">Deploy Fluentd instances as central aggregators that receive logs from multiple Fluent Bit agents, perform advanced processing, and route to final destinations.</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">3</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Implement Redundancy</div>
+                                <div class="text-gray-600">Set up multiple Fluentd aggregators behind a load balancer to prevent single points of failure and ensure high availability.</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">4</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Separate Processing Stages</div>
+                                <div class="text-gray-600">Break down log processing into distinct stages: collection, parsing, enrichment, and routing. This makes configurations more maintainable and easier to troubleshoot.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8">
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4">Reference Architecture</h3>
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <pre class="text-gray-700">
+Application Nodes     Edge Collection     Central Aggregation     Storage/Analysis
+┌───────────┐         ┌───────────┐       ┌───────────┐          ┌───────────┐
+│ App 1     │─┐       │           │       │           │    ┌────▶│ Elastic   │
+└───────────┘ │       │           │       │           │    │     └───────────┘
+┌───────────┐ ├─────▶ │ Fluent Bit│─────▶ │  Fluentd  │────┼────▶┌───────────┐
+│ App 2     │ │       │ Instances │       │ Instances │    │     │ Kibana    │
+└───────────┘ │       │           │       │           │    │     └───────────┘
+┌───────────┐ │       │           │       │           │    └────▶┌───────────┐
+│ App 3     │─┘       └───────────┘       └───────────┘          │ API/Custom│
+└───────────┘                                                    └───────────┘</pre>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="configuration-best-practices">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Configuration Best Practices</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Follow these guidelines to create maintainable and robust configurations:</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Fluentd Configuration</h3>
+                            <ul class="list-disc pl-6 space-y-3 text-gray-600">
+                                <li><strong>Use Labels:</strong> Organize your configuration with <code>&lt;label&gt;</code> directives to create clear routing paths.</li>
+                                <li><strong>Separate Config Files:</strong> Split complex configurations into multiple files using <code>@include</code> directives.</li>
+                                <li><strong>Tag Naming Convention:</strong> Adopt a consistent tag naming scheme like <code>service.environment.component</code>.</li>
+                                <li><strong>Buffer Configuration:</strong> Always configure appropriate buffer settings for outputs to prevent data loss.</li>
+                                <li><strong>Error Handling:</strong> Use <code>&lt;secondary&gt;</code> sections for critical outputs to handle failures.</li>
+                            </ul>
+                            <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mt-4">
+<pre># Good practice - using labels for organization
+&lt;source&gt;
+  @type forward
+  @label @INCOMING
+&lt;/source&gt;
+
+&lt;label @INCOMING&gt;
+  &lt;filter **&gt;
+    @type record_transformer
+    &lt;record&gt;
+      hostname "#{Socket.gethostname}"
+    &lt;/record&gt;
+  &lt;/filter&gt;
+  
+  &lt;match **&gt;
+    @type relabel
+    @label @DISPATCH
+  &lt;/match&gt;
+&lt;/label&gt;</pre>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Fluent Bit Configuration</h3>
+                            <ul class="list-disc pl-6 space-y-3 text-gray-600">
+                                <li><strong>Use Parsers File:</strong> Keep parser definitions in a separate parsers.conf file for better organization.</li>
+                                <li><strong>Filter Chain:</strong> Order your filters logically from general to specific processing.</li>
+                                <li><strong>Consistent Naming:</strong> Use descriptive names for custom parsers and filters.</li>
+                                <li><strong>Memory Limits:</strong> Set appropriate memory limits for inputs to prevent excessive memory usage.</li>
+                                <li><strong>Health Monitoring:</strong> Enable the HTTP server for health checks and monitoring.</li>
+                            </ul>
+                            <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mt-4">
+<pre># Good practice - organized filter chain
+[FILTER]
+    name          multiline
+    match         *
+    multiline.key_content log
+    multiline.parser java_multiline
+
+[FILTER]
+    name          parser
+    match         *
+    key_name      log
+    parser        java_json
+    reserve_data  On
+
+[FILTER]
+    name          modify
+    match         *
+    add           environment production
+    add           datacenter us-east-1</pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="security-best-practices">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Security Best Practices</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Protect your logging infrastructure and sensitive log data:</p>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-white border border-gray-200 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">Enable Transport Encryption</h3>
+                            <p class="text-gray-600 mb-4">Use TLS for all communications between components:</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-900 text-gray-100 p-3 rounded-lg overflow-x-auto font-mono text-xs leading-relaxed">
+<pre># Fluentd with TLS
+&lt;source&gt;
+  @type forward
+  &lt;transport tls&gt;
+    cert_path /path/to/cert.pem
+    private_key_path /path/to/key.pem
+    client_cert_auth true
+    ca_path /path/to/ca.pem
+  &lt;/transport&gt;
+&lt;/source&gt;</pre>
+                                </div>
+                                <div class="bg-gray-900 text-gray-100 p-3 rounded-lg overflow-x-auto font-mono text-xs leading-relaxed">
+<pre># Fluent Bit with TLS
+[OUTPUT]
+    name          forward
+    match         *
+    host          fluentd.example.com
+    port          24224
+    tls           on
+    tls.verify    on
+    tls.ca_file   /path/to/ca.pem
+    tls.crt_file  /path/to/cert.pem
+    tls.key_file  /path/to/key.pem</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">Sensitive Data Handling</h3>
+                            <p class="text-gray-600 mb-4">Mask or filter sensitive information before it's stored:</p>
+                            <div class="bg-gray-900 text-gray-100 p-3 rounded-lg overflow-x-auto font-mono text-xs leading-relaxed">
+<pre># Fluentd - mask sensitive data
+&lt;filter **&gt;
+  @type mask
+  &lt;mask&gt;
+    keys password,credit_card,ssn
+    pattern [0-9A-Za-z]+
+    mask_char *
+  &lt;/mask&gt;
+&lt;/filter&gt;</pre>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-gray-200 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">Network Security</h3>
+                            <ul class="list-disc pl-6 space-y-2 text-gray-600">
+                                <li>Use dedicated networks for log traffic</li>
+                                <li>Implement firewall rules to restrict access to logging components</li>
+                                <li>Avoid exposing Fluentd/Fluent Bit ports to public networks</li>
+                                <li>Use shared secrets or certificates for authentication</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded mt-6">
+                        <p class="text-yellow-800"><strong>⚠️ Security Warning:</strong> Log data often contains sensitive information. Always review your logs for PII, credentials, or other sensitive data that should be masked or filtered before storage.</p>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="performance-best-practices">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Performance Best Practices</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Optimize your logging infrastructure for high throughput and efficiency:</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-green-500">
+                            <div class="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">1</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Filter Early, Process Later</div>
+                                <div class="text-gray-600">Use Fluent Bit to filter out unnecessary logs as early as possible. Only forward relevant logs to Fluentd for further processing.</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-green-500">
+                            <div class="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">2</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Optimize Buffer Settings</div>
+                                <div class="text-gray-600">Configure appropriate buffer sizes and flush intervals based on your traffic patterns. Use file buffers for high-volume scenarios.</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-green-500">
+                            <div class="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">3</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Scale Horizontally</div>
+                                <div class="text-gray-600">Add more Fluentd aggregators and distribute the load using consistent hashing or load balancing.</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-green-500">
+                            <div class="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">4</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Use Batch Processing</div>
+                                <div class="text-gray-600">Configure outputs to send logs in batches rather than one by one, especially for Elasticsearch or HTTP outputs.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Performance Benchmarks</h3>
+                    <p class="text-gray-600 mb-4">Typical performance you can expect with proper configuration:</p>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                            <thead>
+                                <tr>
+                                    <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Component</th>
+                                    <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">CPU Usage</th>
+                                    <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Memory Usage</th>
+                                    <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Throughput</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="py-2 px-4 border-b border-gray-200">Fluent Bit (per instance)</td>
+                                    <td class="py-2 px-4 border-b border-gray-200">0.5-1 CPU core</td>
+                                    <td class="py-2 px-4 border-b border-gray-200">30-50 MB</td>
+                                    <td class="py-2 px-4 border-b border-gray-200">Up to 100,000 records/sec</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-4 border-b border-gray-200">Fluentd (per worker)</td>
+                                    <td class="py-2 px-4 border-b border-gray-200">1-2 CPU cores</td>
+                                    <td class="py-2 px-4 border-b border-gray-200">100-300 MB</td>
+                                    <td class="py-2 px-4 border-b border-gray-200">Up to 20,000 records/sec</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="monitoring-best-practices">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Monitoring Best Practices</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Monitor your logging infrastructure to ensure reliability and performance:</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Fluentd Monitoring</h3>
+                            <p class="text-gray-600 mb-4">Enable the monitoring agent and collect metrics:</p>
+                            <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-4">
+<pre>&lt;source&gt;
+  @type monitor_agent
+  bind 0.0.0.0
+  port 24220
+&lt;/source&gt;</pre>
+                            </div>
+                            <p class="text-gray-600 mb-2">Key metrics to monitor:</p>
+                            <ul class="list-disc pl-6 space-y-2 text-gray-600">
+                                <li>Buffer queue length and size</li>
+                                <li>Retry counts</li>
+                                <li>Events per second (input/output)</li>
+                                <li>CPU and memory usage</li>
+                                <li>Plugin errors</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Fluent Bit Monitoring</h3>
+                            <p class="text-gray-600 mb-4">Enable the HTTP server for metrics:</p>
+                            <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed mb-4">
+<pre>[SERVICE]
+    HTTP_Server  On
+    HTTP_Listen  0.0.0.0
+    HTTP_Port    2020</pre>
+                            </div>
+                            <p class="text-gray-600 mb-2">Key metrics to monitor:</p>
+                            <ul class="list-disc pl-6 space-y-2 text-gray-600">
+                                <li>Input/output bytes and records</li>
+                                <li>Retries and errors</li>
+                                <li>Memory usage</li>
+                                <li>Processor usage</li>
+                                <li>Storage layer metrics</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 mt-8">Alerting Recommendations</h3>
+                    <p class="text-gray-600 mb-4">Set up alerts for these critical conditions:</p>
+                    <ul class="list-disc pl-6 space-y-2 text-gray-600">
+                        <li>Buffer queue near capacity (>80%)</li>
+                        <li>High retry counts (>10 retries)</li>
+                        <li>Error rates above threshold (>1%)</li>
+                        <li>Memory usage exceeding limits (>80%)</li>
+                        <li>Fluentd/Fluent Bit process restarts</li>
+                        <li>Significant drops in log volume (potential collection issues)</li>
+                    </ul>
+
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded mt-6">
+                        <p class="text-blue-800"><strong>💡 Pro Tip:</strong> Set up a dedicated dashboard in your monitoring system to visualize the health and performance of your logging infrastructure. Include metrics from both Fluentd and Fluent Bit, as well as the underlying hosts.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- API Reference Section -->
+            <div id="api" class="content-section hidden">
+                <div class="flex items-center gap-2 text-sm text-gray-600 mb-6">
+                    <a href="#" class="text-indigo-600 hover:underline">Home</a> 
+                    <span>/</span> 
+                    <span>Reference</span> 
+                    <span>/</span> 
+                    <span>API Reference</span>
+                </div>
+                
+                <h1 class="text-4xl font-bold text-gray-900 mb-4 leading-tight">API Reference</h1>
+                <p class="text-lg text-gray-600 mb-12 leading-relaxed">Learn how to use WindLogs' API for programmatic access.</p>
+
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
+                    <h4 class="text-base font-semibold text-gray-900 mb-4">On this page</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#api-overview" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">API Overview</a></li>
+                        <li><a href="#authentication" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Authentication</a></li>
+                        <li><a href="#endpoints" class="text-sm text-gray-600 hover:text-indigo-600 no-underline">Endpoints</a></li>
+                    </ul>
+                </div>
+
+                <section class="mb-12" id="api-overview">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">API Overview</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Learn about WindLogs' API and its capabilities.</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">1</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">API Overview</div>
+                                <div class="text-gray-600">Learn about WindLogs' API and its capabilities.</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">2</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Authentication</div>
+                                <div class="text-gray-600">Learn about WindLogs' API authentication methods.</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">3</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Endpoints</div>
+                                <div class="text-gray-600">Learn about WindLogs' API endpoints and their functionalities.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="authentication">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Authentication</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Learn about WindLogs' API authentication methods.</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">1</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">API Authentication</div>
+                                <div class="text-gray-600">Learn about WindLogs' API authentication methods.</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">2</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Authentication Methods</div>
+                                <div class="text-gray-600">Learn about WindLogs' API authentication methods.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-12" id="endpoints">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Endpoints</h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">Learn about WindLogs' API endpoints and their functionalities.</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">1</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">API Endpoints</div>
+                                <div class="text-gray-600">Learn about WindLogs' API endpoints and their functionalities.</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-5 bg-gray-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">2</div>
+                            <div>
+                                <div class="font-semibold text-gray-900 mb-1">Available Endpoints</div>
+                                <div class="text-gray-600">Learn about WindLogs' API available endpoints.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Remove active classes from all nav items
+            const navItems = document.querySelectorAll('nav a');
+            navItems.forEach(item => {
+                item.classList.remove('bg-indigo-600', 'text-white');
+                item.classList.add('text-gray-700', 'hover:bg-gray-200');
+            });
+
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
+
+            // Add active class to clicked nav item
+            if (event && event.target) {
+                event.target.classList.remove('text-gray-700', 'hover:bg-gray-200');
+                event.target.classList.add('bg-indigo-600', 'text-white');
+            }
+        }
+
+        // Search functionality
+        document.getElementById('searchBox').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const sections = document.querySelectorAll('section');
+            
+            sections.forEach(section => {
+                const text = section.textContent.toLowerCase();
+                if (text.includes(searchTerm) || searchTerm === '') {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

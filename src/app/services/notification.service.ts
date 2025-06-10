@@ -1,25 +1,11 @@
-import { Injectable, EventEmitter, Inject, Optional } from '@angular/core';
-import { Observable, BehaviorSubject, of } from 'rxjs';
+import { Injectable, EventEmitter } from '@angular/core';
+import { Observable, of } from 'rxjs';
 import { Notification } from '../models/notification.model';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { User } from '../models/user.model';
-import { AuthService } from './auth.service';
 import { map, tap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
-
-export interface NotificationItem {
-  id: number;
-  title: string;
-  message: string;
-  type: string;
-  read: boolean;
-  timeAgo: string;
-  createdAt: Date;
-  recipientEmail?: string;
-  sourceId?: number;
-  sourceType?: string;
-  actionType?: string;
-}
+import { NotificationStateService, NotificationItem } from './notification-state.service';
 
 @Injectable({
   providedIn: 'root'
@@ -27,25 +13,17 @@ export interface NotificationItem {
 export class NotificationService {
   notificationMessage = new EventEmitter<Notification>();
   
-  private notificationsSubject = new BehaviorSubject<NotificationItem[]>([]);
-  private unreadCountSubject = new BehaviorSubject<number>(0);
   private notifications: NotificationItem[] = [];
   private apiUrl = 'http://localhost:8222/api/v1/notifications';
 
   // WebSocket service, injected through setter to avoid circular dependency
   private webSocketService: any;
 
-  currentUserEmail: string = '';
-  userId: number = 0;
-  currentUserTenant: string = '';
-
   constructor(
     private http: HttpClient, 
-    private authService: AuthService,
-    private router: Router
-  ) { 
-    this.initUserInfo();
-  }
+    private router: Router,
+    private notificationState: NotificationStateService
+  ) { }
 
   /**
    * Set the WebSocket service instance
@@ -55,17 +33,102 @@ export class NotificationService {
     this.webSocketService = webSocketService;
   }
 
-  private initUserInfo(): void {
-    const currentUser = this.authService.getCurrentUser();
-    if (currentUser) {
-    // Get user data from localStorage directly to access all properties
-    const storedUser = localStorage.getItem('user');
-    const userData = storedUser ? JSON.parse(storedUser) : {};
-    
-    this.currentUserTenant = userData.tenant || '';
-    this.userId = parseInt(userData.id?.toString() || '0', 10);
-    this.currentUserEmail = currentUser.email || '';
+  /**
+   * Get current user email from state service
+   */
+  get currentUserEmail(): string {
+    return this.notificationState.currentUserEmail;
   }
+
+  /**
+   * Get current user tenant from state service
+   */
+  get currentUserTenant(): string {
+    return this.notificationState.currentUserTenant;
+  }
+
+  /**
+   * Get observable stream of notifications
+   */
+  getNotifications(): Observable<NotificationItem[]> {
+    return this.notificationState.getNotifications();
+  }
+
+  /**
+   * Get observable stream of unread count
+   */
+  getUnreadCount(): Observable<number> {
+    return this.notificationState.getUnreadCount();
+  }
+
+  /**
+   * Process a new notification received from WebSocket
+   */
+  processNotification(notification: Notification): void {
+    // Create a formatted notification item
+    const newNotification: NotificationItem = {
+      id: notification.id || this.generateTempId(),
+      title: notification.subject || this.generateTitle(notification.type || 'info'),
+      message: notification.message || 'New notification received',
+      type: notification.type || 'info',
+      read: false,
+      timeAgo: 'Just now',
+      sourceId: notification.sourceId || 0,
+      sourceType: notification.sourceType || '',
+      actionType: notification.actionType || '',
+      createdAt: notification.createdAt || new Date(),
+      recipientEmail: notification.recipientEmail || this.currentUserEmail
+    };
+    
+    // Calculate timeAgo
+    newNotification.timeAgo = this.formatTimeAgo(newNotification.createdAt);
+    
+    // Add to notifications array at the beginning (most recent first)
+    this.notifications.unshift(newNotification);
+    
+    // Update observers
+    this.notificationState.updateNotifications([...this.notifications]);
+    this.updateUnreadCount();
+  }
+
+  /**
+   * Update the unread count
+   */
+  private updateUnreadCount(): void {
+    const unreadCount = this.notifications.filter(n => !n.read).length;
+    this.notificationState.updateUnreadCount(unreadCount);
+  }
+
+  /**
+   * Initialize notifications for the current user
+   * This should be called after login or when WebSocket connection is established
+   */
+  initializeNotifications(): void {
+    console.log('Initializing notifications for user:', this.currentUserEmail);
+    
+    // Reset notifications first to ensure we don't mix with previous user's data
+    this.notifications = [];
+    this.notificationState.updateNotifications([]);
+    
+    // Only proceed if we have a user email
+    if (!this.currentUserEmail) {
+      console.warn('Cannot initialize notifications: No user email set');
+      return;
+    }
+    
+    // Fetch notifications and unread count
+    this.fetchUserNotifications(this.currentUserEmail).subscribe();
+    this.fetchUnreadNotificationsCount(this.currentUserEmail, this.currentUserTenant).subscribe();
+  }
+
+  /**
+   * Reset all notification data
+   * This should be called when a user logs out
+   */
+  resetNotifications(): void {
+    console.log('Resetting notification data');
+    this.notifications = [];
+    this.notificationState.clearUserInfo();
   }
 
   /**
@@ -108,113 +171,12 @@ export class NotificationService {
   }
 
   /**
-   * Process a new notification received from WebSocket
-   */
-  processNotification(notification: Notification): void {
-    // Create a formatted notification item
-    const newNotification: NotificationItem = {
-      id: notification.id || this.generateTempId(),
-      title: notification.subject || this.generateTitle(notification.type || 'info'),
-      message: notification.message || 'New notification received',
-      type: notification.type || 'info',
-      read: false,
-      timeAgo: 'Just now',
-      sourceId: notification.sourceId || 0,
-      sourceType: notification.sourceType || '',
-      actionType: notification.actionType || '',
-      createdAt: notification.createdAt || new Date(),
-      recipientEmail: notification.recipientEmail || this.currentUserEmail
-    };
-    
-    // Calculate timeAgo
-    newNotification.timeAgo = this.formatTimeAgo(newNotification.createdAt);
-    
-    // Add to notifications array at the beginning (most recent first)
-    this.notifications.unshift(newNotification);
-    
-    // Update observers
-    this.notificationsSubject.next([...this.notifications]);
-    this.updateUnreadCount();
-  }
-  
-  /**
-   * Get observable stream of notifications
-   */
-  getNotifications(): Observable<NotificationItem[]> {
-    return this.notificationsSubject.asObservable();
-  }
-  
-  /**
-   * Get observable for unread notification count
-   */
-  getUnreadCount(): Observable<number> {
-    return this.unreadCountSubject.asObservable();
-  }
-  
-  /**
-   * Mark a notification as read
-   */
-  markAsRead(id: number): void {
-    const notification = this.notifications.find(n => n.id === id);
-    if (notification && !notification.read) {
-      notification.read = true;
-      this.notificationsSubject.next([...this.notifications]);
-      this.updateUnreadCount();
-      
-      // Call the API to mark the notification as read
-      this.markNotificationAsReadApi(id).subscribe();
-    }
-  }
-  
-  /**
-   * Mark all notifications as read
-   */
-  markAllAsRead(): void {
-    if (!this.currentUserEmail) {
-      console.error('User email not available');
-      return;
-    }
-
-    // First update the local state
-    this.notifications.forEach(notification => {
-      notification.read = true;
-    });
-    this.notificationsSubject.next([...this.notifications]);
-    this.updateUnreadCount();
-    
-    // Then call the API to mark all as read via WebSocket if available
-    if (this.webSocketService) {
-      this.webSocketService.markAllNotificationsAsRead(this.currentUserEmail);
-    } else {
-      // Fallback to HTTP API
-      this.markAllNotificationsAsReadApi(this.currentUserEmail).subscribe();
-    }
-  }
-  
-  /**
-   * Clear all notifications
-   */
-  clearNotifications(): void {
-    this.notifications = [];
-    this.notificationsSubject.next([]);
-    this.unreadCountSubject.next(0);
-  }
-  
-  /**
-   * Update the unread count
-   */
-  private updateUnreadCount(): void {
-    const unreadCount = this.notifications.filter(n => !n.read).length;
-    this.unreadCountSubject.next(unreadCount);
-  }
-  
-  /**
    * Generate a temporary ID for notifications without one
    */
   private generateTempId(): number {
     return Date.now();
   }
-  
+
   /**
    * Generate a title based on notification type
    */
@@ -259,7 +221,7 @@ export class NotificationService {
       }),
       tap(notificationItems => {
         this.notifications = notificationItems;
-        this.notificationsSubject.next([...this.notifications]);
+        this.notificationState.updateNotifications([...this.notifications]);
         this.updateUnreadCount();
       }),
       catchError(error => {
@@ -288,7 +250,7 @@ export class NotificationService {
             n.read = false;
           }
         });
-        this.notificationsSubject.next([...this.notifications]);
+        this.notificationState.updateNotifications([...this.notifications]);
         this.updateUnreadCount();
       }),
       catchError(error => {
@@ -310,42 +272,13 @@ export class NotificationService {
     
     return this.http.get<number>(`${this.apiUrl}/unread/count`, { params }).pipe(
       tap(count => {
-        this.unreadCountSubject.next(count);
+        this.notificationState.updateUnreadCount(count);
       }),
       catchError(error => {
         console.error('Error fetching unread count:', error);
         
         // Return 0 to avoid breaking the UI
         return of(0);
-      })
-    );
-  }
-
-  /**
-   * Mark a notification as read via API
-   */
-  markNotificationAsReadApi(id: number): Observable<NotificationItem> {
-    return this.http.put<NotificationItem>(`${this.apiUrl}/${id}/read`, {});
-  }
-
-  /**
-   * Mark all notifications as read via API (HTTP fallback)
-   */
-  markAllNotificationsAsReadApi(email: string): Observable<NotificationItem[]> {
-    // This would typically be handled via WebSocket, but for HTTP fallback:
-    const payload = { email };
-    return this.http.post<NotificationItem[]>(`${this.apiUrl}/mark-all-read`, payload);
-  }
-
-  /**
-   * Create a new notification via API
-   */
-  createNotification(notification: NotificationItem): Observable<NotificationItem> {
-    return this.http.post<NotificationItem>(this.apiUrl, notification).pipe(
-      tap(createdNotification => {
-        this.notifications.unshift(createdNotification);
-        this.notificationsSubject.next([...this.notifications]);
-        this.updateUnreadCount();
       })
     );
   }
@@ -375,38 +308,6 @@ export class NotificationService {
       if (recipientEmail === this.currentUserEmail) {
         this.processNotification(notification);
       }
-    }
-  }
-
-  /**
-   * Initialize notifications for the current user
-   * Call this method when the app initializes or user logs in
-   */
-  initializeNotifications(): void {
-    if (!this.currentUserEmail) {
-      console.error('User email not available for notification initialization');
-      return;
-    }
-    
-    console.log('Initializing notifications for user:', this.currentUserEmail);
-    
-    // First try to fetch from API, but handle errors gracefully
-    this.fetchUserNotifications(this.currentUserEmail)
-      .subscribe(notifications => {
-        console.log('Fetched notifications:', notifications.length);
-        
-        // If notifications can't be fetched, we'll just use empty array
-        // The error handling in fetchUserNotifications will ensure UI doesn't break
-      });
-    
-    // If tenant is available, fetch unread count
-    if (this.currentUserTenant) {
-      this.fetchUnreadNotificationsCount(this.currentUserEmail, this.currentUserTenant)
-        .subscribe(count => {
-          console.log('Unread notifications count:', count);
-          
-          // Error handling in fetchUnreadNotificationsCount ensures UI doesn't break
-        });
     }
   }
 
@@ -448,8 +349,46 @@ export class NotificationService {
         break;
         
       default:
-        console.log(`Unknown notification source type: ${notification.sourceType}`);
-        break;
+        console.log(`Notification has no valid source type for redirection`);
+    }
+  }
+
+  /**
+   * Mark a notification as read
+   * @param id The notification ID to mark as read
+   */
+  markAsRead(id: number): void {
+    // Find the notification in our local array
+    const notification = this.notifications.find(n => n.id === id);
+    if (notification) {
+      notification.read = true;
+      this.notificationState.updateNotifications([...this.notifications]);
+      this.updateUnreadCount();
+      
+      // Call API to update in backend
+      this.http.put(`${this.apiUrl}/${id}/read`, {}).subscribe({
+        next: () => console.log('Notification marked as read on server'),
+        error: (err) => console.error('Error marking notification as read:', err)
+      });
+    }
+  }
+
+  /**
+   * Mark all notifications as read for the current user
+   */
+  markAllAsRead(): void {
+    // Update all notifications in our local array
+    this.notifications.forEach(n => n.read = true);
+    this.notificationState.updateNotifications([...this.notifications]);
+    this.notificationState.updateUnreadCount(0);
+    
+    // Call API to update in backend
+    const email = this.notificationState.currentUserEmail;
+    if (email) {
+      this.http.put(`${this.apiUrl}/mark-all-read`, { email }).subscribe({
+        next: () => console.log('All notifications marked as read on server'),
+        error: (err) => console.error('Error marking all notifications as read:', err)
+      });
     }
   }
 }

@@ -1,6 +1,6 @@
 <div class="min-h-screen">
-  <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
-    <div class="mx-auto max-w-7xl">
+  <div class="mx-auto max-w-screen-3xl p-1 md:p-1 lg:p-1 2xl:p-2">
+    <div class="mx-auto max-w-full pr-5 pl-5">
       <!-- Breadcrumb and Header -->
       <div class="mb-8">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -55,21 +55,8 @@
 
           <div *ngIf="!loading">
             <!-- Project Overview Stats -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              <!-- Start Date -->
-              <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                <div class="flex items-center gap-4">
-                  <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <mat-icon class="text-blue-600 dark:text-blue-400">schedule</mat-icon>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Start Date</p>
-                    <p class="text-lg font-semibold text-gray-900 dark:text-white">
-                      {{project.startDate | date}}
-                    </p>
-                  </div>
-                </div>
-              </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-8">
+              
 
               <!-- Due Date -->
               <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
@@ -96,21 +83,6 @@
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Team Size</p>
                     <p class="text-lg font-semibold text-gray-900 dark:text-white">
                       {{project.membersCount || 0}} Members
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Progress -->
-              <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                <div class="flex items-center gap-4">
-                  <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                    <mat-icon class="text-yellow-600 dark:text-yellow-400">assignment</mat-icon>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Progress</p>
-                    <p class="text-lg font-semibold text-gray-900 dark:text-white">
-                      {{project.progressPercentage || 0}}%
                     </p>
                   </div>
                 </div>
@@ -205,46 +177,9 @@
                 </div>
               </div>
 
-              <!-- Project Progress -->
               <div class="lg:col-span-1">
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Project Progress</h3>
-                  
-                  <div class="space-y-4">
-                    <div class="flex items-center justify-between mb-2">
-                      <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Overall Progress</span>
-                      <span class="text-sm font-semibold text-gray-900 dark:text-white">{{project.progressPercentage}}%</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                      <div class="bg-purple-600 h-2.5 rounded-full" [style.width.%]="project.progressPercentage"></div>
-                    </div>
-
-                    <!-- Task Status -->
-                    <div class="mt-6 space-y-3">
-                      <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-500 dark:text-gray-400">Completed Tasks</span>
-                        <span class="text-sm font-medium text-gray-900 dark:text-white">
-                          {{project.completedTasks || 0}}/{{project.totalTasks || 0}}
-                        </span>
-                      </div>
-                      <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-500 dark:text-gray-400">In Progress</span>
-                        <span class="text-sm font-medium text-gray-900 dark:text-white">
-                          {{project.inProgressTasks || 0}}
-                        </span>
-                      </div>
-                      <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-500 dark:text-gray-400">Pending</span>
-                        <span class="text-sm font-medium text-gray-900 dark:text-white">
-                          {{project.pendingTasks || 0}}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
                 <!-- Project Team -->
-                <div class="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                   <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Project Team</h3>
                   
                   <div class="space-y-4">
@@ -272,7 +207,7 @@
                       <div class="space-y-3 max-h-64 overflow-y-auto pr-2">
                         <div *ngFor="let member of members" class="flex items-center justify-between bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
                           <div class="flex items-center gap-3">
-                            <img [src]="member.image || 'assets/images/default-avatar.png'" 
+                            <img [src]="member.image != null ? member.image : 'https://cdn4.iconfinder.com/data/icons/avatars-xmas-giveaway/128/batman_hero_avatar_comics-512.png'" 
                                  [alt]="member.firstname + ' ' + member.lastname"
                                  class="w-8 h-8 rounded-full">
                             <div>
@@ -699,6 +634,16 @@
               </div>
             </div>
           </div>
+        </mat-tab>
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <div class="flex items-center gap-2 px-1">
+              <mat-icon class="text-gray-600 dark:text-gray-300">code</mat-icon>
+              <span>GitHub</span>
+            </div>
+          </ng-template>
+          <div class="p-6">
+            <app-github-interface *ngIf="project.id !== undefined" [projectId]="project.id"></app-github-interface>   </div>
         </mat-tab>
       </mat-tab-group>
     </div>

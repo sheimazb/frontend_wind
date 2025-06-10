@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { PricingComponentComponent } from '../pricing-component/pricing-component.component';
 @Component({
   selector: 'app-hero',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule , PricingComponentComponent],
   template: `
     <section 
      [ngClass]="{'dark': darkMode}"
@@ -106,6 +106,11 @@ import { CommonModule } from '@angular/common';
           </div>
         </div>
       </div>
+
+<!-- pricing section -->
+<div class="w-full">
+<app-pricing-component></app-pricing-component>
+</div>
     </section>
   `,
   styles: [`

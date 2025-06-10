@@ -48,6 +48,24 @@ interface DeveloperStatistics {
   }>;
 }
 
+// Interface for admin statistics
+interface AdminStatistics {
+  usersByRole: {
+    TESTER: number;
+    ADMIN: number;
+    DEVELOPER: number;
+    PARTNER: number;
+    MANAGER: number;
+  };
+  totalUsers: number;
+  activePartners: number;
+  lockedAccounts: number;
+  activatedUsers: number;
+  numberOfTenants: number;
+  totalPartners: number;
+  lockedPartners: number;
+}
+
 // Interface for dashboard statistics
 interface DashboardStatistics {
   newTicketsThisWeek: number;
@@ -138,7 +156,7 @@ interface StaffMember {
             </div>
             
             <!-- Project Selection -->
-            <div class="flex-shrink-0 flex flex-row">
+            <div *ngIf="!isAdmin" class="flex-shrink-0 flex flex-row">
            <p>Select a project</p>
               <select 
                 [value]="selectedProjectId"
@@ -156,6 +174,68 @@ interface StaffMember {
         <!-- Loading State -->
         <div *ngIf="isLoading" class="flex justify-center items-center py-20">
           <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+
+        <!-- Admin Statistics Section -->
+        <div *ngIf="isAdmin && adminStats && !isLoading" class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <!-- Total Partners Card -->
+          <div class="group bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <p class="text-blue-100 text-sm font-medium mb-2">Total Partners</p>
+                <p class="text-3xl font-bold mb-1">{{adminStats.totalPartners}}</p>
+                <div class="flex items-center text-sm">
+                  <span class="font-medium">All registered partners</span>
+                </div>
+              </div>
+              <div class="bg-white/20 rounded-full p-3 group-hover:bg-white/30 transition-colors duration-300">
+                <mat-icon class="text-2xl">groups</mat-icon>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Partners Card -->
+          <div class="group bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <p class="text-green-100 text-sm font-medium mb-2">Active Partners</p>
+                <p class="text-3xl font-bold mb-1">{{adminStats.activePartners}}</p>
+                <div class="flex items-center text-sm">
+                  <span class="font-medium">Currently active partners</span>
+                </div>
+              </div>
+              <div class="bg-white/20 rounded-full p-3 group-hover:bg-white/30 transition-colors duration-300">
+                <mat-icon class="text-2xl">check_circle</mat-icon>
+              </div>
+            </div>
+          </div>
+
+          <!-- Locked Partners Card -->
+          <div class="group bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <p class="text-red-100 text-sm font-medium mb-2">Locked Partners</p>
+                <p class="text-3xl font-bold mb-1">{{adminStats.lockedPartners}}</p>
+                <div class="flex items-center text-sm">
+                  <span class="font-medium">Partners with locked accounts</span>
+                </div>
+              </div>
+              <div class="bg-white/20 rounded-full p-3 group-hover:bg-white/30 transition-colors duration-300">
+                <mat-icon class="text-2xl">lock</mat-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Partner Statistics Chart -->
+        <div *ngIf="isAdmin && adminStats && !isLoading" class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 p-6 shadow-xl">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h3 class="text-xl font-bold text-gray-900 dark:text-white">Partner Statistics</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Overview of partner accounts</p>
+            </div>
+          </div>
+          <div #partnerStatsChart class="h-80"></div>
         </div>
 
         <!-- Project Statistics Section -->
@@ -251,7 +331,7 @@ interface StaffMember {
         </div>
 
         <!-- Developer Ticket Statistics Section -->
-        <div *ngIf="(isAdmin || isManager) && !isLoading" 
+        <div *ngIf="(isManager) && !isLoading" 
              class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 p-6 shadow-xl">
           <div class="flex items-center justify-between mb-6">
             <div>
@@ -393,14 +473,15 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('teamActivityChart', { static: false }) teamActivityChartRef!: ElementRef;
   @ViewChild('projectErrorsChart', { static: false }) projectErrorsChartRef!: ElementRef;
   @ViewChild('projectActivityChart', { static: false }) projectActivityChartRef!: ElementRef;
+  @ViewChild('partnerStatsChart', { static: false }) partnerStatsChartRef!: ElementRef;
 
   userRole: string = '';
   dashboardStats: DashboardStatistics | null = null;
   developerStats: DeveloperStatistics | null = null;
   projectLogStats: ProjectLogStatistics | null = null;
+  adminStats: AdminStatistics | null = null;
   isLoading: boolean = false;
   error: string | null = null;
-  
   selectedProjectId: number | null = null;
   projects: ProjectModel[] = [];
   
@@ -409,6 +490,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private teamActivityChart: ApexCharts | null = null;
   private projectErrorsChart: ApexCharts | null = null;
   private projectActivityChart: ApexCharts | null = null;
+  private partnerStatsChart: ApexCharts | null = null;
   
   developerTicketCounts: DeveloperTicketCounts[] = [];
   staffMembers: StaffMember[] = [];
@@ -444,6 +526,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!userId) {
       this.error = 'User ID not found';
       return;
+    }
+
+    // Load admin statistics if user is admin
+    if (this.isAdmin) {
+      this.loadAdminStatistics();
     }
 
     // Load user's projects
@@ -873,6 +960,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.projectActivityChart) {
       this.projectActivityChart.destroy();
     }
+    if (this.partnerStatsChart) {
+      this.partnerStatsChart.destroy();
+    }
   }
   
   // Role-based getters for template
@@ -995,5 +1085,93 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       .map(part => part.charAt(0))
       .join('')
       .toUpperCase();
+  }
+
+  public loadAdminStatistics(): void {
+    this.isLoading = true;
+    this.error = null;
+    
+    this.http.get<AdminStatistics>('http://localhost:8222/api/v1/auth/stats')
+      .subscribe({
+        next: (data) => {
+          this.adminStats = data;
+          this.isLoading = false;
+          setTimeout(() => {
+            this.initPartnerStatsChart();
+          }, 100);
+        },
+        error: (error) => {
+          console.error('Error loading admin statistics:', error);
+          this.error = 'Failed to load admin statistics. Please try again.';
+          this.isLoading = false;
+        }
+      });
+  }
+
+  private initPartnerStatsChart(): void {
+    if (!this.partnerStatsChartRef || !this.adminStats) return;
+
+    // Destroy existing chart if it exists
+    if (this.partnerStatsChart) {
+      this.partnerStatsChart.destroy();
+    }
+
+    const options = {
+      series: [{
+        name: 'Partners',
+        data: [
+          this.adminStats.totalPartners,
+          this.adminStats.activePartners,
+          this.adminStats.lockedPartners
+        ]
+      }],
+      chart: {
+        type: 'bar' as const,
+        height: 320,
+        background: 'transparent',
+        toolbar: {
+          show: false
+        }
+      },
+      xaxis: {
+        categories: ['Total Partners', 'Active Partners', 'Locked Partners'],
+        labels: {
+          style: {
+            colors: '#6b7280'
+          }
+        }
+      },
+      yaxis: {
+        labels: {
+          style: {
+            colors: ['#6b7280']
+          }
+        }
+      },
+      colors: ['#6366f1', '#10b981', '#ef4444'],
+      plotOptions: {
+        bar: {
+          borderRadius: 8,
+          columnWidth: '60%',
+          distributed: true
+        }
+      },
+      dataLabels: {
+        enabled: true,
+        style: {
+          colors: ['#fff']
+        }
+      },
+      legend: {
+        show: false
+      },
+      grid: {
+        borderColor: '#e5e7eb',
+        strokeDashArray: 5
+      }
+    };
+
+    this.partnerStatsChart = new ApexCharts(this.partnerStatsChartRef.nativeElement, options);
+    this.partnerStatsChart.render();
   }
 }

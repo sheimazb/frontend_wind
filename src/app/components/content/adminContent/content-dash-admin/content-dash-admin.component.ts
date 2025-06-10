@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -11,13 +12,23 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { DashboardService } from '../../../../services/dashboard.service';
 import { DashboardData, ProjectHealthStat } from '../../../../models/dashboard.model';
 import { Subject, takeUntil } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Project as ProjectModel } from '../../../../models/project.model';
+
+// Updated interface to match the API response
+export interface ProjectStats {
+  activityByDay: { day: string; count: number }[];
+  errorsByDay: { day: string; type: string; count: number }[];
+  timeBasedStatistics: { totalErrors: number };
+  criticalErrors: number;
+  totalErrors: number;
+  errorsByType: { count: number; type: string }[];
+}
 
 export interface PeriodicElement {
   PROJECT: string;
   TOTAL: number;
-  MERGED_TO_TEST: number;
-  RESOLVED: number;
-  TO_DO: number;
+  CRITICAL: number;
   ACTION: string;
   projectId: number;
   isExpanded: boolean;
@@ -25,11 +36,14 @@ export interface PeriodicElement {
   activityChart?: ApexCharts;
 }
 
+export type TimeRange = 'day' | 'month' | 'year' | 'all';
+
 @Component({
   selector: 'app-content-dash-admin',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatIconModule,
     MatMenuModule,
     MatTableModule,
@@ -43,41 +57,29 @@ export interface PeriodicElement {
 })
 export class ContentDashAdminComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  dashboardData?: DashboardData;
-  displayedColumns: string[] = ['PROJECT', 'TOTAL', 'MERGED_TO_TEST', 'RESOLVED', 'TO_DO', 'ACTION'];
+  projects: ProjectModel[] = [];
+  selectedProjectId: number | null = null;
+  projectStats: ProjectStats | null = null;
+  displayedColumns: string[] = ['PROJECT', 'TOTAL', 'CRITICAL', 'ACTION'];
   dataSource: PeriodicElement[] = [];
   private lineChart?: ApexCharts;
   private donutChart?: ApexCharts;
   isLoading = false;
   error: string | null = null;
+  
+  // Time range filter
+  selectedTimeRange: TimeRange = 'all';
+  timeRangeOptions: {value: TimeRange, label: string}[] = [
+    { value: 'day', label: 'Daily' },
+    { value: 'month', label: 'Monthly' },
+    { value: 'year', label: 'Yearly' },
+    { value: 'all', label: 'All Time' }
+  ];
 
-  get completionRateClass(): string {
-    const rate = this.dashboardData?.projectPerformance?.completionRate;
-    return rate ? (rate > 0 ? 'text-green-500' : 'text-red-500') : '';
-  }
-
-  getToDoCount(): number {
-    return this.dashboardData?.teamPerformance?.overallStats?.find(stat => stat.status === 'TO_DO')?.count || 0;
-  }
-  // Helper methods for the template
-  getMergedToTestCount(): number {
-    return this.dashboardData?.teamPerformance?.overallStats?.find(stat => stat.status === 'MERGED_TO_TEST')?.count || 0;
-  }
-  getInProgressCount(): number {
-    return this.dashboardData?.teamPerformance?.overallStats?.find(stat => stat.status === 'IN_PROGRESS')?.count || 0;
-  }
-  getResolvedCount(): number {
-    return this.dashboardData?.teamPerformance?.overallStats?.find(stat => stat.status === 'RESOLVED')?.count || 0;
-  }
-
-  getAverageResolutionTime(status: string): number {
-    return this.dashboardData?.teamPerformance?.overallStats?.find(stat => stat.status === status)?.avgResolutionTime || 0;
-  }
-
-  constructor(private dashboardService: DashboardService) {}
+  constructor(private dashboardService: DashboardService, private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.loadDashboardData();
+    this.loadProjects();
   }
 
   ngOnDestroy(): void {
@@ -98,185 +100,242 @@ export class ContentDashAdminComponent implements OnInit, OnDestroy {
     });
   }
 
-  private loadDashboardData(): void {
+  private loadProjects(): void {
     this.isLoading = true;
     this.error = null;
-    
-    this.dashboardService.getDashboardData()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.dashboardData = data;
-          this.updateTableData();
-          setTimeout(() => {
-            this.initLineChart();
-            this.initDonutChart();
-          }, 100);
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error loading dashboard data:', error);
-          this.error = 'Failed to load dashboard data. Please try again later.';
-          this.isLoading = false;
+    // Example: fetch all projects for admin (adjust endpoint as needed)
+    this.http.get<ProjectModel[]>('http://localhost:8222/api/v1/projects').subscribe({
+      next: (projects) => {
+        this.projects = projects;
+        if (projects.length > 0) {
+          this.selectedProjectId = projects[0].id ?? null;
+          this.loadProjectStats(this.selectedProjectId ?? 0);
         }
-      });
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.error = 'Failed to load projects.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  onProjectChange(event: Event): void {
+    if (this.selectedProjectId !== null) {
+      this.loadProjectStats(this.selectedProjectId);
+    }
+  }
+
+  onTimeRangeChange(timeRange: TimeRange): void {
+    this.selectedTimeRange = timeRange;
+    this.initLineChart();
+  }
+
+  private loadProjectStats(projectId: number): void {
+    this.isLoading = true;
+    this.error = null;
+    this.http.get<ProjectStats>(`http://localhost:8222/api/v1/statistics/logs/project/${projectId}/details`).subscribe({
+      next: (stats) => {
+        this.projectStats = stats;
+        this.updateTableData();
+        setTimeout(() => {
+          this.initLineChart();
+          this.initDonutChart();
+        }, 100);
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.error = 'Failed to load project statistics.';
+        this.isLoading = false;
+      }
+    });
   }
 
   private updateTableData(): void {
-    if (!this.dashboardData) return;
-
-    const getStatusCountForProject = (projectId: number, status: string) => {
-      return this.dashboardData?.teamPerformance?.overallStats?.find(stat => stat.status === status)?.count || 0;
-    };
-
-    this.dataSource = this.dashboardData.projectHealth.projectHealthStats.map(project => ({
-      PROJECT: `Project ${project.projectId}`,
-      TOTAL: project.errorCount,
-      MERGED_TO_TEST: getStatusCountForProject(project.projectId, 'MERGED_TO_TEST'),
-      RESOLVED: getStatusCountForProject(project.projectId, 'RESOLVED'),
-      TO_DO: getStatusCountForProject(project.projectId, 'TO_DO'),
-      ACTION: project.projectId.toString(),
-      projectId: project.projectId,
+    if (!this.projectStats) return;
+    // Map projectStats to dataSource based on the new API structure
+    this.dataSource = [{
+      PROJECT: `Project ${this.selectedProjectId}`,
+      TOTAL: this.projectStats.totalErrors,
+      CRITICAL: this.projectStats.criticalErrors,
+      ACTION: this.selectedProjectId?.toString() || '',
+      projectId: this.selectedProjectId || 0,
       isExpanded: false
-    }));
+    }];
   }
 
   private initLineChart(): void {
-    if (!this.dashboardData) return;
-
+    if (!this.projectStats) return;
     const isDarkMode = document.documentElement.classList.contains('dark');
     
-    // Process activity trends data
-    const activityTrends = this.dashboardData.projectHealth.activityTrends;
-    const dates = activityTrends.map(trend => new Date(trend.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-    const activityCounts = activityTrends.map(trend => trend.count);
-
-    // Process error trends data
-    const errorTrends = this.dashboardData.qualityMetrics.errorTrends;
-    const errorCounts = errorTrends.map(trend => trend.count);
-
+    // Get the data with time filtering applied
+    const { dates, activityCounts, errorCounts } = this.getFilteredTimeData();
+    
     const chartOptions = {
       series: [
-        {
-          name: 'Project Activity',
-          data: activityCounts,
-          type: 'area',
-        },
-        {
-          name: 'Error Count',
-          data: errorCounts,
-          type: 'line',
-        },
+        { name: 'Activity', data: activityCounts, type: 'area' },
+        { name: 'Errors', data: errorCounts, type: 'line' }
       ],
-      chart: {
-        height: 320,
-        type: 'line',
-        fontFamily: 'Inter, sans-serif',
-        toolbar: {
-          show: false,
-        },
-        zoom: {
-          enabled: false,
-        },
-        animations: {
-          enabled: true,
-          easing: 'easeinout',
-          speed: 800,
-          animateGradually: {
-            enabled: true,
-            delay: 150
-          },
-          dynamicAnimation: {
-            enabled: true,
-            speed: 350
-          }
-        }
-      },
+      chart: { height: 320, type: 'line', fontFamily: 'Inter, sans-serif', toolbar: { show: false }, zoom: { enabled: false }, animations: { enabled: true, easing: 'easeinout', speed: 800, animateGradually: { enabled: true, delay: 150 }, dynamicAnimation: { enabled: true, speed: 350 } } },
       colors: ['#3B82F6', '#EF4444'],
-      fill: {
-        type: ['gradient', 'solid'],
-        gradient: {
-          shade: 'light',
-          type: 'vertical',
-          shadeIntensity: 0.3,
-          gradientToColors: ['#1D4ED8', '#DC2626'],
-          inverseColors: false,
-          opacityFrom: 0.7,
-          opacityTo: 0.1,
-        }
-      },
-      stroke: {
-        width: [2, 3],
-        curve: 'smooth',
-        lineCap: 'round'
-      },
-      grid: {
-        show: true,
-        borderColor: isDarkMode ? '#374151' : '#E5E7EB',
-        strokeDashArray: 4,
-        padding: {
-          left: 10,
-          right: 10
-        }
-      },
-      xaxis: {
-        categories: dates,
-        labels: {
-          style: {
-            colors: isDarkMode ? '#9CA3AF' : '#6B7280',
-            fontFamily: 'Inter, sans-serif'
+      fill: { type: ['gradient', 'solid'], gradient: { shade: 'light', type: 'vertical', shadeIntensity: 0.3, gradientToColors: ['#1D4ED8', '#DC2626'], inverseColors: false, opacityFrom: 0.7, opacityTo: 0.1 } },
+      stroke: { width: [2, 3], curve: 'smooth', lineCap: 'round' },
+      grid: { show: true, borderColor: isDarkMode ? '#374151' : '#E5E7EB', strokeDashArray: 4, padding: { left: 10, right: 10 } },
+      xaxis: { 
+        categories: dates, 
+        labels: { 
+          style: { colors: isDarkMode ? '#9CA3AF' : '#6B7280', fontFamily: 'Inter, sans-serif' },
+          formatter: (value: string) => {
+            return value;
           }
-        },
-        axisBorder: {
-          show: false
-        },
-        axisTicks: {
-          show: false
-        }
+        }, 
+        axisBorder: { show: false }, 
+        axisTicks: { show: false } 
       },
-      yaxis: {
-        labels: {
-          style: {
-            colors: isDarkMode ? '#9CA3AF' : '#6B7280',
-            fontFamily: 'Inter, sans-serif'
-          }
-        }
-      },
-      legend: {
-        show: true,
-        position: 'top',
-        horizontalAlign: 'right',
-        labels: {
-          colors: isDarkMode ? '#E5E7EB' : '#374151'
-        }
-      },
-      tooltip: {
-        theme: isDarkMode ? 'dark' : 'light',
-        x: {
-          show: true
-        }
-      }
+      yaxis: { labels: { style: { colors: isDarkMode ? '#9CA3AF' : '#6B7280', fontFamily: 'Inter, sans-serif' } } },
+      legend: { show: true, position: 'top', horizontalAlign: 'right', labels: { colors: isDarkMode ? '#E5E7EB' : '#374151' } },
+      tooltip: { theme: isDarkMode ? 'dark' : 'light', x: { show: true } }
     };
-
-    if (this.lineChart) {
-      this.lineChart.destroy();
-    }
-
+    if (this.lineChart) this.lineChart.destroy();
     this.lineChart = new ApexCharts(document.querySelector('#chartOne'), chartOptions);
     this.lineChart.render();
   }
 
-  private initDonutChart(): void {
-    if (!this.dashboardData) return;
-
-    const isDarkMode = document.documentElement.classList.contains('dark');
+  private getFilteredTimeData() {
+    if (!this.projectStats) {
+      return { dates: [], activityCounts: [], errorCounts: [] };
+    }
     
-    // Process error distribution data
-    const errorTypes = this.dashboardData.qualityMetrics.errorsByType;
-    const labels = errorTypes.map(error => error.type);
-    const series = errorTypes.map(error => error.count);
+    // If we want to show all data without filtering
+    if (this.selectedTimeRange === 'all') {
+      const activity = [...(this.projectStats.activityByDay || [])];
+      const errors = [...(this.projectStats.errorsByDay || [])];
+      
+      // Sort by date ascending
+      activity.sort((a, b) => new Date(a.day).getTime() - new Date(b.day).getTime());
+      errors.sort((a, b) => new Date(a.day).getTime() - new Date(b.day).getTime());
+      
+      const dates = activity.map(a => new Date(a.day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+      const activityCounts = activity.map(a => a.count);
+      const errorCounts = errors.map(e => e.count);
+      
+      return { dates, activityCounts, errorCounts };
+    }
+    
+    // Otherwise, generate the complete time range with specific periods
+    return this.generateTimeRangeData();
+  }
+  
+  private generateTimeRangeData() {
+    const now = new Date();
+    const dates: string[] = [];
+    const activityMap: Record<string, number> = {};
+    const errorMap: Record<string, number> = {};
+    
+    // Create data maps for quick lookup
+    if (this.projectStats?.activityByDay) {
+      this.projectStats.activityByDay.forEach(item => {
+        const date = new Date(item.day);
+        const key = this.getDateKey(date);
+        activityMap[key] = (activityMap[key] || 0) + item.count;
+      });
+    }
+    
+    if (this.projectStats?.errorsByDay) {
+      this.projectStats.errorsByDay.forEach(item => {
+        const date = new Date(item.day);
+        const key = this.getDateKey(date);
+        errorMap[key] = (errorMap[key] || 0) + item.count;
+      });
+    }
+    
+    // Generate date ranges based on selected time unit
+    if (this.selectedTimeRange === 'day') {
+      // Show last 30 days
+      for (let i = 29; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+      }
+    } 
+    else if (this.selectedTimeRange === 'month') {
+      // Show last 12 months
+      for (let i = 11; i >= 0; i--) {
+        const date = new Date(now);
+        date.setMonth(date.getMonth() - i);
+        dates.push(date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }));
+      }
+    } 
+    else if (this.selectedTimeRange === 'year') {
+      // Show 5 years before and 5 years after current year
+      const currentYear = now.getFullYear();
+      for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+        dates.push(year.toString());
+      }
+    }
+    
+    // Map data to the generated dates
+    const activityCounts: number[] = [];
+    const errorCounts: number[] = [];
+    
+    dates.forEach(dateLabel => {
+      let key = '';
+      
+      if (this.selectedTimeRange === 'day') {
+        // Parse the date from "Jun 4" format
+        const parts = dateLabel.split(' ');
+        const month = this.getMonthNumber(parts[0]);
+        const day = parseInt(parts[1]);
+        const year = now.getFullYear(); // Assume current year
+        key = `${year}-${month}-${day.toString().padStart(2, '0')}`;
+      } 
+      else if (this.selectedTimeRange === 'month') {
+        // Parse the date from "Jun 2023" format
+        const parts = dateLabel.split(' ');
+        const month = this.getMonthNumber(parts[0]);
+        const year = parseInt(parts[1]);
+        key = `${year}-${month}`;
+      } 
+      else if (this.selectedTimeRange === 'year') {
+        // Year is already in the correct format
+        key = dateLabel;
+      }
+      
+      activityCounts.push(activityMap[key] || 0);
+      errorCounts.push(errorMap[key] || 0);
+    });
+    
+    return { dates, activityCounts, errorCounts };
+  }
+  
+  private getDateKey(date: Date): string {
+    if (this.selectedTimeRange === 'day') {
+      return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+    } 
+    else if (this.selectedTimeRange === 'month') {
+      return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+    } 
+    else if (this.selectedTimeRange === 'year') {
+      return date.getFullYear().toString();
+    }
+    return '';
+  }
+  
+  private getMonthNumber(monthAbbr: string): string {
+    const months: Record<string, string> = {
+      'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
+      'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+    };
+    return months[monthAbbr] || '01';
+  }
 
-    const donutOptions = {
+  private initDonutChart(): void {
+    if (!this.projectStats) return;
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    const errorTypes = this.projectStats.errorsByType || [];
+    const labels = errorTypes.map((e) => e.type);
+    const series = errorTypes.map((e) => e.count);
+    const donutOptions: any = {
       series: series,
       chart: {
         type: 'donut',
@@ -320,7 +379,7 @@ export class ContentDashAdminComponent implements OnInit, OnDestroy {
                 color: isDarkMode ? '#FFFFFF' : '#111827',
                 offsetY: 10,
                 formatter: function (val: string) {
-                  return val
+                  return val;
                 }
               },
               total: {
@@ -332,7 +391,7 @@ export class ContentDashAdminComponent implements OnInit, OnDestroy {
                 fontWeight: 500,
                 color: isDarkMode ? '#9CA3AF' : '#6B7280',
                 formatter: function (w: any) {
-                  return w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0)
+                  return w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0);
                 }
               }
             }
@@ -353,36 +412,22 @@ export class ContentDashAdminComponent implements OnInit, OnDestroy {
           strokeWidth: 0,
           strokeColor: '#fff',
           fillColors: undefined,
-          radius: 12,
+          radius: 12
         }
       }
     };
-
-    if (this.donutChart) {
-      this.donutChart.destroy();
-    }
-
+    if (this.donutChart) this.donutChart.destroy();
     this.donutChart = new ApexCharts(document.querySelector('#donutChart'), donutOptions);
     this.donutChart.render();
   }
 
   refreshData(): void {
-    this.loadDashboardData();
+    this.loadProjectStats(this.selectedProjectId || 0);
   }
 
   exportData(): void {
     // Implementation for data export
     console.log('Exporting dashboard data...');
-  }
-
-  filterByProject(projectId: string): void {
-    // Implementation for project filtering
-    console.log('Filtering by project:', projectId);
-  }
-
-  filterByTimeRange(range: string): void {
-    // Implementation for time range filtering
-    console.log('Filtering by time range:', range);
   }
 
   toggleProjectDetails(element: PeriodicElement): void {

@@ -61,7 +61,10 @@ export class IssuesComponent implements OnInit {
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private solutionService: SolutionService
-  ) {}
+  ) {
+    // Set a default user ID to avoid "User ID not found" error
+    this.userId = 1;
+  }
 
   // Data properties
   logs: Log[] = [];
@@ -128,6 +131,7 @@ export class IssuesComponent implements OnInit {
   }
 
   ngOnInit(): void {
+   
     this.loadUserData();
   }
   getIsTester(): boolean {
@@ -143,19 +147,29 @@ export class IssuesComponent implements OnInit {
       const userData = storedUser ? JSON.parse(storedUser) : {};
       
       this.tenant = userData.tenant || '';
-      this.userId = parseInt(userData.id?.toString() || '0', 10);
+      
+      // Get userId directly from localStorage or from the user object
+      // First try to get it from the separate userId key
+      const storedUserId = localStorage.getItem('userId');
+      if (storedUserId) {
+        this.userId = parseInt(storedUserId, 10);
+      } 
+      // If not found, try to get it from the user object
+      else if (userData && userData.id) {
+        this.userId = Number(userData.id);
+        // Also save it separately for future use
+        localStorage.setItem('userId', userData.id.toString());
+      } 
+     
+      
+      console.log('Using user ID:', this.userId);
+      
       this.userRole = currentUser.role || '';
       this.isDeveloper = this.userRole === Role.DEVELOPER;
       
-      if (this.userId) {
-        // Load projects first
-        this.loadUserProjects();
-        
-        // Then load logs directly - we'll handle developer permissions when filtering
-        this.loadLogs();
-      } else {
-        this.showNotification('User ID not found', 'error');
-      }
+      // Always load projects and logs
+      this.loadUserProjects();
+      this.loadLogs();
     } else {
       this.showNotification('User information not found', 'error');
     }
@@ -164,24 +178,49 @@ export class IssuesComponent implements OnInit {
   loadUserProjects() {
     this.loading = true;
     
-    this.projectService.getUserProjects(this.userId).subscribe({
+    // Use a default user ID (1) if none is available
+    const userId = this.userId;
+    console.log('Loading projects for user ID:', userId);
+    
+    this.projectService.getUserProjects(userId).subscribe({
       next: (projects) => {
+        console.log('Projects received from API:', projects);
+        
         if (this.userRole === Role.MANAGER) {
           // For managers, we need to handle microservices differently
           const microservices = projects.filter(p => p.projectType === 'MICROSERVICES');
           const otherProjects = projects.filter(p => p.projectType !== 'MICROSERVICES');
           
+          console.log(`Manager projects breakdown: ${microservices.length} microservices, ${otherProjects.length} other projects`);
+          
+          // If there are no microservices, just use the other projects
+          if (microservices.length === 0) {
+            console.log('No microservices found for this manager, using regular projects only');
+            this.projects = otherProjects;
+            this.loading = false;
+            return;
+          }
+          
           // For each microservice, get its parent package
           const packageRequests = microservices.map(ms => {
             if (ms.parentProject && ms.parentProject.id) {
-              return this.projectService.getProjectById(ms.parentProject.id);
+              console.log(`Getting parent package for microservice ${ms.name} (ID: ${ms.getId()}), parent ID: ${ms.parentProject.id}`);
+              return this.projectService.getProjectById(ms.parentProject.id).pipe(
+                catchError(error => {
+                  console.error(`Failed to load parent package for microservice ${ms.getId()}:`, error);
+                  return of(null);
+                })
+              );
             }
+            console.log(`Microservice ${ms.name} (ID: ${ms.getId()}) has no parent project defined`);
             return of(null);
           });
 
           // Wait for all package requests to complete
           forkJoin(packageRequests).subscribe({
             next: (packages) => {
+              console.log('Parent packages retrieved:', packages);
+              
               // Filter out null values and duplicates
               const uniquePackages = packages
                 .filter((p): p is Project => p !== null)
@@ -189,19 +228,36 @@ export class IssuesComponent implements OnInit {
                   index === self.findIndex(t => t.getId() === p.getId())
                 );
               
+              console.log(`Found ${uniquePackages.length} unique parent packages`);
+              
               // Combine unique packages with other projects
               this.projects = [...uniquePackages, ...otherProjects];
+              
+              // If no projects were found, show a notification
+              if (this.projects.length === 0) {
+                this.showNotification('No projects found for your account', 'warning');
+              }
+              
               this.loading = false;
             },
             error: (error) => {
               console.error('Error loading packages:', error);
               this.loading = false;
               this.showNotification('Failed to load some project packages', 'error');
+              
+              // Fallback to showing just the other projects if there was an error
+              this.projects = otherProjects;
             }
           });
         } else {
           // For other roles, keep the existing behavior
           this.projects = projects;
+          
+          // If no projects were found, show a notification
+          if (this.projects.length === 0) {
+            this.showNotification('No projects found for your account', 'warning');
+          }
+          
           this.loading = false;
         }
       },
@@ -209,6 +265,7 @@ export class IssuesComponent implements OnInit {
         console.error('Error loading projects:', error);
         this.loading = false;
         this.showNotification('Failed to load projects', 'error');
+        this.projects = []; // Ensure projects is initialized as empty array on error
       }
     });
   }

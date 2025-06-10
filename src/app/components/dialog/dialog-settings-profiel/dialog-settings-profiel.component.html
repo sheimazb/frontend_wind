@@ -2,12 +2,12 @@
   class="mx-auto w-full dark:bg-gray-800 bg-gray-100 p-6 rounded-lg shadow-lg"
 >
 <div class="flex justify-between items-center mb-6">
-  <h2 class="dark:text-white text-2xl font-semibold">Settings Profile</h2>
+  <h2 class="dark:text-white text-black text-2xl font-semibold">Settings Profile</h2>
   <button 
     (click)="dialogRef.close()" 
     class="rounded-full p-2 hover:bg-gray-200 dark:hover:bg-gray-700"
   >
-    <mat-icon>close</mat-icon>
+    <mat-icon class="text-red-500 dark:text-white">close</mat-icon>
   </button>
 </div>
   <div>
@@ -125,7 +125,7 @@
                     (click)="togglePasswordVisibility()"
                     class="absolute right-4 top-1/2 z-30 -translate-y-1/2 cursor-pointer"
                   >
-                    <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    <mat-icon class="text-gray-400 dark:text-white">{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
                   </span>
                 </div>
               </div>
@@ -148,7 +148,7 @@
                     (click)="togglePasswordVisibility()"
                     class="absolute right-4 top-1/2 z-30 -translate-y-1/2 cursor-pointer"
                   >
-                    <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    <mat-icon class="text-gray-400 dark:text-white">{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
                   </span>
                 </div>
               </div>

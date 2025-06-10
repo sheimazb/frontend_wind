@@ -6,7 +6,8 @@ import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { ProfileResponse, UserService } from '../../services/user.service';
 import { catchError, of, Subscription } from 'rxjs';
-import { NotificationService, NotificationItem } from '../../services/notification.service';
+import { NotificationService } from '../../services/notification.service';
+import { NotificationStateService, NotificationItem } from '../../services/notification-state.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { environment } from '../../../environments/environment';
 import { SearchService, SearchSuggestion } from '../../services/search.service';
@@ -73,6 +74,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private sidebarService: SidebarService,
     private userService: UserService,
     private notificationService: NotificationService,
+    private notificationState: NotificationStateService,
     private websocketService: WebsocketService,
     private searchService: SearchService
   ) {
@@ -83,6 +85,22 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const currentUser = this.authService.getCurrentUser();
     this.userRole = currentUser?.role || null;
     this.loadUserProfile();
+    
+    // Subscribe to auth service for user changes
+    this.subscription.add(
+      this.authService.currentUser.subscribe(user => {
+        if (user) {
+          this.currentUser = user;
+          // Setup notifications for the new user
+          this.setupNotifications();
+        } else {
+          this.currentUser = null;
+          this.notifications = [];
+          this.unreadNotificationsCount = 0;
+          this.websocketConnected = false;
+        }
+      })
+    );
     
     // Subscribe to profile changes
     this.profileSubscription = this.userService.profileChanges.subscribe(profile => {
@@ -100,17 +118,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (currentUser?.email) {
       this.userEmail = currentUser.email;
       
-      // Initialize the notification service with current user info
-      this.notificationService.currentUserEmail = currentUser.email;
-      
-      // Get tenant info from localStorage if available
+      // Set user info in notification state service
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
         try {
           const userData = JSON.parse(storedUser);
-          if (userData && userData.tenant) {
-            this.notificationService.currentUserTenant = userData.tenant;
-          }
+          this.notificationState.setUserInfo(
+            currentUser.email,
+            userData.tenant || '',
+            userData.id || 0
+          );
         } catch (e) {
           console.error('Error parsing user data:', e);
         }
@@ -494,6 +511,28 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private setupNotifications(): void {
     if (!this.currentUser?.email) return;
     
+    // Get tenant info from localStorage
+    let tenant = '';
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        tenant = userData.tenant || '';
+      } catch (e) {
+        console.error('Error parsing user data:', e);
+      }
+    }
+    
+    // Set user info in notification state service
+    this.notificationState.setUserInfo(
+      this.currentUser.email,
+      tenant,
+      0 // User ID if available
+    );
+    
+    // Disconnect any existing WebSocket connection first
+    this.websocketService.disconnect();
+    
     // Connect to WebSocket for real-time notifications
     this.websocketService.connect(this.currentUser.email);
     
@@ -539,5 +578,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (!(event.target as HTMLElement).closest('.search-container')) {
       this.showSuggestions = false;
     }
+  }
+
+  onLogoClick() {
+    this.router.navigate(['/']);
   }
 }

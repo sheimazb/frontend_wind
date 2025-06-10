@@ -5,9 +5,9 @@ import { Project } from '../../../../models/project.model';
 export class ProjectTypePipe implements PipeTransform {
   transform(projects: Project[], type: 'all' | 'package' | 'monolithic'): Project[] {
     if (!projects) return [];
-    if (type === 'all') return projects;
+    if (type === 'all') return projects.filter(p => p.projectType !== 'MICROSERVICES');
     if (type === 'package') return projects.filter(p => p.projectType === 'MICROSERVICES_PACKAGE');
-    if (type === 'monolithic') return projects.filter(p => p.projectType !== 'MICROSERVICES_PACKAGE');
+    if (type === 'monolithic') return projects.filter(p => p.projectType !== 'MICROSERVICES_PACKAGE' && p.projectType !== 'MICROSERVICES');
     return projects;
   }
 } 

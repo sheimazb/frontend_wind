@@ -13,6 +13,10 @@ export const routes: Routes = [
     path:'home',
     loadComponent: () => import('./pages/HomePage/homePage.component').then(m => m.HomePageComponent)
   },
+  {
+    path:'pricing',
+    loadComponent: () => import('./pages/HomePage/pricing-component/pricing-component.component').then(m => m.PricingComponentComponent)
+  },  
   
   // Authentication routes
   { 

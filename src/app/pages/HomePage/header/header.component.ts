@@ -17,7 +17,7 @@ import { Router } from '@angular/router';
             <div class="flex items-center group-hover:scale-105 transition-transform">
               <div class="flex items-center h-16">
                 <img 
-                  [src]="isDarkMode ? 'assets/darkLogo.png' : 'assets/darkLogo.png'" 
+                  [src]="isDarkMode ? 'assets/darkLogo.png' : 'assets/lightLogo.png'" 
                   alt="WindLogs Logo" 
                   class="h-full w-auto object-contain hover:brightness-110 transition-all duration-300" 
                 />
@@ -44,8 +44,8 @@ import { Router } from '@angular/router';
             </div>
           </div>
           <a href="#" class="nav-link" [ngClass]="{'text-white/75 hover:text-white': isDarkMode, 'text-[#111036]/75 hover:text-[#111036]': !isDarkMode}">PRICING</a>
-          <a href="#" class="nav-link" [ngClass]="{'text-white/75 hover:text-white': isDarkMode, 'text-[#111036]/75 hover:text-[#111036]': !isDarkMode}">DOCS</a>
-          <a href="#" class="nav-link" [ngClass]="{'text-white/75 hover:text-white': isDarkMode, 'text-[#111036]/75 hover:text-[#111036]': !isDarkMode}">BLOG</a>   
+          <a href="#" class="nav-link" (click)="openDocs()"  [ngClass]="{'text-white/75 hover:text-white': isDarkMode, 'text-[#111036]/75 hover:text-[#111036]': !isDarkMode}">DOCS</a>
+          <a href="https://medium.com/@zbedichaima/windlogs-the-smart-log-parser-that-transforms-errors-into-actionable-solutions-17c508dbe2b0" class="nav-link" [ngClass]="{'text-white/75 hover:text-white': isDarkMode, 'text-[#111036]/75 hover:text-[#111036]': !isDarkMode}">BLOG</a>   
         </nav>
 
         <div class="flex items-center space-x-6">
@@ -114,5 +114,8 @@ export class HeaderComponent {
 
   onSignInClick() {
     this.router.navigate(['/login']);
+  }
+  openDocs(): void {
+    window.open('/assets/docs/user-guide.html', '_blank');
   }
 }

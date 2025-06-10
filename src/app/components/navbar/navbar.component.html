@@ -29,7 +29,9 @@
           </svg>
         </button>
        
-        <div class="flex items-center gap-2 h-12">
+        <div
+        (click)="onLogoClick()"
+        class="flex items-center cursor-pointer gap-2 h-12">
           <div
             class="triangle-shape hover:brightness-110 dark:border-white transition-all rotate-90 duration-300"
           ></div>

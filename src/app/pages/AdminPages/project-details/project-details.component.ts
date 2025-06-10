@@ -16,14 +16,15 @@ import { StaffService } from '../../../services/staff.service';
 import { LogService } from '../../../services/log.service';
 import { User } from '../../../models/user.model';
 import { Project } from '../../../models/project.model';
+import { GitHubInterfaceComponent } from "../github-viewer/github-viewer.component";
 
 @Component({
   selector: 'app-project-details',
   standalone: true,
   imports: [
-    CommonModule, 
-    MatTabsModule, 
-    MatIconModule, 
+    CommonModule,
+    MatTabsModule,
+    MatIconModule,
     MatButtonModule,
     MatTableModule,
     MatSortModule,
@@ -31,8 +32,9 @@ import { Project } from '../../../models/project.model';
     MatInputModule,
     MatSelectModule,
     MatProgressSpinnerModule,
-    FormsModule
-  ],
+    FormsModule,
+    GitHubInterfaceComponent
+],
   templateUrl: './project-details.component.html',
   styleUrls: ['./project-details.component.css']
 })

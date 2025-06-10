@@ -1,6 +1,6 @@
 <div class="min-h-screen bg-transparent dark:from-slate-900 dark:to-slate-800 p-4 md:p-6 2xl:p-10">
   <!-- Header Section -->
-  <div class="max-w-7xl mx-auto mb-8">
+  <div class="max-w-7xl mx-auto mb-2">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <h1 class="text-3xl font-bold text-slate-800 dark:text-white">
         Profile Settings
@@ -38,10 +38,10 @@
     <!-- Left Column - Profile Card -->
     <div class="lg:col-span-1">
       <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <div class="relative h-32 bg-gradient-to-r from-blue-500 to-indigo-600">
+        <div class="relative h-72 bg-cover bg-center" [style]="{'background-image': 'url(' + 'https://qrangers.com/wp-content/uploads/2021/09/Banner-Introduction-to-3D-Animation.png' || defaultProfileImage + ')'}">
           <div class="absolute -bottom-12 left-6">
             <div class="relative group">
-              <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-md">
+              <div class="w-40 h-40 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-md">
                 <img [src]="profileImage || defaultProfileImage" 
                      (error)="onImageError($event)"
                      alt="Profile" 

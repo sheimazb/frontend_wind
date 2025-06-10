@@ -1,6 +1,6 @@
 <!-- Main Container with gradient background -->
 <div class="min-h-screen">
-  <div class="flex flex-col max-w-screen-2xl gap-4 p-4 sm:p-6 md:p-10 mx-auto">
+  <div class="flex flex-col max-w-screen-full gap-4 p-4 sm:p-6 md:p-10 mx-auto">
     <!-- Section 1: Header with gradient effect -->
     <div class="flex flex-col sm:flex-row justify-between gap-4 sm:gap-2 mb-0">
       <div>
@@ -107,30 +107,7 @@
           </div>
         </div>
 
-        <!-- Date Range Selector -->
-        <div class="relative sm:w-72 w-full">
-          <div class="flex items-center gap-2">
-            <div class="relative flex-1">
-              <select 
-                [(ngModel)]="selectedDateRange"
-                (change)="onDateRangeChange(selectedDateRange)"
-                class="w-full pl-12 pr-4 py-3 h-fit rounded-md shadow-sm border border-gray-200 bg-white dark:border-slate-900 dark:bg-slate-900 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 appearance-none"
-              >
-                <option *ngFor="let option of dateRangeOptions" [value]="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
-              <div
-                class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none"
-              >
-                <mat-icon class="text-gray-400">date_range</mat-icon>
-              </div>
-              <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                <mat-icon class="text-gray-400">arrow_drop_down</mat-icon>
-              </div>
-            </div>
-          </div>
-        </div>
+      
 
          <!-- Filter Bar: Project Type Toggle -->
     <div class="flex justify-end mb-4">
@@ -576,27 +553,6 @@ class="flex flex-col space-y-4"
               <div class="text-xs text-gray-700 dark:text-gray-300">{{ microservice.deadlineDate | date:'MMM d, yyyy' }}</div>
             </div>
             
-            <!-- Small Chart -->
-            <div class="w-24 h-12 flex items-end">
-              <div class="flex items-end h-full space-x-1">
-                <!-- Show bars based on actual error data -->
-                <ng-container *ngIf="microservice.id && projectErrorStats[microservice.id] && projectErrorStats[microservice.id].length > 0; else staticBars">
-                  <div *ngFor="let stat of projectErrorStats[microservice.id].slice(-7)" 
-                       class="w-2 bg-indigo-400 dark:bg-indigo-500 rounded-t-sm" 
-                       [style.height]="(stat.count > 0 ? (stat.count / getMaxErrorCount(microservice.id!) * 100) : 10) + '%'"></div>
-                </ng-container>
-                <ng-template #staticBars>
-                  <div class="w-2 bg-indigo-400 dark:bg-indigo-500 rounded-t-sm" style="height: 30%"></div>
-                  <div class="w-2 bg-indigo-400 dark:bg-indigo-500 rounded-t-sm" style="height: 50%"></div>
-                  <div class="w-2 bg-indigo-400 dark:bg-indigo-500 rounded-t-sm" style="height: 40%"></div>
-                  <div class="w-2 bg-indigo-400 dark:bg-indigo-500 rounded-t-sm" style="height: 60%"></div>
-                  <div class="w-2 bg-indigo-400 dark:bg-indigo-500 rounded-t-sm" style="height: 70%"></div>
-                  <div class="w-2 bg-indigo-400 dark:bg-indigo-500 rounded-t-sm" style="height: 80%"></div>
-                  <div class="w-2 bg-indigo-400 dark:bg-indigo-500 rounded-t-sm" style="height: 90%"></div>
-                </ng-template>
-              </div>
-            </div>
-
             <!-- Actions -->
             <div class="flex flex-row gap-6 border-l border-gray-200 dark:border-gray-700 pl-6 items-center">
               <div class="flex items-center gap-2">

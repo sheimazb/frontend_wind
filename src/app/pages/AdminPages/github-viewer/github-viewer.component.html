@@ -1,0 +1,230 @@
+<div class="flex h-screen overflow-hidden">
+  <!-- Sidebar -->
+  <div class="w-80 bg-white/70 backdrop-blur-md border-r border-slate-200/60 flex flex-col shadow-xl">
+    <!-- Header -->
+    <div class="p-6 border-b border-slate-200/60 bg-gradient-to-r from-slate-50 to-white">
+      <div class="flex items-center justify-between mb-4">
+        <h1 class="text-xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-600 bg-clip-text text-transparent">
+          Repository Explorer
+        </h1>
+        <div class="flex items-center gap-2">
+          <!-- GitHub Token Button -->
+          <button 
+            (click)="toggleTokenInput()" 
+            class="p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200 text-slate-600 hover:text-slate-900"
+            [class.bg-green-100]="tokenSaved"
+            [class.text-green-600]="tokenSaved"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            </svg>
+          </button>
+          <div class="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 shadow-lg">
+            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <!-- GitHub Token Input -->
+      <div *ngIf="showTokenInput" class="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-slate-700 mb-1">GitHub Personal Access Token</label>
+          <div class="flex items-center gap-2">
+            <input 
+              type="password" 
+              [(ngModel)]="githubToken" 
+              placeholder="Enter your GitHub token" 
+              class="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+            >
+            <button 
+              (click)="saveToken()" 
+              class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+            >
+              Save
+            </button>
+            <button 
+              *ngIf="tokenSaved" 
+              (click)="clearToken()" 
+              class="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 text-sm font-medium rounded-lg transition-colors duration-200"
+            >
+              Clear
+            </button>
+          </div>
+          <p class="text-xs text-slate-500 mt-2">
+            Adding a token increases your GitHub API rate limit. Your token is stored locally in your browser.
+          </p>
+        </div>
+      </div>
+
+      <!-- Branch Selector -->
+      <div class="flex items-center gap-3 mb-4">
+        <div class="relative">
+          <select [(ngModel)]="currentBranch" (ngModelChange)="onBranchChange()" class="appearance-none bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl px-4 py-2.5 pr-10 text-sm font-medium text-slate-700 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400">
+            <option *ngFor="let branch of branches" [value]="branch">{{ branch }}</option>
+          </select>
+          <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <svg class="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+          </div>
+        </div>
+        <span class="px-3 py-1.5 bg-slate-100/80 rounded-full text-xs font-medium text-slate-600 backdrop-blur-sm">
+          {{ fileTree.length }} files
+        </span>
+      </div>
+
+      <!-- Search -->
+      <div class="relative">
+        <input type="text" [(ngModel)]="fileSearchTerm" (ngModelChange)="filterFiles()" placeholder="Search files..." class="w-full bg-white/60 backdrop-blur-sm border border-slate-200 rounded-xl px-4 py-2.5 pl-10 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 shadow-sm hover:shadow-md transition-all duration-200">
+        <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- File List -->
+    <div class="flex-1 overflow-y-auto">
+      <!-- Loading indicator -->
+      <div *ngIf="loading" class="flex justify-center items-center p-6">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+      
+      <!-- Error message -->
+      <div *ngIf="errorMessage" class="mx-4 my-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+        <div class="flex items-center mb-2">
+          <svg class="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="font-medium">Error</span>
+        </div>
+        <p>{{ errorMessage }}</p>
+      </div>
+
+      <div class="p-2">
+        <div class="space-y-1" *ngFor="let item of filteredFileTree">
+          <div *ngIf="item.type === 'tree'" class="group cursor-pointer rounded-xl p-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 hover:shadow-sm border hover:border-blue-100" (click)="toggleFolder(item.path)">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="p-1.5 rounded-lg bg-gradient-to-r from-amber-400 to-orange-400 shadow-sm">
+                  <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="font-medium text-slate-700 group-hover:text-slate-900">{{ item.name }}</div>
+                  <div class="text-xs text-slate-500 mt-0.5">{{ item.lastCommit.message }}</div>
+                </div>
+              </div>
+              <div class="text-xs text-slate-400">{{ getRelativeTime(item.lastCommit.date) }}</div>
+            </div>
+          </div>
+          <div *ngIf="item.type === 'blob'" class="file-item group cursor-pointer rounded-xl p-3 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50 transition-all duration-200 hover:shadow-sm border hover:border-slate-200" [class.bg-gradient-to-r]="selectedFile?.path === item.path" [class.from-blue-100]="selectedFile?.path === item.path" [class.to-indigo-100]="selectedFile?.path === item.path" [class.border-blue-200]="selectedFile?.path === item.path" [class.shadow-md]="selectedFile?.path === item.path" (click)="onItemClick(item)">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="p-1.5 rounded-lg bg-gradient-to-r from-yellow-400 to-amber-400 shadow-sm">
+                  <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="font-medium text-slate-700 group-hover:text-slate-900">{{ item.name }}</div>
+                  <div class="text-xs text-slate-500 mt-0.5">{{ item.lastCommit.message }}</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-400">{{ formatFileSize(item.size) }}</span>
+                <span class="text-xs text-slate-400">{{ getRelativeTime(item.lastCommit.date) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="flex-1 flex flex-col bg-white/40 backdrop-blur-sm">
+    <!-- Header -->
+    <div class="border-b border-slate-200/60 bg-white/70 backdrop-blur-md p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-800 mb-2">{{ selectedFile?.name || 'Select a file to view' }}</h2>
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 rounded-full text-xs font-medium">{{ getFileLanguage(selectedFile?.name || '') }}</span>
+            <span class="text-sm text-slate-500">{{ formatFileSize(selectedFile?.size) }}</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button class="p-2 rounded-lg bg-white/80 backdrop-blur-sm border border-slate-200 hover:bg-white hover:shadow-md transition-all duration-200 group">
+            <svg class="w-4 h-4 text-slate-600 group-hover:text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+          </button>
+          <button class="p-2 rounded-lg bg-white/80 backdrop-blur-sm border border-slate-200 hover:bg-white hover:shadow-md transition-all duration-200 group">
+            <svg class="w-4 h-4 text-slate-600 group-hover:text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="flex-1 overflow-hidden">
+      <!-- Empty state -->
+      <div *ngIf="!selectedFile && !errorMessage && !loading" class="h-full flex flex-col items-center justify-center text-center p-12">
+        <div class="w-24 h-24 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+          <svg class="w-12 h-12 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-slate-700 mb-2">Choose a file to explore</h3>
+        <p class="text-slate-500 max-w-md">Select any file from the sidebar to view its contents with beautiful syntax highlighting and formatting.</p>
+      </div>
+      
+      <!-- Loading indicator for content area -->
+      <div *ngIf="loading" class="h-full flex flex-col items-center justify-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
+        <p class="text-slate-500">Loading content...</p>
+      </div>
+      
+      <!-- Error state in content area -->
+      <div *ngIf="errorMessage && !loading" class="h-full flex flex-col items-center justify-center p-12">
+        <div class="w-24 h-24 bg-gradient-to-br from-red-50 to-red-100 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+          <svg class="w-12 h-12 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-slate-700 mb-2">Unable to load repository</h3>
+        <p class="text-red-600 font-medium mb-2">{{ errorMessage }}</p>
+        <p class="text-slate-500 max-w-md">Try refreshing the page or selecting a different branch.</p>
+      </div>
+      
+      <!-- File content display -->
+      <div *ngIf="selectedFile && !loading" class="p-6">
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 shadow-xl overflow-hidden">
+          <div class="bg-gradient-to-r from-slate-50 via-white to-slate-50 border-b border-slate-200/60 p-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="flex space-x-1.5">
+                <div class="w-3 h-3 bg-red-400 rounded-full"></div>
+                <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+              </div>
+              <span class="text-sm font-medium text-slate-600">{{ selectedFile.name }}</span>
+            </div>
+            <button class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-medium text-slate-600 transition-colors duration-200">
+              Raw
+            </button>
+          </div>
+          <div class="p-6">
+            <pre class="text-sm leading-relaxed text-slate-700 overflow-x-auto"><code>{{ selectedFileContent }}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

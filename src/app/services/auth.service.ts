@@ -1,6 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, forwardRef, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { Observable, catchError, map, tap, throwError, of } from 'rxjs';
+import { Observable, catchError, map, tap, throwError, of, BehaviorSubject } from 'rxjs';
+import { Router } from '@angular/router';
+import { NotificationStateService } from './notification-state.service';
 
 // Interface for the registration data
 export interface RegisterRequest {
@@ -39,6 +41,14 @@ export interface ChangePasswordRequest {
   newPassword: string;
 }
 
+export interface User {
+  email: string;
+  role: string;
+  fullName: string;
+  tenant?: string;
+  id: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -49,8 +59,20 @@ export class AuthService {
       'Content-Type': 'application/json'
     })
   };
+  private currentUserSubject: BehaviorSubject<User | null>;
+  public currentUser: Observable<User | null>;
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private notificationState: NotificationStateService
+  ) {
+    const storedUser = localStorage.getItem('user');
+    this.currentUserSubject = new BehaviorSubject<User | null>(
+      storedUser ? JSON.parse(storedUser) : null
+    );
+    this.currentUser = this.currentUserSubject.asObservable();
+  }
 
   private setUserData(response: LoginResponse) {
     localStorage.setItem('token', response.token);
@@ -96,9 +118,8 @@ export class AuthService {
     }));
   }
 
-  getCurrentUser(): { email: string; fullName: string; role: string } | null {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
+  public getCurrentUser(): User | null {
+    return this.currentUserSubject.value;
   }
 
   getToken(): string | null {
@@ -109,40 +130,17 @@ export class AuthService {
     return !!this.getToken();
   }
 
- /* logout(): Observable<any> { 
-    return this.http.post(`${this.baseUrl}/logout`, {}, this.httpOptions).pipe(
-      tap(() => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-      }),
-      catchError(error => this.handleError(error))
-    );
-  }*/
-
-    logout(){
-      // Call the backend API to invalidate the token
-      const token = this.getToken();
-      if (token) {
-        // Make the API call but don't wait for it to complete
-        this.http.post(`${this.baseUrl}/logout`, {}, {
-          headers: new HttpHeaders({
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          })
-        }).pipe(
-          catchError(error => {
-            console.error('Logout API error:', error);
-            return of(null);
-          })
-        ).subscribe(() => {
-          console.log('Logout API call completed');
-        });
-      }
-      
-      // Always clear local storage regardless of API call success
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-    }
+  logout(): void {
+    // Clear user data from local storage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // Reset notification state
+    this.notificationState.clearUserInfo();
+    
+    // Clear the current user subject
+    this.currentUserSubject.next(null);
+  }
 
   register(data: RegisterRequest): Observable<any> {
     return this.http.post(`${this.baseUrl}/register`, data, this.httpOptions)
@@ -157,8 +155,40 @@ export class AuthService {
   login(data: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.baseUrl}/authenticate`, data, this.httpOptions)
       .pipe(
-        tap(response => this.setUserData(response)),
-        catchError(error => this.handleError(error))
+        tap(response => {
+          // Store user details and JWT token in local storage
+          localStorage.setItem('token', response.token);
+          
+          const user: User = {
+            email: response.email,
+            role: response.role,
+            fullName: response.fullName,
+            tenant: response.tenant,
+            id: response.id
+          };
+          
+          localStorage.setItem('user', JSON.stringify(user));
+          
+          // Store userId separately for easy access
+          if (response.id) {
+            localStorage.setItem('userId', response.id.toString());
+            console.log('Stored userId in localStorage:', response.id);
+          }
+          
+          this.currentUserSubject.next(user);
+          
+          // Reset and initialize notifications for the new user
+          this.notificationState.clearUserInfo();
+          this.notificationState.setUserInfo(
+            response.email,
+            response.tenant || '',
+            response.id || 0
+          );
+        }),
+        catchError(error => {
+          console.error('Login error:', error);
+          return throwError(() => new Error(error.error?.message || 'Login failed'));
+        })
       );
   }
 

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Client, IFrame, IMessage } from '@stomp/stompjs';
 import { WEBSOCKET_ENDPOINT, WEBSOCKET_NOTIFY_TOPIC } from '../constants/base-url.constants';
 import { NotificationService } from './notification.service';
+import { NotificationStateService } from './notification-state.service';
 import { environment } from '../../environments/environment';
 import { Notification } from '../models/notification.model';
 import { BehaviorSubject } from 'rxjs';
@@ -19,7 +20,10 @@ export class WebsocketService {
   // Connection status subject for components to subscribe to
   private connectionStatusSubject = new BehaviorSubject<boolean>(false);
   
-  constructor(private notificationService: NotificationService) { }
+  constructor(
+    private notificationService: NotificationService,
+    private notificationState: NotificationStateService
+  ) { }
   
   /**
    * Get the current connection status
@@ -44,6 +48,12 @@ export class WebsocketService {
     if (this.isConnecting) {
       console.log('Already attempting to connect to WebSocket');
       return;
+    }
+    
+    // If email is different from current user, force disconnect and reconnect
+    if (email && this.userEmail && email !== this.userEmail) {
+      console.log('User changed, reconnecting WebSocket with new user:', email);
+      this.disconnect();
     }
     
     // Reset connection state if reconnecting
@@ -183,7 +193,8 @@ export class WebsocketService {
       
       // If checking recipient is required, verify this notification is for current user
       if (checkRecipient) {
-        if (!notification.recipientEmail || notification.recipientEmail !== this.userEmail) {
+        const currentUserEmail = this.notificationState.currentUserEmail;
+        if (!notification.recipientEmail || notification.recipientEmail !== currentUserEmail) {
           console.log('Notification not for this user, ignoring:', notification);
           return; // Skip this notification as it's not for this user
         }
