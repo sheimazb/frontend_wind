@@ -27,23 +27,8 @@ import { Router } from '@angular/router';
         </div>
         
         <nav class="hidden lg:flex items-center space-x-8">
-          <div class="relative group">
-            <a href="#" class="nav-link flex items-center space-x-1" [ngClass]="{'text-white/75 hover:text-white': isDarkMode, 'text-[#111036]/75 hover:text-[#111036]': !isDarkMode}">
-                <span>PRODUCT</span>
-              <svg class="w-4 h-4 transform transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </a>
-            <!-- Dropdown hover effect -->
-            <div class="absolute hidden group-hover:block pt-2 -ml-4">
-              <div class="bg-[#111036]/90 backdrop-blur-md rounded-md py-2 px-4 space-y-2 min-w-[160px] shadow-xl border border-white/10">
-                <a href="#" class="block text-white/75 hover:text-white transition-colors">Features</a>
-                <a href="#" class="block text-white/75 hover:text-white transition-colors">Solutions</a>
-                <a href="#" class="block text-white/75 hover:text-white transition-colors">Enterprise</a>
-              </div>
-            </div>
-          </div>
-          <a href="#" class="nav-link" [ngClass]="{'text-white/75 hover:text-white': isDarkMode, 'text-[#111036]/75 hover:text-[#111036]': !isDarkMode}">PRICING</a>
+         
+          <a (click)="scrollToSection('pricing')" class="nav-link cursor-pointer"  [ngClass]="{'text-white/75 hover:text-white': isDarkMode, 'text-[#111036]/75 hover:text-[#111036]': !isDarkMode}">PRICING</a>
           <a href="#" class="nav-link" (click)="openDocs()"  [ngClass]="{'text-white/75 hover:text-white': isDarkMode, 'text-[#111036]/75 hover:text-[#111036]': !isDarkMode}">DOCS</a>
           <a href="https://medium.com/@zbedichaima/windlogs-the-smart-log-parser-that-transforms-errors-into-actionable-solutions-17c508dbe2b0" class="nav-link" [ngClass]="{'text-white/75 hover:text-white': isDarkMode, 'text-[#111036]/75 hover:text-[#111036]': !isDarkMode}">BLOG</a>   
         </nav>
@@ -59,8 +44,8 @@ import { Router } from '@angular/router';
             </svg>
           </button>
           
-          <a href="/login" class="nav-link" [ngClass]="{'text-white/75 hover:text-white': isDarkMode, 'text-[#111036]/75 hover:text-[#111036]': !isDarkMode}">SIGN IN</a>
-          <a href="#" class="bg-white/90 hover:bg-white text-[#111036] px-4 py-2 rounded-md font-medium transition-all duration-200 hover:shadow-lg hover:shadow-white/20">
+          <a href="/login" *ngIf="!isLoggedIn" class="nav-link" [ngClass]="{'text-white/75 hover:text-white': isDarkMode, 'text-[#111036]/75 hover:text-[#111036]': !isDarkMode}">SIGN IN</a>
+          <a href="/login" *ngIf="isLoggedIn" class="bg-white/90 hover:bg-white text-[#111036] px-4 py-2 rounded-md font-medium transition-all duration-200 hover:shadow-lg hover:shadow-white/20">
             GET STARTED
           </a>
         </div>
@@ -88,7 +73,7 @@ import { Router } from '@angular/router';
 })
 export class HeaderComponent {
   isDarkMode = false;
-  
+  isLoggedIn = false; 
   constructor(private router: Router) {
     // Check if dark mode was previously set
     const savedDarkMode = localStorage.getItem('darkMode');
@@ -96,7 +81,10 @@ export class HeaderComponent {
       this.isDarkMode = true;
       this.applyDarkMode();
     }
-  }  
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    this.isLoggedIn = !!token;
+    }  
 
   toggleDarkMode() {
     this.isDarkMode = !this.isDarkMode;
@@ -111,7 +99,12 @@ export class HeaderComponent {
       document.documentElement.classList.remove('dark');
     }
   }
-
+  scrollToSection(sectionId: string) {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
   onSignInClick() {
     this.router.navigate(['/login']);
   }

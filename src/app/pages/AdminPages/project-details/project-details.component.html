@@ -596,7 +596,7 @@
                   <p class="empty-state-desc">This project doesn't have any reported issues yet. That's great news!</p>
                 </div>
 
-                <div *ngFor="let issue of filteredLogs" class="issue-item  bg-white">
+                <div *ngFor="let issue of filteredLogs" class="issue-item rounded-lg bg-white">
                   <div class="flex flex-col items-start gap-4">
                     <span class="text-sm text-red-500 font-bold">{{issue.type}}</span>
                     <div [ngClass]="{

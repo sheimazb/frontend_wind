@@ -91,6 +91,7 @@ export enum Status {
   IN_PROGRESS = 'IN_PROGRESS',
   RESOLVED = 'RESOLVED',
   MERGED_TO_TEST = 'MERGED_TO_TEST',
+  VERIFIED = 'VERIFIED',
   DONE = 'DONE'
 }
 

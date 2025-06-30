@@ -1,0 +1,280 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="bg-white w-full dark:bg-gray-800 rounded-lg shadow-lg p-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Notifications History</h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">View and manage all your notifications</p>
+      </div>
+      
+      <div class="mt-4 md:mt-0 flex items-center space-x-2">
+        <button 
+          (click)="refreshNotifications()" 
+          class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-300 flex items-center"
+          [disabled]="isLoading"
+        >
+          <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <svg *ngIf="isLoading" class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Refresh
+        </button>
+        
+        <button 
+          *ngIf="hasUnreadNotifications()"
+          (click)="markAllAsRead()" 
+          class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-300"
+        >
+          Mark all as read
+        </button>
+      </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="mb-6 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+      <div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
+        <!-- Search -->
+        <div class="flex-1">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <input 
+              type="text" 
+              [(ngModel)]="searchTerm" 
+              (input)="applyFilters()"
+              placeholder="Search notifications..." 
+              class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-md pl-10 pr-4 py-2 w-full focus:ring-blue-500 focus:border-blue-500"
+            >
+          </div>
+        </div>
+        
+        <!-- Filter by read/unread -->
+        <div class="w-full md:w-auto">
+          <select 
+            [(ngModel)]="filterType" 
+            (change)="applyFilters()"
+            class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 w-full focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="all">All notifications</option>
+            <option value="read">Read only</option>
+            <option value="unread">Unread only</option>
+          </select>
+        </div>
+        
+        <!-- Filter by source -->
+        <div class="w-full md:w-auto">
+          <select 
+            [(ngModel)]="filterSource" 
+            (change)="applyFilters()"
+            class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 w-full focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="all">All sources</option>
+            <option value="LOG">Logs</option>
+            <option value="COMMENT">Comments</option>
+            <option value="SOLUTION">Solutions</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>
+    
+    <!-- Error state -->
+    <div *ngIf="error && !isLoading" class="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700 dark:text-red-200">{{ error }}</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Empty state -->
+    <div *ngIf="filteredNotifications.length === 0 && !isLoading && !error" class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-200">No notifications found</h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        {{ searchTerm || filterType !== 'all' || filterSource !== 'all' ? 'Try changing your filters' : 'You don\'t have any notifications yet' }}
+      </p>
+    </div>
+    
+    <!-- Notifications list -->
+    <div *ngIf="paginatedNotifications.length > 0 && !isLoading" class="space-y-4">
+      <div *ngFor="let notification of paginatedNotifications" 
+           class="border-l-4 p-4 rounded-md shadow-sm transition-all duration-200 cursor-pointer hover:shadow-md"
+           [class.border-l-blue-500]="!notification.read"
+           [class.border-l-gray-300]="notification.read"
+           [class.dark:border-l-blue-400]="!notification.read"
+           [class.dark:border-l-gray-600]="notification.read"
+           [class.bg-blue-50]="!notification.read" 
+           [class.bg-white]="notification.read"
+           [class.dark:bg-blue-900]="!notification.read"
+           [class.dark:bg-gray-800]="notification.read"
+           (click)="handleNotificationClick(notification)">
+        
+        <div class="flex items-start">
+          <!-- Icon based on notification type -->
+          <div class="flex-shrink-0 mt-0.5">
+            <div class="h-10 w-10 rounded-full flex items-center justify-center"
+                 [class.bg-red-100]="notification.sourceType === 'LOG'"
+                 [class.bg-blue-100]="notification.sourceType === 'COMMENT'"
+                 [class.bg-yellow-100]="notification.sourceType === 'SOLUTION'"
+                 [class.dark:bg-red-900]="notification.sourceType === 'LOG'"
+                 [class.dark:bg-blue-900]="notification.sourceType === 'COMMENT'"
+                 [class.dark:bg-yellow-900]="notification.sourceType === 'SOLUTION'">
+              
+              <!-- LOG Icon -->
+              <svg *ngIf="notification.sourceType === 'LOG'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500 dark:text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+
+              <!-- COMMENT Icon (Speech Bubble) -->
+              <svg *ngIf="notification.sourceType === 'COMMENT'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500 dark:text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M2 5.75C2 4.784 2.784 4 3.75 4h16.5C21.216 4 22 4.784 22 5.75v9.5c0 .966-.784 1.75-1.75 1.75H6.914l-4.207 4.207A.75.75 0 012 20.25V5.75z" />
+              </svg>
+
+              <!-- SOLUTION Icon -->
+              <svg *ngIf="notification.sourceType === 'SOLUTION'"  xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500 dark:text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 2a6 6 0 00-6 6c0 2.114 1.18 3.943 2.915 5.006A1.993 1.993 0 007 15c0 .276.11.526.293.707.183.183.431.293.707.293h4a1 1 0 001-1c0-.552-.448-1-1-1a1.993 1.993 0 00.085-.006A6.002 6.002 0 0016 8a6 6 0 00-6-6zM8 17a2 2 0 104 0H8z" />
+              </svg>
+            </div>
+          </div>
+          
+          <!-- Notification content -->
+          <div class="ml-4 flex-1">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <h3 class="text-base font-medium text-gray-900 dark:text-white">
+                  {{ notification.title }}
+                </h3>
+                <span *ngIf="!notification.read" class="ml-2 px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">
+                  New
+                </span>
+              </div>
+              <span class="text-sm text-gray-500 dark:text-gray-400">
+                {{ notification.timeAgo }}
+              </span>
+            </div>
+            
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+              {{ notification.message }}
+            </p>
+            
+            <div class="mt-2 flex items-center justify-between">
+              <span class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                {{ notification.sourceType }}
+              </span>
+              
+              <button 
+                (click)="markAsRead(notification.id); $event.stopPropagation();"
+                *ngIf="!notification.read"
+                class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                Mark as read
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1 && !isLoading" class="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 px-4 py-3 sm:px-6 mt-6">
+      <div class="flex-1 flex justify-between sm:hidden">
+        <button 
+          (click)="prevPage()" 
+          [disabled]="currentPage === 1"
+          [class.opacity-50]="currentPage === 1"
+          class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+        >
+          Previous
+        </button>
+        <button 
+          (click)="nextPage()" 
+          [disabled]="currentPage === totalPages"
+          [class.opacity-50]="currentPage === totalPages"
+          class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+        >
+          Next
+        </button>
+      </div>
+      <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm text-gray-700 dark:text-gray-300">
+            Showing
+            <span class="font-medium">{{ (currentPage - 1) * pageSize + 1 }}</span>
+            to
+            <span class="font-medium">{{ Math.min(currentPage * pageSize, filteredNotifications.length) }}</span>
+            of
+            <span class="font-medium">{{ filteredNotifications.length }}</span>
+            results
+          </p>
+        </div>
+        <div>
+          <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+            <button
+              (click)="prevPage()"
+              [disabled]="currentPage === 1"
+              [class.opacity-50]="currentPage === 1"
+              class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              <span class="sr-only">Previous</span>
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            
+            <ng-container *ngFor="let page of pageNumbers">
+              <!-- Ellipsis -->
+              <span *ngIf="page < 0" class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300">
+                ...
+              </span>
+              
+              <!-- Page number -->
+              <button
+                *ngIf="page > 0"
+                (click)="goToPage(page)"
+                [class.bg-blue-50]="page === currentPage"
+                [class.dark:bg-blue-900]="page === currentPage"
+                [class.text-blue-600]="page === currentPage"
+                [class.dark:text-blue-400]="page === currentPage"
+                [class.border-blue-500]="page === currentPage"
+                [class.dark:border-blue-500]="page === currentPage"
+                class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                {{ page }}
+              </button>
+            </ng-container>
+            
+            <button
+              (click)="nextPage()"
+              [disabled]="currentPage === totalPages"
+              [class.opacity-50]="currentPage === totalPages"
+              class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              <span class="sr-only">Next</span>
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

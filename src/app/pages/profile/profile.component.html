@@ -1,21 +1,7 @@
-<div class="min-h-screen bg-transparent dark:from-slate-900 dark:to-slate-800 p-4 md:p-6 2xl:p-10">
-  <!-- Header Section -->
-  <div class="max-w-7xl mx-auto mb-2">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <h1 class="text-3xl font-bold text-slate-800 dark:text-white">
-        Profile Settings
-      </h1>
-      <nav class="flex items-center space-x-2 text-sm">
-        <a routerLink="/dashboard" class="text-slate-600 hover:text-blue-500 dark:text-slate-300">Dashboard</a>
-        <span class="text-slate-400">/</span>
-        <span class="text-blue-500">Profile</span>
-      </nav>
-    </div>
-  </div>
-
+<div class="min-h-screen  p-4 md:p-6">
   <!-- Error Alert -->
   <div *ngIf="errorMessage" 
-    class="max-w-7xl mx-auto mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+    class="max-w-4xl mx-auto mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <div class="flex-shrink-0 text-red-500">
@@ -23,7 +9,7 @@
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
           </svg>
         </div>
-        <p class="text-red-800 dark:text-red-200">{{ errorMessage }}</p>
+        <p class="text-red-800">{{ errorMessage }}</p>
       </div>
       <button (click)="errorMessage = ''" class="text-red-500 hover:text-red-700">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,157 +19,213 @@
     </div>
   </div>
 
-  <!-- Main Content Grid -->
-  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-1 gap-6">
-    <!-- Left Column - Profile Card -->
-    <div class="lg:col-span-1">
-      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <div class="relative h-72 bg-cover bg-center" [style]="{'background-image': 'url(' + 'https://qrangers.com/wp-content/uploads/2021/09/Banner-Introduction-to-3D-Animation.png' || defaultProfileImage + ')'}">
-          <div class="absolute -bottom-12 left-6">
-            <div class="relative group">
-              <div class="w-40 h-40 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-md">
-                <img [src]="profileImage || defaultProfileImage" 
-                     (error)="onImageError($event)"
-                     alt="Profile" 
-                     class="w-full h-full object-cover"/>
-              </div>
-              <div *ngIf="isEditing" 
-                class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-full">
-                <input type="file" (change)="onImageChange($event)" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*"/>
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-              </div>
-            </div>
+  <div class="max-w-6xl mx-auto">
+    <!-- Header Section with Gradient Background -->
+    <div class="gradient-header rounded-2xl p-8 mb-6 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+      <div class="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-10 rounded-full -ml-12 -mb-12"></div>
+      
+      <div class="flex items-center space-x-6 relative z-10">
+        <!-- Profile Image -->
+        <div class="relative group">
+          <div class="w-20 h-20 rounded-full overflow-hidden border-3 border-white shadow-lg">
+            <img [src]="profileImage || defaultProfileImage" 
+                 (error)="onImageError($event)"
+                 alt="Profile" 
+                 class="w-full h-full object-cover"/>
+          </div>
+          <div *ngIf="isEditing" 
+            class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-full">
+            <input type="file" (change)="onImageChange($event)" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*"/>
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
           </div>
         </div>
-        
-        <div class="pt-16 p-6">
-          <!-- Profile Info -->
-          <div class="space-y-4">
-            <div *ngIf="!isEditing" class="space-y-2">
-              <h2 class="text-2xl font-bold text-slate-900 dark:text-white">
-                {{ profileData.firstname }} {{ profileData.lastname }}
-              </h2>
-              <p class="text-blue-500 dark:text-blue-400">{{ profileData.role }}</p>
-              <p class="text-slate-600 dark:text-slate-300 text-sm">{{ profileData.bio }}</p>
-            </div>
 
-            <!-- Edit Form -->
-            <div *ngIf="isEditing" class="space-y-4">
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">First Name</label>
-                  <input [(ngModel)]="profileData.firstname" 
-                    class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"/>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Last Name</label>
-                  <input [(ngModel)]="profileData.lastname"
-                    class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"/>
-                </div>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Bio</label>
-                <textarea [(ngModel)]="profileData.bio" rows="3"
-                  class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"></textarea>
-              </div>
-            </div>
+        <!-- Profile Info -->
+        <div class="text-white flex-1">
+          <h1 class="text-2xl font-bold">{{ profileData.firstname }} {{ profileData.lastname }}</h1>
+          <p class="text-blue-100 opacity-90">{{ profileData.email }}</p>
+        </div>
 
-            <!-- Contact Information -->
-            <div class="pt-4 border-t border-slate-200 dark:border-slate-700 space-y-3">
-              <!-- Email -->
-              <div class="flex items-center space-x-3 text-sm">
-                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                <span class="text-slate-600 dark:text-slate-300">{{ profileData.email }}</span>
-              </div>
-              
-              <!-- Phone -->
-              <div class="flex items-center space-x-3 text-sm">
-                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                </svg>
-                <span *ngIf="!isEditing" class="text-slate-600 dark:text-slate-300">{{ profileData.phone || 'Not specified' }}</span>
-                <input *ngIf="isEditing" [(ngModel)]="profileData.phone" 
-                  class="flex-1 px-3 py-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg"
-                  placeholder="Phone number"/>
-              </div>
-
-              <!-- Company -->
-              <div class="flex items-center space-x-3 text-sm">
-                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                </svg>
-                <span *ngIf="!isEditing" class="text-slate-600 dark:text-slate-300">{{ profileData.company || 'Not specified' }}</span>
-                <input *ngIf="isEditing" [(ngModel)]="profileData.company" 
-                  class="flex-1 px-3 py-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg"
-                  placeholder="Company name"/>
-              </div>
-
-              <!-- Location -->
-              <div class="flex items-center space-x-3 text-sm">
-                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                <span *ngIf="!isEditing" class="text-slate-600 dark:text-slate-300">{{ profileData.location || 'Not specified' }}</span>
-                <input *ngIf="isEditing" [(ngModel)]="profileData.location" 
-                  class="flex-1 px-3 py-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg"
-                  placeholder="Location"/>
-              </div>
-
-              <!-- GitHub URL -->
-              <div class="flex items-center space-x-3 text-sm">
-                <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
-                <span *ngIf="!isEditing" class="text-blue-500 dark:text-blue-400 hover:underline">
-                  <a [href]="profileData.github" target="_blank">{{ profileData.github || 'Not specified' }}</a>
-                </span>
-                <input *ngIf="isEditing" [(ngModel)]="profileData.github" 
-                  class="flex-1 px-3 py-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg"
-                  placeholder="GitHub URL"/>
-              </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="pt-4 flex space-x-3">
-              <button *ngIf="!isEditing"
-                (click)="toggleEdit()"
-                class="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
-                Edit Profile
-              </button>
-              <button *ngIf="!isEditing"
-                (click)="openDialog()"
-                class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg transition-colors flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                Settings
-              </button>
-              <ng-container *ngIf="isEditing">
-                <button (click)="saveProfile()"
-                  [disabled]="isLoading"
-                  class="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors disabled:opacity-50">
-                  {{ isLoading ? 'Saving...' : 'Save Changes' }}
-                </button>
-                <button (click)="cancelEdit()"
-                  [disabled]="isLoading"
-                  class="flex-1 px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg transition-colors">
-                  Cancel
-                </button>
-              </ng-container>
-            </div>
-          </div>
+        <!-- Edit Button -->
+        <div class="ml-auto">
+          <button *ngIf="!isEditing"
+            (click)="toggleEdit()"
+            class="bg-white bg-opacity-20 text-white px-6 py-2 rounded-lg hover:bg-opacity-30 transition-all font-medium">
+            Edit
+          </button>
+          <span *ngIf="isEditing" class="text-white font-medium">Editing...</span>
         </div>
       </div>
     </div>
 
-   
+    <!-- Profile Form -->
+    <div class="bg-white rounded-2xl shadow-sm p-8">
+      <form>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- First Name -->
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input *ngIf="!isEditing"
+              [value]="profileData.firstname"
+              class="form-input-readonly"
+              readonly>
+            <input *ngIf="isEditing"
+              [(ngModel)]="profileData.firstname"
+              name="firstname"
+              class="form-input"
+              placeholder="Your First Name">
+          </div>
+
+          <!-- Last Name -->
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input *ngIf="!isEditing"
+              [value]="profileData.lastname"
+              class="form-input-readonly"
+              readonly>
+            <input *ngIf="isEditing"
+              [(ngModel)]="profileData.lastname"
+              name="lastname"
+              class="form-input"
+              placeholder="Your Last Name">
+          </div>
+
+          <!-- Role -->
+          <div class="form-group">
+            <label class="form-label">Role</label>
+            <input [value]="profileData.role"
+              class="form-input-readonly"
+              readonly>
+          </div>
+
+          <!-- Pronouns -->
+          <div class="form-group">
+            <label class="form-label">Pronouns</label>
+            <input *ngIf="!isEditing"
+              [value]="profileData.pronouns || 'Not specified'"
+              class="form-input-readonly"
+              readonly>
+            <input *ngIf="isEditing"
+              [(ngModel)]="profileData.pronouns"
+              name="pronouns"
+              class="form-input"
+              placeholder="Your Pronouns">
+          </div>
+
+          <!-- Company -->
+          <div class="form-group">
+            <label class="form-label">Company</label>
+            <input *ngIf="!isEditing"
+              [value]="profileData.company || 'Not specified'"
+              class="form-input-readonly"
+              readonly>
+            <input *ngIf="isEditing"
+              [(ngModel)]="profileData.company"
+              name="company"
+              class="form-input"
+              placeholder="Your Company">
+          </div>
+
+          <!-- Location -->
+          <div class="form-group">
+            <label class="form-label">Location</label>
+            <input *ngIf="!isEditing"
+              [value]="profileData.location || 'Not specified'"
+              class="form-input-readonly"
+              readonly>
+            <input *ngIf="isEditing"
+              [(ngModel)]="profileData.location"
+              name="location"
+              class="form-input"
+              placeholder="Your Location">
+          </div>
+        </div>
+
+        <!-- Bio Section -->
+        <div class="form-group mt-6">
+          <label class="form-label">Bio</label>
+          <textarea *ngIf="!isEditing"
+            [value]="profileData.bio || 'No bio available'"
+            class="form-textarea-readonly"
+            rows="3"
+            readonly></textarea>
+          <textarea *ngIf="isEditing"
+            [(ngModel)]="profileData.bio"
+            name="bio"
+            class="form-textarea"
+            rows="3"
+            placeholder="Tell us about yourself"></textarea>
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group mt-6">
+          <label class="form-label">Phone Number</label>
+          <input *ngIf="!isEditing"
+            [value]="profileData.phone || 'Not specified'"
+            class="form-input-readonly"
+            readonly>
+          <div *ngIf="isEditing">
+            <input
+              [(ngModel)]="profileData.phone"
+              name="phone"
+              class="form-input"
+              [class.border-red-500]="phoneError"
+              pattern="[0-9]*"
+              (input)="validatePhone($event)"
+              placeholder="Your Phone Number">
+            <p *ngIf="phoneError" class="text-red-500 text-sm mt-1">Please enter only numbers</p>
+          </div>
+        </div>
+
+
+        <!-- GitHub URL -->
+        <div class="form-group mt-6" *ngIf="isEditing || profileData.github">
+          <label class="form-label">GitHub URL</label>
+          <input *ngIf="!isEditing"
+            [value]="profileData.github || 'Not specified'"
+            class="form-input-readonly"
+            readonly>
+          <input *ngIf="isEditing"
+            [(ngModel)]="profileData.github"
+            name="github"
+            class="form-input"
+            placeholder="Your GitHub URL">
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200" *ngIf="isEditing">
+          <button type="button" 
+            (click)="cancelEdit()"
+            [disabled]="isLoading"
+            class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+            Cancel
+          </button>
+          <button type="button" 
+            (click)="saveProfile()"
+            [disabled]="isLoading"
+            class="px-6 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors disabled:opacity-50">
+            {{ isLoading ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </div>
+
+        <!-- Settings Button -->
+        <div class="flex justify-end mt-4" *ngIf="!isEditing">
+          <button type="button"
+            (click)="openDialog()"
+            class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            Settings
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- Success Toast -->
@@ -204,34 +246,88 @@
   </div>
 </div>
 
-<!-- Animations -->
+<!-- Custom Styles -->
 <style>
+  .gradient-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-input, .form-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: white;
+  }
+
+  .form-input:focus, .form-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .form-input-readonly, .form-textarea-readonly {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    background-color: #f9fafb;
+    color: #6b7280;
+  }
+
+  .email-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: #f8fafc;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .email-verified {
+    background-color: #3b82f6;
+    color: white;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    margin-left: auto;
+  }
+
+  .add-email-btn {
+    color: #3b82f6;
+    font-size: 0.875rem;
+    text-decoration: none;
+    font-weight: 500;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+
+  .add-email-btn:hover {
+    text-decoration: underline;
+  }
+
   @keyframes slideIn {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
   }
+  
   .animate-slideIn {
     animation: slideIn 0.3s ease-out forwards;
-  }
-
-  /* Custom Scrollbar Styles */
-  .scrollbar-thin::-webkit-scrollbar {
-    height: 4px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: rgba(148, 163, 184, 0.2);
-    border-radius: 2px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(148, 163, 184, 0.4);
-  }
-  
-  /* For Firefox */
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(148, 163, 184, 0.2) transparent;
   }
 </style>

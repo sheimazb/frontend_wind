@@ -178,6 +178,14 @@ export class IssuePageComponent implements OnInit, OnDestroy {
       tickets: []
     },
     {
+      id: 'verifiedList',
+      name: 'Verified',
+      status: Status.VERIFIED,
+      color: 'amber',
+      icon: 'verified',
+      tickets: []
+    },
+    {
       id: 'doneList',
       name: 'Done',
       status: Status.DONE,
@@ -319,6 +327,11 @@ export class IssuePageComponent implements OnInit, OnDestroy {
     const user = this.authService.getCurrentUser();
     return user?.role === 'DEVELOPER';
   }  
+
+  isTester(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user?.role === 'TESTER';
+  }
 
    isManager(): boolean {
     const user = this.authService.getCurrentUser();
@@ -768,16 +781,16 @@ export class IssuePageComponent implements OnInit, OnDestroy {
 
     switch (this.userRole) {
       case 'MANAGER':
-        // Managers can change to TO_DO or MERGED_TO_TEST
-        return newStatus === Status.TO_DO || newStatus === Status.MERGED_TO_TEST;
+        // Managers can change to TO_DO, MERGED_TO_TEST, or DONE
+        return newStatus === Status.TO_DO || newStatus === Status.MERGED_TO_TEST || newStatus === Status.DONE;
 
       case 'DEVELOPER':
         // Developers can change to IN_PROGRESS or RESOLVED
         return newStatus === Status.IN_PROGRESS || newStatus === Status.RESOLVED;
 
       case 'TESTER':
-        // Testers can change to DONE
-        return newStatus === Status.DONE;
+        // Testers can change to VERIFIED
+        return newStatus === Status.VERIFIED;
                
       case 'ADMIN': 
         // Admins can move tickets to any status
@@ -814,11 +827,11 @@ export class IssuePageComponent implements OnInit, OnDestroy {
     // Check permissions if moving to a different column
     if (previousColumn.id !== currentColumn.id) {
        if (!this.isStatusTransitionAllowed(movedTicket.status, newStatus)) {
-          this.snackBar.open(`Your role (${this.userRole}) cannot move tickets from ${movedTicket.status} to ${newStatus}`, 'Close', {
+          this.snackBar.open(`Your role ${this.userRole} does not have permission to perform this action`, 'Close', {
               duration: 4000,
               panelClass: ['error-snackbar']
           });
-          return; // Prevent the move
+          return; 
        }
     }
 

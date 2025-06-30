@@ -30,6 +30,7 @@ import { ProjectTypePipe } from './project-type.pipe';
 import { Ticket, Status } from '../../../../services/ticket.service';
 import { SolutionService } from '../../../../services/solution.service';
 import { Solution } from '../../../../models/ticket.model';
+import { GitHubInterfaceComponent } from '../../../../pages/AdminPages/github-viewer/github-viewer.component';
 @Component({
   selector: 'app-issues',
   standalone: true,
@@ -44,7 +45,8 @@ import { Solution } from '../../../../models/ticket.model';
     FormsModule,
     MatSnackBarModule,
     MatDialogModule,
-    ProjectTypePipe
+    ProjectTypePipe,
+    GitHubInterfaceComponent
   ],
   templateUrl: './issues.component.html',
   styleUrl: './issues.component.css',
@@ -66,6 +68,9 @@ export class IssuesComponent implements OnInit {
     this.userId = 1;
   }
 
+  // Make Math available to the template
+  Math = Math;
+
   // Data properties
   logs: Log[] = [];
   tickets: Ticket[] = []; 
@@ -79,6 +84,8 @@ export class IssuesComponent implements OnInit {
   // UI state properties
   loading: boolean = false;
   selectedView: 'projects' | 'logs' = 'projects';
+
+  selectedCodeButton:string = '';
   logsByProjectId: Log[] = [];
   filteredLogs: Log[] = [];
   priorityFilter: string = '';
@@ -106,6 +113,11 @@ export class IssuesComponent implements OnInit {
   // Add these properties for microservice filtering
   microserviceSearchQuery: string = '';
   microserviceFilter: 'all' | 'accessible' | 'restricted' = 'all';
+
+  // Pagination properties
+  pageSize: number = 10;
+  currentPage: number = 1;
+  totalLogs: number = 0;
 
   // Add computed property for filtered microservices
   get filteredMicroservices(): Project[] {
@@ -358,69 +370,236 @@ export class IssuesComponent implements OnInit {
   }
   onSearchProjects(event: any): void {
     this.searchQuery = event.target.value;
-    this.applyFilters();
+    this.currentPage = 1; // Reset to first page when searching
+    this.applyFiltersAndPagination();
   }
   loadLogsByProjectId(projectId: string) {
     this.loading = true;
+    this.currentPage = 1; // Reset to first page when changing projects
     this.logService.getLogsByProjectId(projectId).subscribe({
       next: (logs) => {
+        // Store all logs for the project
         this.logsByProjectId = logs;
-        this.filteredLogs = [...logs];
+        this.totalLogs = logs.length;
         
-        // Load tickets for all logs
-        const ticketRequests = logs.map(log => 
-          this.ticketService.getTicketsByLogId(log.id!.toString()).pipe(
-            switchMap(tickets => {
-              // For each ticket, check if it has a solution
-              const solutionRequests = tickets.map(ticket =>
-                this.solutionService.getSolutionByTicketId(ticket.id!).pipe(
-                  map(solution => {
-                    ticket.solution = {
-                      id: solution.id,
-                      ticketId: ticket.id!,
-                      description: solution.content || '',
-                      codeSnippet: solution.content || '',
-                      createdByUserId: solution.authorUserId,
-                      createdAt: solution.createdAt,
-                      updatedAt: solution.updatedAt
-                    };
-                    return ticket;
-                  }),
-                  catchError(() => of(ticket))
-                )
-              );
-              return forkJoin(solutionRequests).pipe(
-                catchError(() => of(tickets))
-              );
-            }),
-            catchError(error => {
-              console.error(`Error loading tickets for log ${log.id}:`, error);
-              return of([]);
-            })
-          )
-        );
-
-        // Combine all ticket requests
-        forkJoin(ticketRequests).subscribe({
-          next: (ticketsArray) => {
-            this.tickets = ticketsArray.flat();
-            this.loading = false;
-          },
-          error: (error) => {
-            console.error('Error loading tickets:', error);
-            this.loading = false;
-          }
-        });
-
+        // Store in cache for future use
+        this.projectLogsCache[projectId] = logs;
+        
+        // For developers, we need to load all tickets to check assignments
         if (this.isDeveloper) {
-          this.filterLogsByDeveloperAssignment();
+          // Load tickets for all logs at once for developers
+          this.loadAllTicketsForDeveloper();
+        } else {
+          // For non-developers, apply filters and pagination first
+          this.applyFiltersAndPagination();
+          
+          // Fetch tickets and solutions only for visible logs (paginated)
+          this.loadTicketsForVisibleLogs();
         }
       },
       error: (error) => {
         console.error('Error loading logs:', error);
         this.loading = false;
+        this.showNotification('Failed to load issues', 'error');
       }
     });
+  }
+  
+  // New method to load all tickets for developers
+  loadAllTicketsForDeveloper() {
+    // For each log, check if there are tickets assigned to the current user
+    const logIds = this.logsByProjectId
+      .filter(log => log.id !== undefined)
+      .map(log => log.id as number | string);
+    
+    if (logIds.length === 0) {
+      this.filteredLogs = [];
+      this.loading = false;
+      return;
+    }
+    
+    // Use forkJoin to make multiple API calls in parallel
+    const ticketRequests = logIds.map(logId => 
+      this.ticketService.getTicketsByLogId(logId).pipe(
+        catchError(error => {
+          console.error(`Error fetching tickets for log ${logId}:`, error);
+          return of([]);
+        })
+      )
+    );
+    
+    // Process all ticket requests
+    forkJoin(ticketRequests).subscribe({
+      next: (ticketArrays) => {
+        // Collect all tickets
+        this.tickets = ticketArrays.flat();
+        
+        // For each log, check if there are tickets assigned to the current user
+        this.assignableLogIds.clear();
+        for (let i = 0; i < logIds.length; i++) {
+          const logId = logIds[i];
+          const tickets = ticketArrays[i];
+          
+          // Check if any tickets are assigned to the current user
+          const isAssignedToCurrentUser = tickets.some(ticket => 
+            ticket.assignedToUserId === this.userId
+          );
+          
+          // If assigned, add to the set of accessible logs
+          if (isAssignedToCurrentUser) {
+            this.assignableLogIds.add(logId.toString());
+          }
+        }
+        
+        // Filter logs to only show those with tickets assigned to the current user
+        this.filteredLogs = this.logsByProjectId.filter(log => 
+          log.id && this.assignableLogIds.has(log.id.toString())
+        );
+        
+        this.loading = false;
+        
+        // Apply priority filter if needed
+        if (this.priorityFilter || this.handledFilter !== 'all') {
+          this.applyFiltersAndPagination();
+        }
+      },
+      error: (error) => {
+        console.error('Error checking ticket assignments:', error);
+        this.showNotification('Error checking ticket assignments', 'error');
+        // Default to showing no logs for security
+        this.filteredLogs = [];
+        this.loading = false;
+      }
+    });
+  }
+  
+  loadTicketsForVisibleLogs() {
+    if (this.filteredLogs.length === 0) {
+      this.loading = false;
+      return;
+    }
+    
+    // Create a batch request for tickets for visible logs only
+    const visibleLogIds = this.filteredLogs
+      .filter(log => log.id !== undefined)
+      .map(log => log.id!.toString());
+    
+    // Process in smaller batches to avoid overwhelming the API
+    const batchSize = 5;
+    const batches: string[][] = [];
+    
+    for (let i = 0; i < visibleLogIds.length; i += batchSize) {
+      batches.push(visibleLogIds.slice(i, i + batchSize));
+    }
+    
+    // Process batches sequentially to avoid too many concurrent requests
+    let completedBatches = 0;
+    const allTickets: Ticket[] = [];
+    
+    const processBatch = (batchIndex: number) => {
+      if (batchIndex >= batches.length) {
+        // All batches processed
+        this.tickets = allTickets;
+        this.loading = false;
+        
+        // Apply developer assignment filter if needed
+        if (this.isDeveloper) {
+          this.filterLogsByDeveloperAssignment();
+        }
+        return;
+      }
+      
+      const batch = batches[batchIndex];
+      const ticketRequests = batch.map(logId => 
+        this.ticketService.getTicketsByLogId(logId).pipe(
+          catchError(error => {
+            console.error(`Error loading tickets for log ${logId}:`, error);
+            return of([]);
+          })
+        )
+      );
+      
+      forkJoin(ticketRequests).subscribe({
+        next: (ticketsArrays) => {
+          // Flatten the arrays of tickets
+          const batchTickets = ticketsArrays.flat();
+          allTickets.push(...batchTickets);
+          
+          // Process next batch
+          processBatch(batchIndex + 1);
+        },
+        error: (error) => {
+          console.error('Error loading tickets batch:', error);
+          // Continue with next batch despite errors
+          processBatch(batchIndex + 1);
+        }
+      });
+    };
+    
+    // Start processing batches
+    processBatch(0);
+  }
+  
+  applyFiltersAndPagination() {
+    let initialLogs: Log[] = [];
+
+    if (!this.isDeveloper) {
+      // Non-developers see all logs with priority filter
+      initialLogs = [...this.logsByProjectId];
+      
+      // Apply priority filter if set
+      if (this.priorityFilter) {
+        initialLogs = initialLogs.filter(log => 
+          log.severity === this.priorityFilter
+        );
+      }
+      
+      // Apply handled status filter if not set to 'all'
+      if (this.handledFilter !== 'all') {
+        initialLogs = initialLogs.filter(log => {
+          const isHandled = this.isIssueHandled(log.id);
+          return this.handledFilter === 'handled' ? isHandled : !isHandled;
+        });
+      }
+      
+      // Store the total after filtering
+      this.totalLogs = initialLogs.length;
+      
+      // Apply pagination for non-developers
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      this.filteredLogs = initialLogs.slice(startIndex, startIndex + this.pageSize);
+    } else {
+      // For developers, we need to load all tickets first to check assignments
+      // Skip pagination and load all logs, filtering will happen in filterLogsByDeveloperAssignment
+      this.filteredLogs = [...this.logsByProjectId];
+      this.totalLogs = this.logsByProjectId.length;
+    }
+  }
+  
+  // Change page
+  onPageChange(page: number) {
+    this.currentPage = page;
+    this.applyFiltersAndPagination();
+    this.loadTicketsForVisibleLogs();
+  }
+  
+  // Get total pages
+  get totalPages(): number {
+    return Math.ceil(this.totalLogs / this.pageSize);
+  }
+  
+  // Previous page
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.onPageChange(this.currentPage - 1);
+    }
+  }
+  
+  // Next page
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.onPageChange(this.currentPage + 1);
+    }
   }
   
   // Filter logs to only show those the developer is assigned to
@@ -484,7 +663,8 @@ export class IssuesComponent implements OnInit {
         
         // Apply priority filter if needed
         if (this.priorityFilter) {
-          this.applyFilters();
+          this.applyFiltersAndPagination();
+          this.loadTicketsForVisibleLogs();
         }
       },
       error: (error) => {
@@ -663,37 +843,6 @@ export class IssuesComponent implements OnInit {
     });
   }
   
-  // Apply filters after changing the dropdown
-  applyFilters() {
-    let initialLogs: Log[] = [];
-
-    if (!this.isDeveloper) {
-      // Non-developers see all logs with priority filter
-      initialLogs = [...this.logsByProjectId];
-    } else {
-      // For developers, we need to maintain the assignment filter
-      // Get the current set of logs the developer can access
-      initialLogs = this.logsByProjectId.filter(log => this.canAccessLog(log));
-    }
-    
-    // Apply priority filter if set
-    if (this.priorityFilter) {
-      initialLogs = initialLogs.filter(log => 
-        log.severity === this.priorityFilter
-      );
-    }
-    
-    // Apply handled status filter if not set to 'all'
-    if (this.handledFilter !== 'all') {
-      initialLogs = initialLogs.filter(log => {
-        const isHandled = this.isIssueHandled(log.id);
-        return this.handledFilter === 'handled' ? isHandled : !isHandled;
-      });
-    }
-    
-    this.filteredLogs = initialLogs;
-  }
-  
   // Check if current user can access this log (for developers)
   canAccessLog(log: Log): boolean {
     if (!this.isDeveloper) {
@@ -712,6 +861,7 @@ export class IssuesComponent implements OnInit {
   // Refresh logs for the current project
   refreshLogs() {
     if (this.selectedProjectId) {
+      this.currentPage = 1; // Reset to first page when refreshing
       this.loadLogsByProjectId(this.selectedProjectId);
       this.showNotification('Issues refreshed', 'success');
     }
@@ -772,7 +922,7 @@ export class IssuesComponent implements OnInit {
         // If we're on the logs view and have a selected project, refresh that too
         if (this.selectedView === 'logs' && this.selectedProjectId) {
           this.filteredLogs = [...this.projectLogsCache[this.selectedProjectId]];
-          this.applyFilters(); // Re-apply any filters
+          this.applyFiltersAndPagination(); // Re-apply any filters
         }
       },
       error: (error) => {
@@ -963,7 +1113,16 @@ export class IssuesComponent implements OnInit {
 
   // Helper method to convert string ID to number
   getProjectIdAsNumber(): number {
-    return this.selectedProjectId ? parseInt(this.selectedProjectId) : 0;
+    return this.selectedProjectId ? parseInt(this.selectedProjectId, 10) : 0;
+  }
+
+  viewProjectCode(projectId: number) {
+    this.selectedProjectId = projectId.toString();
+    this.selectedCodeButton = 'code';
+  }
+
+  closeCodeView() {
+    this.selectedCodeButton = '';
   }
 
   isIssueHandled(issueId: string | number | undefined): boolean {
@@ -986,7 +1145,9 @@ export class IssuesComponent implements OnInit {
   // Apply a filter and close the dropdown
   applyHandledFilter(filterValue: 'all' | 'handled' | 'notHandled') {
     this.handledFilter = filterValue;
-    this.applyFilters();
+    this.currentPage = 1; // Reset to first page when filtering
+    this.applyFiltersAndPagination(); // Apply the new filter with pagination
+    this.loadTicketsForVisibleLogs(); // Reload tickets for the visible logs
     this.isFilterDropdownOpen = false;
   }
 }

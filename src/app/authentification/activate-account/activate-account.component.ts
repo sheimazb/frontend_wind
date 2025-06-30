@@ -7,6 +7,7 @@ import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { ValidationAccountComponent } from '../validation-account/validation-account.component';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-activate-account',
@@ -105,7 +106,8 @@ export class ActivateAccountComponent {
     private dialogRef: MatDialogRef<ActivateAccountComponent>,
     private authService: AuthService,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private toastService: ToastService
   ) {}
 
   activateAccount() {
@@ -122,26 +124,27 @@ export class ActivateAccountComponent {
         
         if (result && result.success) {
           this.isSuccess = true;
-          this.activationMessage = result.message || 'Account activated successfully!';
+          this.toastService.showSuccess(result.message || 'Account activated successfully!');
+
           setTimeout(() => {
             this.dialogRef.close();
             this.openValidationDialog();
           }, 1000);
         } else {
-          this.activationMessage = result?.message || 'Something went wrong during activation.';
+          this.toastService.showError(result?.message || 'Something went wrong during activation.');
           this.isLoading = false;
         }
       },
       error: (error) => {
         if (error.status === 200) {
           this.isSuccess = true;
-          this.activationMessage = 'Account activated successfully!';
+          this.toastService.showSuccess('Account activated successfully!');
           setTimeout(() => {
             this.dialogRef.close();
             this.openValidationDialog();
           }, 1000);
         } else {
-          this.activationMessage = error.error?.message || 'Invalid activation code. Please try again.';
+            this.toastService.showError(error.error?.message || 'Invalid activation code. Please try again.');
           this.isLoading = false;
         }
       }

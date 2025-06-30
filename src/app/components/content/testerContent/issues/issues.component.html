@@ -1,4 +1,4 @@
-<div class="flex flex-col max-w-screen-2xl gap-4 sm:gap-6 pl-0 sm:p-6 md:p-10 mx-auto mobile-container">
+<div class="flex flex-col max-w-screen-full gap-4 sm:gap-6 pl-0 sm:p-6 md:p-10 mx-auto mobile-container">
   <!-- Header Section -->
   <div class="content-header">
     <div>
@@ -40,6 +40,7 @@
           <mat-icon class="text-lg">bug_report</mat-icon>
           <span>Issues</span>
         </button>
+    
       </div>
 <!--
       <button
@@ -131,6 +132,8 @@
         </select>
       </div>
 
+
+        
       <button
         class="refresh-button w-full sm:w-auto sm:ml-auto flex items-center justify-center"
         (click)="refreshLogs()"
@@ -209,12 +212,7 @@
               >
                 {{ isPackage(project) ? 'Package' : 'Monolithic' }}
               </span>
-              <span 
-                *ngIf="userRole === 'MANAGER' && isPackage(project)"
-                class="text-xs px-2 py-0.5 bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 rounded-full"
-              >
-                Contains Your Microservices
-              </span>
+              
             </div>
             <span class="text-gray-400 dark:text-gray-500">{{
               project.getId()
@@ -505,7 +503,41 @@
 
       <!-- Issues List  -->
       <ng-container *ngIf="selectedProjectId && filteredLogs.length > 0">
-        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+           
+        <div class="flex justify-end mb-4">
+          <button
+            (click)="viewProjectCode(getProjectIdAsNumber())"
+            class="text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-md px-4 py-2 flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            <mat-icon class="text-lg">code</mat-icon>
+            <span>View Code</span>
+          </button>
+        </div>
+        
+        <!-- GitHub Interface Section (shown when Code button is clicked) -->
+        <div *ngIf="selectedCodeButton == 'code'" class="mb-6 bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center gap-3">
+              <mat-icon class="text-gray-500 dark:text-gray-400">integration_instructions</mat-icon>
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Code Repository</h2>
+            </div>
+            <button 
+              (click)="closeCodeView()"     
+              class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              title="Close code view"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <div class="p-6">
+            <app-github-interface *ngIf="selectedProjectId" [projectId]="getProjectIdAsNumber()"></app-github-interface>
+          </div>
+        </div>
+        
+        <!-- Issues List (hidden when Code view is active) -->
+        <div *ngIf="selectedView == 'logs'" class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+       
+          
           <div class="px-3 py-3 sm:px-6 sm:py-4 border-b border-gray-200 dark:border-gray-700">
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
               <div>
@@ -515,7 +547,7 @@
                 <div class="mt-1 flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-500 dark:text-gray-400">
                   <div class="flex items-center">
                     <span class="inline-block w-2 h-2 mr-1.5 rounded-full bg-gray-400"></span>
-                    <span>Total: {{ filteredLogs.length }}</span>
+                    <span>Total: {{ totalLogs }}</span>
                   </div>
                   <div class="flex items-center">
                     <span class="inline-block w-2 h-2 mr-1.5 rounded-full bg-red-500"></span>
@@ -637,16 +669,7 @@
                   </div>
                 </div>
       
-                <div class="flex sm:flex-col gap-2 justify-end">
-                  <button 
-                    (click)="updatePriority(issue)"
-                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-                    title="Change priority">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
-                      <path fill-rule="evenodd" d="M2 16a2 2 0 002 2h12a2 2 0 002-2v-5l-2-2H4a2 2 0 00-2 2v5z" clip-rule="evenodd" />
-                    </svg>
-                  </button>
+                <div class="flex sm:flex-col gap-2 justify-end">       
                   <button 
                     (click)="onIssueClick(issue.id)"
                     class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
@@ -660,14 +683,74 @@
               </div>
             </div>
           </div>
+          
+          <!-- Pagination Controls -->
+          <div *ngIf="totalPages > 1" class="px-3 py-3 sm:px-6 sm:py-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+              Showing <span class="font-medium">{{ ((currentPage - 1) * pageSize) + 1 }}</span> to 
+              <span class="font-medium">{{ Math.min(currentPage * pageSize, totalLogs) }}</span> of 
+              <span class="font-medium">{{ totalLogs }}</span> issues
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button 
+                (click)="previousPage()"
+                [disabled]="currentPage === 1"
+                [ngClass]="{'opacity-50 cursor-not-allowed': currentPage === 1}"
+                class="px-3 py-1 text-sm border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                Previous
+              </button>
+              
+              <div class="flex items-center gap-1">
+                <ng-container *ngFor="let page of [].constructor(totalPages); let i = index">
+                  <button 
+                    *ngIf="i + 1 === 1 || i + 1 === totalPages || (i + 1 >= currentPage - 1 && i + 1 <= currentPage + 1)"
+                    (click)="onPageChange(i + 1)"
+                    [ngClass]="{'bg-blue-600 text-white': currentPage === i + 1, 
+                              'text-gray-700 dark:text-gray-300': currentPage !== i + 1}"
+                    class="w-8 h-8 rounded flex items-center justify-center text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    {{ i + 1 }}
+                  </button>
+                  
+                  <span 
+                    *ngIf="(i + 1 === 2 && currentPage > 3) || (i + 1 === totalPages - 1 && currentPage < totalPages - 2)"
+                    class="text-gray-500 dark:text-gray-400">...</span>
+                </ng-container>
+              </div>
+              
+              <button 
+                (click)="nextPage()"
+                [disabled]="currentPage === totalPages"
+                [ngClass]="{'opacity-50 cursor-not-allowed': currentPage === totalPages}"
+                class="px-3 py-1 text-sm border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       </ng-container>
     </div>
-
   </ng-container>
-</div>
 
+<!-- Add styles for GitHub interface -->
 <style>
+  app-github-interface {
+    @apply block w-full;
+  }
+  
+  .github-header {
+    @apply flex items-center gap-2 mb-4;
+  }
+  
+  .github-header mat-icon {
+    @apply text-gray-600 dark:text-gray-400;
+  }
+  
+  .github-header h3 {
+    @apply text-lg font-medium text-gray-900 dark:text-white;
+  }
+</style>
+<style> 
 .microservice-card {
   @apply bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 transition-all duration-200;
 }
@@ -722,4 +805,34 @@ tr:hover {
 .table-container {
   @apply overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700;
 }
+
+/* GitHub interface styles */
+app-github-interface {
+  @apply block w-full;
+}
+
+.github-section {
+  @apply transition-all duration-300;
+}
+
+.github-section .mat-icon {
+  @apply transition-colors;
+}
+
+.github-section-header {
+  @apply flex items-center justify-between mb-4 pb-3 border-b border-gray-100 dark:border-gray-700;
+}
+
+.github-section-header h3 {
+  @apply text-lg font-medium text-gray-900 dark:text-white flex items-center gap-2;
+}
+
+.github-section-header .actions {
+  @apply flex gap-2;
+}
+
+.github-section-header .actions button {
+  @apply p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400;
+}
 </style>
+  

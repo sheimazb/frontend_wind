@@ -82,8 +82,8 @@
         <button
           type="submit"
           [disabled]="!contactForm.valid"
-          class="dark:text-blue-200 p-3 rounded-sm h-fit"
-          [ngClass]="{'opacity-50 cursor-not-allowed': !contactForm.valid, 'bg-blue-500 hover:bg-blue-600': contactForm.valid}"
+          class="dark:text-blue-200 p-3 rounded-md h-fit"
+          [ngClass]="{'opacity-50 cursor-not-allowed': !contactForm.valid, 'text-white bg-indigo-500 hover:bg-indigo-600': contactForm.valid}"
         >
           <b>Submit</b>
         </button>

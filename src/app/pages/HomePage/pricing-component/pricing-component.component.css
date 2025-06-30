@@ -2,16 +2,50 @@
     display: block;
     font-family: 'Roboto', sans-serif;
   }
+
+  .test{
+    border-bottom-left-radius: 40%;
+    border-bottom-right-radius: 40%;
+  }
   
   .shadow-3xl {
     box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
   }
   
   @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(1deg); }
   }
   
   .animate-float {
     animation: float 3s ease-in-out infinite;
+  }
+
+  .spline-container {
+    width: 100%;
+    height: 300px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  }
+
+  spline-viewer {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+  }
+
+  .float-animation {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .gradient-border {
+    background: linear-gradient(45deg, #e4ff6b, #effa56, #e4ff6b);
+    padding: 3px;
+    border-radius: 1rem;
+  }
+
+  .gradient-border-inner {
+    background: white;
+    border-radius: calc(1rem - 3px);
   }

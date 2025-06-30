@@ -6,6 +6,7 @@ import { DashboardLayoutComponent } from './layouts/dashboard-layout/dashboard-l
 import { TicketDetailsComponent } from './components/tickets/ticket-details/ticket-details.component';
 import { IssuePageComponent } from './pages/TesterPages/issue-page/issue-page.component';
 import { LoadingScreenComponent } from './components/loading-screen/loading-screen.component';
+import { NotificationsHistoryComponent } from './components/notifications-history/notifications-history.component';
 
 export const routes: Routes = [
   // Public routes (no guards)
@@ -61,6 +62,12 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent)
+      },
+      
+      // Notifications history - accessible to all authenticated users
+      {
+        path: 'notifications',
+        component: NotificationsHistoryComponent
       },
       
       // Admin features

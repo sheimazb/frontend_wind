@@ -60,11 +60,11 @@ import { CommonModule } from '@angular/common';
               <svg class="w-8 h-8 mr-2" viewBox="0 0 72 66" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M36 0L0 66H72L36 0Z" fill="#362D59"/>
               </svg>
-              <span class="text-gray-800 font-bold">SENTRY</span>
+              <span class="text-gray-800 font-bold">WINDLOGS</span>
             </div>
             
             <div class="text-sm text-gray-600">
-              &copy; 2025 Sentry. All rights reserved.
+              &copy; 2025 Windlogs. All rights reserved.
             </div>
           </div>
         </div>

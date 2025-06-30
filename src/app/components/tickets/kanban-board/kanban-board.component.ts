@@ -103,7 +103,7 @@ export class KanbanBoardComponent implements OnInit {
   isFullscreenMode = false;
   
   // Important columns to show in non-fullscreen mode
-  importantColumnIds = ['todo', 'in_progress', 'resolved', 'merged_to_test', 'done'];
+  importantColumnIds = ['todo', 'in_progress', 'resolved', 'merged_to_test', 'verified', 'done'];
   
   // Reference to the kanban container element
   @ViewChild('kanbanContainer', { static: false }) kanbanContainer: ElementRef | null = null;
@@ -136,6 +136,13 @@ export class KanbanBoardComponent implements OnInit {
       name: 'MERGED TO TEST',
       color: 'purple',
       icon: 'merge_type',
+      cards: []
+    },
+    {
+      id: 'verified',
+      name: 'VERIFIED',
+      color: 'amber',
+      icon: 'verified',
       cards: []
     },
     {
@@ -353,6 +360,7 @@ export class KanbanBoardComponent implements OnInit {
       [Status.IN_PROGRESS]: 'in_progress',
       [Status.RESOLVED]: 'resolved',
       [Status.MERGED_TO_TEST]: 'merged_to_test',
+      [Status.VERIFIED]: 'verified',
       [Status.DONE]: 'done'
     };
     
@@ -372,6 +380,7 @@ export class KanbanBoardComponent implements OnInit {
       'in_progress': Status.IN_PROGRESS,
       'resolved': Status.RESOLVED,
       'merged_to_test': Status.MERGED_TO_TEST,
+      'verified': Status.VERIFIED,
       'done': Status.DONE
     };
     
@@ -434,16 +443,16 @@ export class KanbanBoardComponent implements OnInit {
     
     switch (this.userRole) {
       case 'MANAGER':
-        // Managers can change to TO_DO or MERGED_TO_TEST
-        return newStatus === Status.TO_DO || newStatus === Status.MERGED_TO_TEST;
+        // Managers can change to TO_DO, MERGED_TO_TEST, or DONE
+        return newStatus === Status.TO_DO || newStatus === Status.MERGED_TO_TEST || newStatus === Status.DONE;
         
       case 'DEVELOPER':
         // Developers can change to IN_PROGRESS or RESOLVED
         return newStatus === Status.IN_PROGRESS || newStatus === Status.RESOLVED;
         
       case 'TESTER':
-        // Testers can change to DONE
-        return newStatus === Status.DONE;
+        // Testers can change to VERIFIED
+        return newStatus === Status.VERIFIED;
         
       case 'ADMIN':
         // Admins can move tickets to any status

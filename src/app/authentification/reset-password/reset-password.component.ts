@@ -253,7 +253,6 @@ export class ResetPasswordComponent implements OnInit {
       }).subscribe({
         next: (response) => {
           this.isLoading = false;
-          this.successMessage = 'Password has been reset successfully!';
           this.toastService.showSuccess('Password reset successful!');
           setTimeout(() => {
             this.dialogRef.close(true);
@@ -262,8 +261,7 @@ export class ResetPasswordComponent implements OnInit {
         },
         error: (error) => {
           this.isLoading = false;
-          this.errorMessage = error.error?.message || 'Failed to reset password. Please try again.';
-          this.toastService.showError(this.errorMessage);
+          this.toastService.showError(error.error?.message || 'Failed to reset password. Please try again.');
         }
       });
     } else {

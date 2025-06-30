@@ -554,7 +554,7 @@
             <button
               (click)="createTicket()"
               class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors flex items-center gap-2 shadow-sm"
-              [ngClass]="{'opacity-50 hidden': isManager() || isPartner()}"
+              [ngClass]="{'opacity-50 hidden': isManager() || isDeveloper()|| isTester()|| isPartner()}"
               >
               <mat-icon class="text-base">add</mat-icon>
               <span>Create Ticket</span>
@@ -1063,10 +1063,10 @@
                   >Developers can move tickets to IN_PROGRESS or RESOLVED</span
                 >
                 <span *ngIf="userRole === 'TESTER'"
-                  >Testers can move tickets to DONE</span
+                  >Testers can move tickets to VERIFIED</span
                 >
                 <span *ngIf="userRole === 'MANAGER'"
-                  >Managers can move tickets to TO_DO or MERGED_TO_TEST</span
+                  >Managers can move tickets to TO_DO, MERGED_TO_TEST, or DONE</span
                 >
               </div>
               <div
@@ -1521,20 +1521,7 @@
                       </div>
                         
                       <!-- Action buttons -->
-                      <div class="flex justify-end gap-2 mt-4">
-                        <button *ngIf="ticket" 
-                                (click)="viewTicketDetails(ticket)" 
-                                class="px-3 py-1.5 text-sm bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors flex items-center gap-1">
-                          <mat-icon class="text-sm">visibility</mat-icon>
-                          View Details
-                        </button>
-                        <button *ngIf="ticket?.solution" 
-                                (click)="editSolution(ticket)" 
-                                class="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md transition-colors flex items-center gap-1">
-                          <mat-icon class="text-sm">edit</mat-icon>
-                          Edit Solution
-                        </button>
-                      </div>
+                     
                     </div>
                   </ng-container>
                 </div>
@@ -1652,14 +1639,7 @@
                     </div>
                   </div>
                 </div>
-            
-                <!-- View more solutions -->
-                <div *ngIf="developerSolutions.length > 0" class="p-4 bg-gray-50 dark:bg-gray-700/50 text-center">
-                  <button (click)="viewMoreDeveloperSolutions()" class="text-blue-600 dark:text-blue-400 hover:underline font-medium flex items-center justify-center gap-1 mx-auto">
-                    View more solutions
-                    <mat-icon class="text-sm">arrow_forward</mat-icon>
-                  </button>
-                </div>
+      
               </div>
             </div>
             
@@ -1709,7 +1689,7 @@
                     <mat-icon class="text-sm mr-2 text-orange-500 dark:text-orange-400">place</mat-icon>
                     Location
                   </h5>
-                  <p class="text-gray-800 dark:text-gray-200 font-mono text-sm">{{log?.analysis?.['location']}}</p>
+                  <p class="text-gray-800 dark:text-gray-200 font-mono text-sm break-all whitespace-normal overflow-wrap-anywhere">{{log?.analysis?.['location']}}</p>
                 </div>
                 
                 <div class="col-span-1 md:col-span-2 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-md">

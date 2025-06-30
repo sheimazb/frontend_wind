@@ -121,37 +121,7 @@
           </button>
         </ng-container>
 
-        <!-- Tasks - Developer -->
-        <ng-container *ngIf="isDeveloper">
-          <button
-            class="sidebar-btn"
-            [class.active-sidebar-btn]="activeMenu === 'tasks'"
-            (click)="onTasksClick()"
-          >
-            <ng-icon
-              class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
-              size="25"
-              name="saxNotificationBingOutline"
-            ></ng-icon>
-            <span class="sr-only">Tasks</span>
-          </button>
-        </ng-container>
-
-        <!-- Technical Resources - Technical Team & Admin -->
-        <ng-container *ngIf="isTechnicalTeam">
-          <button
-            class="sidebar-btn"
-            [class.active-sidebar-btn]="activeMenu === 'technical-resources'"
-            (click)="onTechnicalResourcesClick()"
-          >
-            <ng-icon
-              class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
-              size="25"
-              name="letsFileDock"
-            ></ng-icon>
-            <span class="sr-only">Technical Resources</span>
-          </button>
-        </ng-container>
+     
 
         <!-- Tickets - Technical Team 
         <ng-container *ngIf="isTechnicalTeam">

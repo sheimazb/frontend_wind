@@ -475,27 +475,21 @@ export class AddProjectComponent implements OnInit, OnDestroy {
 
   private validateProject(): boolean {
     if (!this.project.name.trim()) {
-      this.toastr.error('Project name is required');
       return false;
     }
     if (!this.project.description.trim()) {
-      this.toastr.error('Project description is required');
       return false;
     }
     if (!this.project.technologies.length) {
-      this.toastr.error('Please select a technology');
       return false;
     }
     if (!this.project.repositoryLink.trim()) {
-      this.toastr.error('Repository link is required');
       return false;
     }
     if (!this.project.projectTag.trim()) {
-      this.toastr.error('Project tag is required');
       return false;
     }
     if (!this.project.deadlineDate) {
-      this.toastr.error('Deadline date is required');
       return false;
     }
     return true;

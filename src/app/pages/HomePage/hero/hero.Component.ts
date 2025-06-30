@@ -39,7 +39,7 @@ import { PricingComponentComponent } from '../pricing-component/pricing-componen
            'bg-gradient-radial from-[#a2e2fc]/30 via-transparent to-transparent'" 
            class="absolute inset-0 pointer-events-none"></div>
 
-      <div [ngClass]="{'dark': darkMode}" class="container mx-auto px-6 pt-16 relative z-10">
+      <div [ngClass]="{'dark': darkMode}" class="container pb-10 mx-auto px-6 pt-16 relative z-10">
         <div class="text-center flex flex-col items-center justify-center gap-10 mb-16">
           <h1 [ngClass]="darkMode ? 'text-white' : 'text-[#2B3674]'" class="hero-title font-bold mb-8 leading-none">
             <span class="inline-block dark:text-white text-[#4F7CFF]">Code</span>
@@ -109,7 +109,7 @@ import { PricingComponentComponent } from '../pricing-component/pricing-componen
 
 <!-- pricing section -->
 <div class="w-full">
-<app-pricing-component></app-pricing-component>
+<app-pricing-component id="pricing"></app-pricing-component>
 </div>
     </section>
   `,

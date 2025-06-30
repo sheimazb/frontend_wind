@@ -30,7 +30,6 @@ export class LoadingScreenComponent implements OnInit, OnDestroy {
   progress = 0;
   currentStep = 0;
   animationState = 'in';
-  isDarkMode = false;
   
   loadingSteps = [
     'Initializing WindLogs',
@@ -48,13 +47,12 @@ export class LoadingScreenComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.loadThemePreference();
     this.startLoading();
     
     // Auto redirect after loading completes
     this.redirectTimer = setTimeout(() => {
       this.completeLoading();
-    }, 8000);
+    }, 3000);
   }
 
   ngOnDestroy() {
@@ -96,16 +94,6 @@ export class LoadingScreenComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.redirectBasedOnRole();
     }, 500);
-  }
-
-  private loadThemePreference() {
-    const savedTheme = localStorage.getItem('windlogs-theme');
-    this.isDarkMode = savedTheme === 'dark';
-  }
-
-  toggleTheme() {
-    this.isDarkMode = !this.isDarkMode;
-    localStorage.setItem('windlogs-theme', this.isDarkMode ? 'dark' : 'light');
   }
 
   private redirectBasedOnRole() {

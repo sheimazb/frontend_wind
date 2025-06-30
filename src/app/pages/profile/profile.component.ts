@@ -37,6 +37,7 @@ export class ProfileComponent implements OnInit {
   isLoading = false;
   showSuccess = false;
   errorMessage = '';
+  phoneError = false;
   profileImage = '';
   currentMonth = 'Jan';
   currentYear = new Date().getFullYear();
@@ -420,6 +421,15 @@ export class ProfileComponent implements OnInit {
     const img = event.target as HTMLImageElement;
     if (img) {
       img.src = this.defaultProfileImage;
+    }
+  }
+
+  validatePhone(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+    this.phoneError = !/^\d*$/.test(value);
+    if (this.phoneError) {
+      input.value = value.replace(/[^\d]/g, '');
     }
   }
 }

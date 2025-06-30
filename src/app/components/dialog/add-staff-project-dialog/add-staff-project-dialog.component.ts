@@ -4,7 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Project } from '../../../models/project.model';
-import { ProjectService } from '../../../services/project.service';
+import { ProjectService, ProjectType } from '../../../services/project.service';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -41,8 +41,9 @@ import { ToastrService } from 'ngx-toastr';
             </div>
             <button 
               (click)="addToProject(project)"
-              class="ml-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-              Add
+              [disabled]="isAddingToProject === project.id"
+              class="ml-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              {{ isAddingToProject === project.id ? 'Adding...' : 'Add' }}
             </button>
           </div>
         </div>
@@ -69,6 +70,7 @@ export class AddStaffProjectDialogComponent implements OnInit {
   availableProjects: Project[] = [];
   isLoading = false;
   errorMessage = '';
+  isAddingToProject: number | null = null;
 
   constructor(
     private dialogRef: MatDialogRef<AddStaffProjectDialogComponent>,
@@ -84,15 +86,25 @@ export class AddStaffProjectDialogComponent implements OnInit {
   loadAvailableProjects() {
     this.isLoading = true;
     this.errorMessage = '';
-    
-    // Get all projects and filter out the ones the staff is already a member of
+
     this.projectService.getAllProjects().subscribe({
       next: (projects) => {
-        this.availableProjects = projects;
-        this.isLoading = false;
+        this.projectService.getUserProjects(this.data.staffId).subscribe({
+          next: (staffProjects) => {
+            const staffProjectIds = staffProjects.map(p => p.id);
+            this.availableProjects = projects.filter(project =>
+              (project.projectType === ProjectType.MONOLITHIC || project.projectType === ProjectType.MICROSERVICES) &&
+              !staffProjectIds.includes(project.id)
+            );
+            this.isLoading = false;
+          },
+          error: () => {
+            this.errorMessage = 'Failed to load staff projects';
+            this.isLoading = false;
+          }
+        });
       },
-      error: (error) => {
-        console.error('Error loading projects:', error);
+      error: () => {
         this.errorMessage = 'Failed to load available projects';
         this.isLoading = false;
       }
@@ -100,7 +112,9 @@ export class AddStaffProjectDialogComponent implements OnInit {
   }
 
   addToProject(project: Project) {
-    this.isLoading = true;
+    if (!project.id) return;
+    
+    this.isAddingToProject = project.id;
     this.projectService.addUserToProject(project.getId(), this.data.staffId).subscribe({
       next: () => {
         this.toastr.success('Successfully added to project');
@@ -109,7 +123,7 @@ export class AddStaffProjectDialogComponent implements OnInit {
       error: (error) => {
         console.error('Error adding to project:', error);
         this.toastr.error('Failed to add to project');
-        this.isLoading = false;
+        this.isAddingToProject = null;
       }
     });
   }

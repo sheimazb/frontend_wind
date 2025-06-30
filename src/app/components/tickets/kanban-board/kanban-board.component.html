@@ -1,4 +1,4 @@
-<div class="mx-auto max-w-screen-2xl flex flex-col h-screen kanban-container" #kanbanContainer [class.fullscreen]="isFullscreenMode">
+<div class="mx-auto max-w-screen-full flex flex-col h-screen kanban-container" #kanbanContainer [class.fullscreen]="isFullscreenMode">
   <div class="px-4 pt-3 pb-2 md:px-5 md:pt-4">
     <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
       <h2 class="text-xl font-bold text-black dark:text-white">
@@ -30,39 +30,12 @@
     </div>
 
     <div class="flex flex-wrap gap-3 items-center justify-between">
-      <!-- Quick Filters -->
-      <div class="inline-flex items-center">
-        <span class="text-xs font-medium text-gray-600 dark:text-gray-300 mr-2">QUICK FILTERS:</span>
-        <div class="flex flex-wrap gap-1.5">
-          <button class="px-2 py-0.5 text-xs hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-700 dark:text-gray-300">
-            Filter by Assignee
-          </button>
-      
-        
-          <button class="px-2 py-0.5 text-xs hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-700 dark:text-gray-300">
-            Only My Issues
-          </button>
-          <button class="px-2 py-0.5 text-xs hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-blue-600 dark:text-blue-400">
-            Recently Updated
-          </button>
-        </div>
+      <div>
+        <span> full view</span>
       </div>
 
       <!-- Right Status Section -->
-      <div class="flex items-center gap-2">
-        <span class="flex items-center text-xs text-gray-600 dark:text-gray-300">
-          <mat-icon class="text-sm">schedule</mat-icon>
-          0 days remaining
-        </span>
-        <button class="px-2.5 py-0.5 bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-100 dark:hover:bg-blue-800/50 text-xs">
-          Complete sprint
-        </button>
-        <div class="relative">
-          <button class="px-2.5 py-0.5 flex items-center gap-0.5 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-xs">
-            Board
-            <mat-icon class="text-sm">arrow_drop_down</mat-icon>
-          </button>
-        </div>
+      <div class="flex items-center gap-2">       
         <button class="p-0.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" 
                 (click)="toggleFullscreenMode()"
                 [matTooltip]="isFullscreenMode ? 'Exit full view' : 'Expand to full view'">
@@ -84,8 +57,8 @@
         <div class="flex items-center text-xs text-gray-600 dark:text-gray-400">
           <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
           <span *ngIf="userRole === 'DEVELOPER'">Developers can move tickets to IN_PROGRESS or RESOLVED</span>
-          <span *ngIf="userRole === 'TESTER'">Testers can move tickets to DONE</span>
-          <span *ngIf="userRole === 'MANAGER'">Managers can move tickets to TO_DO or MERGED_TO_TEST</span>
+          <span *ngIf="userRole === 'TESTER'">Testers can move tickets to VERIFIED</span>
+          <span *ngIf="userRole === 'MANAGER'">Managers can move tickets to TO_DO, MERGED_TO_TEST, or DONE</span>
         </div>
         <div *ngIf="userRole !== 'ADMIN'" class="flex items-center text-xs text-gray-600 dark:text-gray-400">
           <mat-icon class="text-gray-400 mr-1 icon-xs">lock</mat-icon>

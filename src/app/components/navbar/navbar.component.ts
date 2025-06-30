@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { SidebarService } from '../../services/sidebar.service';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ProfileResponse, UserService } from '../../services/user.service';
 import { catchError, of, Subscription } from 'rxjs';
 import { NotificationService } from '../../services/notification.service';
@@ -21,7 +21,7 @@ interface ProfileData {
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })

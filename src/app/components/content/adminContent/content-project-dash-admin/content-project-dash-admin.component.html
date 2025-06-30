@@ -262,7 +262,7 @@ class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
     </h3>
     
     <!-- Icon/Logo - Top Right -->
-    <div class="flex justify-center items-center w-8 h-8 rounded-full">
+    <div class="flex justify-center items-center w-12 h-12 rounded-full">
       <mat-icon *ngIf="!hasLogo(project) && !isPackage(project)" class="text-blue-500">folder</mat-icon>
       <mat-icon *ngIf="isPackage(project) && !hasLogo(project)" class="text-amber-500">inventory_2</mat-icon>
       <img *ngIf="hasLogo(project)" [src]="getLogoUrl(project)" [alt]="project.name + ' logo'" class="w-8 h-8 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
